@@ -1,0 +1,11 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export OOMMF_FN=oommf20a3_20210930.tar.gz
+export OOMMF_SRC=https://math.nist.gov/oommf/dist
+export OOMMFVER=20a3
+mkdir -p /usr/local/oommf
+cd /opt && \
+wget --no-check-certificate \
+  ${OOMMF_SRC}/${OOMMF_FN}

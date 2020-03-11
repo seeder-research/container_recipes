@@ -1,0 +1,35 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile                   /opt
+
+%appenv tex
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+. /etc/profile.d/modules.sh
+module load bison flex qt texlive texmaker
+
+%post
+. /etc/profile.d/modules.sh
+export TEXMAKER_VER=5.1.2
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  qt
+cd /opt && \
+wget --no-check-certificate \
+  https://www.xm1math.net/texmaker/texmaker-${TEXMAKER_VER}.tar.bz2 && \
+tar xf /opt/texmaker-${TEXMAKER_VER}.tar.bz2 && \
+cd /opt/texmaker-${TEXMAKER_VER} && \
+qmake \
+  PREFIX=/usr/local/texmaker/${TEXMAKER_VER} \
+  /opt/texmaker-${TEXMAKER_VER}/texmaker.pro && \
+make && \
+make install && \
+mkdir -p /usr/local/modulefiles/texmaker && \
+cd /usr/local/modulefiles/texmaker && \
+mv /opt/modfile \
+  /usr/local/modulefiles/texmaker/${TEXMAKER_VER} && \
+echo "#%Module" > /usr/local/modulefiles/texmaker/.version && \
+echo set ModulesVersion "${TEXMAKER_VER}" >> /usr/local/modulefiles/texmaker/.version && \
+rm -rf \
+  /opt/texmaker-${TEXMAKER_VER}*

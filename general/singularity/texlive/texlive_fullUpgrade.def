@@ -1,0 +1,16 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+if [ -f /usr/local/bin/update-tlmgr-latest.sh ]; then
+    cd /usr/local/bin && \
+    wget --no-check-certificate \
+      https://mirror.ctan.org/systems/texlive/tlnet/update-tlmgr-latest.sh
+fi
+. /etc/profile.d/modules.sh && \
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev && \
+module load \
+  texlive && \
+/usr/local/bin/update-tlmgr-latest.sh
+/usr/local/texlive/installdir/bin/x86_64-linux/tlmgr update --self
+/usr/local/texlive/installdir/bin/x86_64-linux/tlmgr update --all

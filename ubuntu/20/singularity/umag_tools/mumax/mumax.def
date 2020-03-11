@@ -1,0 +1,46 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export GOVER=1.17.5
+export GOROOT=/usr/local/golang/${GOVER}
+export MUMAX3VER=3.10
+export MUMAX3_SRC="https://github.com/mumax/3"
+export MUMAX3_SEEDER="https://github.com/seeder-research/3 -b seeder"
+export CUDA_CC="37 60 70 75 80"
+export GOCACHE=/opt/gocache
+export CGO_LDFLAGS=-L/usr/local/cuda/lib64/stubs
+mkdir -p $GOCACHE
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+export PATH=${GOROOT}/bin:${PATH}
+mkdir -p /usr/local/mumax/${MUMAX3VER}/src/github.com/mumax && \
+mkdir -p /usr/local/mumax/seeder/src/github.com/mumax && \
+cd /usr/local/mumax/${MUMAX3VER}/src/github.com/mumax && \
+git clone ${MUMAX3_SRC} && \
+export GOPATH=/usr/local/mumax/${MUMAX3VER}
+cd /usr/local/mumax/${MUMAX3VER}/src/github.com/mumax/3 && \
+make clean && \
+go mod init && \
+make && \
+cd /usr/local/mumax/seeder/src/github.com/mumax && \
+git clone ${MUMAX3_SEEDER} && \
+export GOPATH=/usr/local/mumax/seeder
+cd /usr/local/mumax/seeder/src/github.com/mumax/3 && \
+make clean && \
+go mod init && \
+make && \
+cd /usr/local/mumax && \
+rm -rf \
+  /opt/make_mumax3.sh \
+  /usr/local/mumax/${MUMAX3VER}/src \
+  /usr/local/mumax/${MUMAX3VER}/pkg \
+  /usr/local/mumax/seeder/src \
+  /usr/local/mumax/seeder/pkg \
+  $GOCACHE
+
+%appenv mumax3
+export PATH=/usr/local/mumax/3.10/bin:$PATH
+
+%appenv seeder_mumax3
+export PATH=/usr/local/mumax/seeder/bin:$PATH

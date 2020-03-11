@@ -1,0 +1,24 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+. /.singularity.d/env/90-environment.sh
+. /etc/profile.d/modules.sh
+module load golang
+export UMAGNUS_VER=2.0.1
+export GOPATH=/usr/local/uMagNUS/${UMAGNUS_VER}
+mkdir -p ${GOPATH}/src/github.com/seeder-research && \
+cd ${GOPATH}/src/github.com/seeder-research && \
+git clone https://github.com/seeder-research/uMagNUS -b ${UMAGNUS_VER} ./uMagNUS && \
+cd ${GOPATH}/src/github.com/seeder-research/uMagNUS && \
+make realclean && \
+make go.mod && \
+make && \
+cd ${GOPATH} && \
+rm -rf \
+  ${GOPATH}/src \
+  ${GOPATH}/pkg
+
+%appenv umagnus
+export UMAGNUS_VER=2.0.1
+export PATH=/usr/local/uMagNUS/${UMAGNUS_VER}/bin:$PATH
