@@ -1,0 +1,61 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile.d/modules.sh
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  boost \
+  ffmpeg \
+  openmpi \
+  qt
+export PARAVIEW_VER=5.7.0
+export PYVER=2.7
+export QTVER=5.14.2
+cd /opt && \
+git clone https://gitlab.kitware.com/paraview/paraview.git -b v${PARAVIEW_VER} && \
+cd /opt/paraview && \
+git submodule \
+  update --init \
+  --recursive && \
+mkdir /opt/paraview/builddir && \
+cd /opt/paraview/builddir && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=/usr/local/paraview/${PARAVIEW_VER} \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DPARAVIEW_BUILD_SHARED_LIBS=OFF \
+  -DPARAVIEW_USE_MPI=ON \
+  -DPARAVIEW_ENABLE_PYTHON=ON \
+  -DPARAVIEW_PYTHON_VERSION=2 \
+  -DPYTHON_INCLUDE_DIR=/opt/conda/include \
+  -DPYTHON_LIBRARY=/opt/conda/lib/python${PYVER} \
+  -DPYTHON_EXECUTABLE=/opt/conda/bin/python \
+  -DQt5_DIR=${QT_DIR}/lib/cmake/Qt5 \
+  -DPARAVIEW_BUILD_QT_GUI=ON \
+  -DPARAVIEW_QT_VERSION=${QTVER} \
+  -DPARAVIEW_ENABLE_FFMPEG=ON \
+  -DPARAVIEW_USE_VISITBRIDGE=ON \
+  -DBoost_INCLUDE_DIR=${LIBBOOST_ROOT}/include \
+  -DFFMPEG_ROOT=${FFMPEG_ROOT} \
+  /opt/paraview && \
+make -j$(nproc) && \
+make install && \
+mkdir /usr/local/modulefiles/paraview && \
+cd /usr/local/modulefiles/paraview && \
+sed -i "s/@pver@/${PARAVIEW_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/paraview/${PARAVIEW_VER} && \
+echo "#%Module" > /usr/local/modulefiles/paraview/.version && \
+echo set ModulesVersion "${PARAVIEW_VER}" >> /usr/local/modulefiles/paraview/.version && \
+echo ". /etc/profile.d/modules.sh" >> /.singularity.d/env/90-environment.sh && \
+echo "export MODULEPATH=/usr/local/modulefiles:"'$'"MODULEPATH" >> /.singularity.d/env/90-environment.sh && \
+echo "module load \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  openmpi \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  ffmpeg \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  qt \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  paraview" >> /.singularity.d/env/90-environment.sh && \
+rm -rf \
+  /opt/paraview
