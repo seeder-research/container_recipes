@@ -8,7 +8,7 @@ From: pre.sif
     export GOVER=1.14
     export GOROOT=/usr/local/golang/${GOVER}
     export MUMAX3VER=3.10
-    export MUMAX3_SEEDER="https://github.com/xfong/3 -b seeder"
+    export MUMAX3_SEEDER="https://github.com/seeder-research/3 -b seeder"
     export GOCACHE=/opt/gocache
     export CGO_LDFLAGS=-L/usr/local/cuda/lib64/stubs
     mkdir -p $GOCACHE
