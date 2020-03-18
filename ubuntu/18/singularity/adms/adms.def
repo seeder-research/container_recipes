@@ -1,0 +1,97 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+    3.5.3     /opt
+    2.3.6     /opt
+    2.6.4     /opt
+
+%post
+####
+#
+# Assumes OpenMPI, PBSPro, and Intel MKL has been installed
+#
+####
+    export FLEXVER=2.6.4
+    export BISONVER=3.5.3
+    export ADMSVER=2.3.6
+    export PATH=/usr/local/bison/${BISONVER}/bin:$PATH
+    export CPATH=/usr/local/bison/${BISON}/include:$CPATH
+    export LD_LIBRARY_PATH=/usr/local/bison/${BISONVER}/lib:$LD_LIBRARY_PATH
+    export MANPATH=/usr/local/bison/${BISONVER}/share/man:$MANPATH
+    export INFOPATH=/usr/local/bison/${BISONVER}/share/info:$INFOPATH
+    export ACLOCAL_PATH=/usr/local/bison/${BISONVER}/share/aclocal:$ACLOCAL_PATH
+    export PATH=/usr/local/flex/${FLEXVER}/bin:$PATH
+    export CPATH=/usr/local/flex/${FLEXVER}/include:$CPATH
+    export LD_LIBRARY_PATH=/usr/local/flex/${FLEXVER}/lib:$LD_LIBRARY_PATH
+    export MANPATH=/usr/local/flex/${FLEXVER}/share/man:$MANPATH
+    export INFOPATH=/usr/local/flex/${FLEXVER}/share/info:$INFOPATH
+    export DEBIAN_FRONTEND=noninteractive
+    export TERM=xterm
+    cd /opt && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y \
+      flex \
+      libfl-dev \
+      libfl2 && \
+    cd /opt && \
+    wget --no-check-certificate \
+      https://github.com/westes/flex/files/981163/flex-${FLEXVER}.tar.gz && \
+    wget --no-check-certificate \
+      http://ftp.gnu.org/gnu/bison/bison-${BISONVER}.tar.xz && \
+    tar xf /opt/bison-${BISONVER}.tar.xz && \
+    tar xf /opt/flex-${FLEXVER}.tar.gz && \
+    cd /opt/bison-${BISONVER} && \
+    ./configure \
+      --prefix=/usr/local/bison/${BISONVER} \
+      --enable-threads=pth && \
+    make all install && \
+    cd /opt/flex-${FLEXVER} && \
+    ./autogen.sh && \
+    sed -i "/math.h/a #include <malloc.h>" src/flexdef.h && \
+    ./configure \
+      --prefix=/usr/local/flex/${FLEXVER} \
+      --enable-static \
+      --enable-shared && \
+    make all install && \
+    apt-get purge -y \
+      flex \
+      libfl-dev \
+      libfl2 && \
+    cd /opt && \
+    git clone \
+      https://github.com/Qucs/ADMS.git \
+      -b develop \
+      adms && \
+    cd /opt/adms && \
+    sh bootstrap.sh && \
+    ./configure \
+      --prefix=/usr/local/adms/${ADMSVER} \
+      --enable-maintainer-mode && \
+    make -j$(nproc) && \
+    make install && \
+    mkdir -p /usr/local/modulefiles/dev/bison && \
+    mv /opt/${BISONVER} /usr/local/modulefiles/dev/bison/${BISONVER} && \
+    cd /usr/local/modulefiles/dev/bison && \
+    echo "#%Module" > .version && \
+    echo set ModulesVersion "${BISONVER}" >> .version && \
+    mkdir -p /usr/local/modulefiles/dev/flex && \
+    mv /opt/${FLEXVER} /usr/local/modulefiles/dev/flex/${FLEXVER} && \
+    cd /usr/local/modulefiles/dev/flex && \
+    echo "#%Module" > .version && \
+    echo set ModulesVersion "${FLEXVER}" >> .version && \
+    mkdir -p /usr/local/modulefiles/adms && \
+    mv /opt/${ADMSVER} /usr/local/modulefiles/adms/${ADMSVER} && \
+    cd /usr/local/modulefiles/adms && \
+    echo "#%Module" > .version && \
+    echo set ModulesVersion "${ADMSVER}" >> .version && \
+    cd /opt && \
+    apt-get autoremove -y && \
+    rm -rf \
+      /opt/adms \
+      /opt/bison-${BISONVER} \
+      /opt/flex-${FLEXVER} \
+      /opt/bison-${BISONVER}.tar.xz \
+      /opt/flex-${FLEXVER}.tar.gz \
+      /var/lib/apt/lists/*
