@@ -1,0 +1,53 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+    daal_2019       /opt
+    iomp_2019       /opt
+    ipp_2019        /opt
+    mkl_2019        /opt
+    mkl_ilp64_2019  /opt
+    mpi_2019        /opt
+    pstl_2019       /opt
+    tbb_gcc47_2019  /opt
+
+%post
+    cd /opt && \
+    wget --quiet --no-check-certificate \
+      https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB && \
+    apt-key add /opt/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB && \
+    wget --quiet --no-check-certificate \
+      https://apt.repos.intel.com/setup/intelproducts.list -O /etc/apt/sources.list.d/intelproducts.list && \
+    apt-get update && \
+    apt-get install -y \
+      intel-mkl-2019.4-070 \
+      intel-tbb-2019.6-070 \
+      intel-ipp-2019.4-070 \
+      intel-daal-2019.4-070 \
+      intel-mpi-2019.4-070 && \
+    mkdir -p /usr/local/modulefiles/dev/intel && \
+    cd /usr/local/modulefiles/dev/intel && \
+    mv /opt/*2019 \
+      ./ && \
+    rm -rf \
+      /opt/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB \
+      /var/lib/apt/lists/*
+
+%appenv mkl
+. /etc/profile.d/modules.sh
+module load intel/mkl_2019
+module load intel/ipp_2019
+module load intel/iomp_2019
+module load intel/daal_2019
+module load intel/tbb_gcc47_2019
+module load intel/pstl_2019
+
+%appenv mklmpi
+. /etc/profile.d/modules.sh
+module load intel/mkl_2019
+module load intel/ipp_2019
+module load intel/iomp_2019
+module load intel/daal_2019
+module load intel/tbb_gcc47_2019
+module load intel/pstl_2019
+module load intel/mpi_2019

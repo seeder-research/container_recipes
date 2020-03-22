@@ -1,0 +1,37 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+    python_2019    /opt
+
+%post
+    export TERM=xterm
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update && \
+    apt-get install -y \
+      intelpython3 && \
+    cd /usr/local/modulefiles/dev/intel && \
+    mv /opt/python_2019 ./ && \
+    rm -rf \
+      /var/lib/apt/lists/*
+
+%appenv mklpython
+. /etc/profile.d/modules.sh
+module load intel/mkl_2019
+module load intel/ipp_2019
+module load intel/iomp_2019
+module load intel/daal_2019
+module load intel/tbb_gcc47_2019
+module load intel/pstl_2019
+module load intel/python_2019
+
+%appenv fullpython
+. /etc/profile.d/modules.sh
+module load intel/mkl_2019
+module load intel/ipp_2019
+module load intel/iomp_2019
+module load intel/daal_2019
+module load intel/tbb_gcc47_2019
+module load intel/pstl_2019
+module load intel/mpi_2019
+module load intel/python_2019
