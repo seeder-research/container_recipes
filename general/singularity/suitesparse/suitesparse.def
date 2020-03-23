@@ -1,0 +1,65 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+    5.7.1    /opt
+
+%post
+    . /etc/profile
+    . /.singularity.d/env/90-environment.sh
+    module load intel/mkl_2019
+    module load intel/tbb_gcc47_2019
+    module load metis/5.1.0
+    export SUITESPARSEVER=5.7.1
+    export METISVER=5.1.0
+    cd /opt && \
+    wget --no-check-certificate \
+      https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/v${SUITESPARSEVER}.tar.gz && \
+    tar xf /opt/v${SUITESPARSEVER}.tar.gz && \
+    cd /opt/SuiteSparse-${SUITESPARSEVER} && \
+    make config \
+      CC=gcc \
+      CXX=g++ \
+      BLAS="-L/opt/intel/compilers_and_libraries/linux/mkl -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -lgomp -lpthread -lm -ldl" \
+      LAPACK="-L/opt/intel/compilers_and_libraries/linux/mkl -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -lgomp -lpthread -lm -ldl" \
+      INSTALL=/usr/local/suitesparse/${SUITESPARSEVER} \
+      NVCC=/usr/local/cuda/bin/nvcc \
+      CUDA_PATH=/usr/local/cuda \
+      CUDART_LIB=/usr/local/cuda/lib64/libcudart.so \
+      CUBLAS_LIB=/usr/lib/x86_64-linux-gnu/libcublas.so \
+      MY_METIS_INC=/usr/local/metis/${METISVER}/include \
+      MY_METIS_LIB="-L/usr/local/metis/${METISVER}/lib -lmetis" && \
+    make library \
+      CC=gcc \
+      CXX=g++ \
+      BLAS="-L/opt/intel/compilers_and_libraries/linux/mkl -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -lgomp -lpthread -lm -ldl" \
+      LAPACK="-L/opt/intel/compilers_and_libraries/linux/mkl -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -lgomp -lpthread -lm -ldl" \
+      INSTALL=/usr/local/suitesparse/${SUITESPARSEVER} \
+      NVCC=/usr/local/cuda/bin/nvcc \
+      CUDA_PATH=/usr/local/cuda \
+      CUDART_LIB=/usr/local/cuda/lib64/libcudart.so \
+      CUBLAS_LIB=/usr/lib/x86_64-linux-gnu/libcublas.so \
+      MY_METIS_INC=/usr/local/metis/${METISVER}/include \
+      MY_METIS_LIB="-L/usr/local/metis/${METISVER}/lib -lmetis" && \
+    make install \
+      CC=gcc \
+      CXX=g++ \
+      BLAS="-L/opt/intel/compilers_and_libraries/linux/mkl -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -lgomp -lpthread -lm -ldl" \
+      LAPACK="-L/opt/intel/compilers_and_libraries/linux/mkl -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -lgomp -lpthread -lm -ldl" \
+      INSTALL=/usr/local/suitesparse/${SUITESPARSEVER} \
+      NVCC=/usr/local/cuda/bin/nvcc \
+      CUDA_PATH=/usr/local/cuda \
+      CUDART_LIB=/usr/local/cuda/lib64/libcudart.so \
+      CUBLAS_LIB=/usr/lib/x86_64-linux-gnu/libcublas.so \
+      MY_METIS_INC=/usr/local/metis/${METISVER}/include \
+      MY_METIS_LIB="-L/usr/local/metis/${METISVER}/lib -lmetis" && \
+    mkdir /usr/local/modulefiles/dev/suitesparse && \
+    cd /usr/local/modulefiles/dev/suitesparse && \
+    mv /opt/${SUITESPARSEVER} \
+      /usr/local/modulefiles/dev/suitesparse/${SUITESPARSEVER} && \
+    echo "#%Module" > .version && \
+    echo set ModulesVersion "${SUITESPARSEVER}" >> .version && \
+    cd /opt && \
+    rm -rf \
+      /opt/v${SUITESPARSEVER}.tar.gz \
+      /opt/SuiteSparse-${SUITESPARSEVER}
