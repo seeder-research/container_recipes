@@ -2,14 +2,14 @@ BootStrap: localimage
 From: pre.sif
 
 %files
-    daal_2019       /opt
-    iomp_2019       /opt
-    ipp_2019        /opt
-    mkl_2019        /opt
-    mkl_ilp64_2019  /opt
-    mpi_2019        /opt
-    pstl_2019       /opt
-    tbb_gcc47_2019  /opt
+    daal       /opt
+    iomp       /opt
+    ipp        /opt
+    mkl        /opt
+    mkl_ilp64  /opt
+    mpi        /opt
+    pstl       /opt
+    tbb_gcc47  /opt
 
 %post
     yum-config-manager --add-repo \
@@ -23,25 +23,38 @@ From: pre.sif
       intel-daal-2019.4-070 \
       intel-mpi-2019.4-070 && \
     mkdir -p /usr/local/modulefiles/dev/intel && \
-    cd /usr/local/modulefiles/dev/intel && \
-    mv /opt/*2019 \
-      ./
+    mv /opt/daal \
+      cd /usr/local/modulefiles/dev/intel/. && \
+    mv /opt/iomp \
+      cd /usr/local/modulefiles/dev/intel/. && \
+    mv /opt/ipp \
+      cd /usr/local/modulefiles/dev/intel/. && \
+    mv /opt/mkl \
+      cd /usr/local/modulefiles/dev/intel/. && \
+    mv /opt/mkl_ilp64 \
+      cd /usr/local/modulefiles/dev/intel/. && \
+    mv /opt/mpi \
+      cd /usr/local/modulefiles/dev/intel/. && \
+    mv /opt/pstl \
+      cd /usr/local/modulefiles/dev/intel/. && \
+    mv /opt/tbb \
+      cd /usr/local/modulefiles/dev/intel/.
 
 %appenv mkl
 . /etc/profile.d/modules.sh
-module load intel/mkl_2019
-module load intel/ipp_2019
-module load intel/iomp_2019
-module load intel/daal_2019
-module load intel/tbb_gcc47_2019
-module load intel/pstl_2019
+module load intel/mkl
+module load intel/ipp
+module load intel/iomp
+module load intel/daal
+module load intel/tbb_gcc47
+module load intel/pstl
 
 %appenv mklmpi
 . /etc/profile.d/modules.sh
-module load intel/mkl_2019
-module load intel/ipp_2019
-module load intel/iomp_2019
-module load intel/daal_2019
-module load intel/tbb_gcc47_2019
-module load intel/pstl_2019
-module load intel/mpi_2019
+module load intel/mkl
+module load intel/ipp
+module load intel/iomp
+module load intel/daal
+module load intel/tbb_gcc47
+module load intel/pstl
+module load intel/mpi
