@@ -3,28 +3,28 @@ From: pre.sif
 
 %files
     19.1.2                     /opt
-    .version                   /opt
 
 %post
+    export PBSPROVER=19.1.2
     cd /opt && \
     wget --no-check-certificate \
-      https://github.com/PBSPro/pbspro/archive/v19.1.2.tar.gz && \
-    tar xf /opt/v19.1.2.tar.gz && \
+      https://github.com/PBSPro/pbspro/archive/v${PBSPROVER}.tar.gz && \
+    tar xf /opt/v${PBSPROVER}.tar.gz && \
     cd /opt/pbspro-19.1.2 && \
     ./autogen.sh && \
     ./configure \
-      --prefix=/opt/pbspro/v19.1.2 \
-      --with-pbs-server-home=/opt/pbspro/v19.1.2/spool && \
+      --prefix=/opt/pbspro/v${PBSPROVER} \
+      --with-pbs-server-home=/opt/pbspro/v${PBSPROVER}/spool && \
     make -j$(nproc) && \
     make install && \
     mkdir -p /usr/local/modulefiles/dev/pbspro && \
     cd /usr/local/modulefiles/dev/pbspro && \
-    mv /opt/19.1.2 \
-      /usr/local/modulefiles/dev/pbspro/19.1.2 && \
-    mv /opt/.version \
-      /usr/local/modulefiles/dev/pbspro/.version && \
+    echo "#%Module" > .version && \
+    echo set ModulesVersion "${PBSPROVER}" >> .version && \
+    mv /opt/${PBSPROVER} \
+      /usr/local/modulefiles/dev/pbspro/${PBSPROVER} && \
     cd /opt && \
     echo MODULEPATH=/usr/local/modulefiles/dev >> /.singularity.d/env/90-environment.sh && \
     rm -rf \
-      /opt/pbspro-19.1.2 \
-      /opt/v19.1.2.tar.gz
+      /opt/pbspro-${PBSPROVER} \
+      /opt/v${PBSPROVER}.tar.gz

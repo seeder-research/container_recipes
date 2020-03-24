@@ -2,37 +2,33 @@ BootStrap: localimage
 From: pre.sif
 
 %files
-    python_2019       /opt
+    python       /opt
 
 %post
-    yum-config-manager --add-repo \
-      https://yum.repos.intel.com/setup/intelproducts.repo && \
-    rpm --import \
-      https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB && \
     yum install -y \
       intelpython3-2019.4-088 && \
     mkdir -p /usr/local/modulefiles/dev/intel && \
     cd /usr/local/modulefiles/dev/intel && \
-    mv /opt/*2019 \
+    mv /opt/python \
       ./
 
 %appenv mklpython
 . /etc/profile.d/modules.sh
-module load intel/mkl_2019
-module load intel/ipp_2019
-module load intel/iomp_2019
-module load intel/daal_2019
-module load intel/tbb_gcc47_2019
-module load intel/pstl_2019
-module load intel/python_2019
+module load intel/mkl
+module load intel/ipp
+module load intel/iomp
+module load intel/daal
+module load intel/tbb_gcc47
+module load intel/pstl
+module load intel/python
 
 %appenv fullpython
 . /etc/profile.d/modules.sh
-module load intel/mkl_2019
-module load intel/ipp_2019
-module load intel/iomp_2019
-module load intel/daal_2019
-module load intel/tbb_gcc47_2019
-module load intel/pstl_2019
-module load intel/mpi_2019
-module load intel/python_2019
+module load intel/mkl
+module load intel/ipp
+module load intel/iomp
+module load intel/daal
+module load intel/tbb_gcc47
+module load intel/pstl
+module load intel/mpi
+module load intel/python

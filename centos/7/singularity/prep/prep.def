@@ -16,6 +16,7 @@ From: pre.sif
       autoconf \
       automake \
       centos-release-scl \
+      environment-modules \
       expat-devel \
       expat \
       g++ \
