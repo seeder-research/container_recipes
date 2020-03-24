@@ -87,6 +87,7 @@ From: pre.sif
       python \
       python-dev \
       rsync \
+      software-properties-common \
       swig \
       tcl \
       tcl-dev \
