@@ -1,0 +1,1 @@
+prepend-path        CMAKE_MODULE_PATH          ${root}/@pathdir@:${CMAKE_MODULE_PATH}
