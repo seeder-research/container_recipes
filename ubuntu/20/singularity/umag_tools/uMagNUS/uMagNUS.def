@@ -5,20 +5,19 @@ From: pre.sif
 . /.singularity.d/env/90-environment.sh
 . /etc/profile.d/modules.sh
 module load golang
-export UMAGNUS_VER=2.0.1
+export UMAGNUS_VER=2.3.0
 export GOPATH=/usr/local/uMagNUS/${UMAGNUS_VER}
-mkdir -p ${GOPATH}/src/github.com/seeder-research && \
-cd ${GOPATH}/src/github.com/seeder-research && \
-git clone https://github.com/seeder-research/uMagNUS -b ${UMAGNUS_VER} ./uMagNUS && \
-cd ${GOPATH}/src/github.com/seeder-research/uMagNUS && \
-make realclean && \
-make go.mod && \
-make && \
+mkdir -p ${GOPATH} && \
 cd ${GOPATH} && \
+wget --no-check-certificate \
+  https://github.com/seeder-research/uMagNUS/releases/download/v${UMAGNUS_VER}/uMagNUS-${UMAGNUS_VER}-linux-x86_64.tar.gz && \
+tar xf uMagNUS-${UMAGNUS_VER}-linux-x86_64.tar.gz && \
+mv uMagNUS-${UMAGNUS_VER} \
+  ${UMAGNUS_VER} && \
 rm -rf \
-  ${GOPATH}/src \
-  ${GOPATH}/pkg
+  ${GOPATH}/uMagNUS-${UMAGNUS_VER}-linux-x86_64.tar.gz
 
 %appenv umagnus
-export UMAGNUS_VER=2.0.1
+export UMAGNUS_VER=2.3.0
 export PATH=/usr/local/uMagNUS/${UMAGNUS_VER}/bin:$PATH
+export LD_LIBRARY_PATH=/opt/libumagnus/${UMAGNUS_VER}:${LD_LIBRARY_PATH}:/usr/local/uMagNUS/${UMAGNUS_VER}/lib
