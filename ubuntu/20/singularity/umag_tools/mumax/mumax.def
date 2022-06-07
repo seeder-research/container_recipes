@@ -2,12 +2,12 @@ BootStrap: localimage
 From: pre.sif
 
 %post
-export GOVER=1.17.5
+export GOVER=1.18.3
 export GOROOT=/usr/local/golang/${GOVER}
 export MUMAX3VER=3.10
 export MUMAX3_SRC="https://github.com/mumax/3"
 export MUMAX3_SEEDER="https://github.com/seeder-research/3 -b seeder"
-export CUDA_CC="37 60 70 75 80"
+export CUDA_CC="60 70 80"
 export GOCACHE=/opt/gocache
 export CGO_LDFLAGS=-L/usr/local/cuda/lib64/stubs
 mkdir -p $GOCACHE
