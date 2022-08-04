@@ -14,7 +14,7 @@ proc ModulesHelp { } {
 
 module-whatis "adds Intel(R) OneAPI ${name} (version $version) to your environment variables."
 
-if {[ is-loaded intel/mkl_ilp64_2019]} {module unload intel/mkl_ilp64_2019}
+if {[ is-loaded intel/mkl_ilp64 ]} {module unload intel/mkl_ilp64}
 
 setenv	MKLROOT	${root}
 
