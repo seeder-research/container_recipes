@@ -8,7 +8,7 @@ modfile    /opt
 . /etc/profile
 . /.singularity.d/env/90-environment.sh
 export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
-export NGSPICEVER=r31
+export NGSPICEVER=37
 module load \
   bison \
   flex \
@@ -18,6 +18,7 @@ cd /opt && \
 git clone \
   --recursive \
   http://git.code.sf.net/p/ngspice/ngspice \
+  -b 'ngspice-${NGSPICEVER}' \
   ngspice && \
 cd /opt/ngspice && \
 ./autogen.sh --adms && \
@@ -44,7 +45,6 @@ if [ ! -d /usr/local/modulefiles/ngspice ]; then
     mkdir -p /usr/local/modulefiles/ngspice
 fi
 cd /usr/local/modulefiles/ngspice && \
-sed -i "s/@pver@/${NGSPICEVER}/g" /opt/modfile && \
 mv /opt/modfile \
   /usr/local/modulefiles/ngspice/${NGSPICEVER} && \
 echo "#%Module" > .version && \

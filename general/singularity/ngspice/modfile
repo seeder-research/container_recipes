@@ -4,7 +4,7 @@
 ##
 
 set              name              ngspice
-set              version           @pver@
+set              version           [file tail [info script]]
 set              root              /usr/local/$name/$version
 
 proc ModulesHelp { } {
