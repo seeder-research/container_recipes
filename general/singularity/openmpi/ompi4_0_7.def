@@ -9,8 +9,8 @@ modfile    /opt
 export TERM=xterm
 export PBSVER=v19.1.2
 export OMPVER_MAJOR=4
-export OMPVER_MINOR=1
-export OMPVER_REV=0
+export OMPVER_MINOR=0
+export OMPVER_REV=7
 export OMPVER=${OMPVER_MAJOR}.${OMPVER_MINOR}.${OMPVER_REV}
 export MODULEPATH=/usr/local/modulefiles/dev:$MODULEPATH
 module load pbspro && \
