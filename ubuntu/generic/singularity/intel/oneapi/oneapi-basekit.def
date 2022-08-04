@@ -12,11 +12,8 @@ mpi       /opt
 tbb       /opt
 
 %post
-cd /opt && \
-wget --no-check-certificate \
-  https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
-apt-key add /opt/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
-add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" && \
+rm -rf /etc/apt/sources.list.d/oneAPI.list
+echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | tee /etc/apt/sources.list.d/oneAPI.list
 apt-get update && \
 apt-get install -y \
   intel-basekit && \
@@ -38,7 +35,6 @@ mv /opt/mpi \
 mv /opt/tbb \
   /usr/local/modulefiles/dev/intel/. && \
 rm -rf \
-  /opt/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
   /var/lib/apt/lists/*
 
 %appenv mkl

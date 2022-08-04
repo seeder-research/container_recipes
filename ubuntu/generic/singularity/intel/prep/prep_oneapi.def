@@ -1,0 +1,9 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export INTEL_REPO_LINK=https://apt.repos.intel.com/intel-gpg-keys
+export KEYFILE=GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+cd /opt && \
+wget -O- ${INTEL_REPO_LINK}/${KEYFILE} \
+| gpg --dearmor | tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
