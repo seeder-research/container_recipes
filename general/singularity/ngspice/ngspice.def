@@ -18,7 +18,7 @@ cd /opt && \
 git clone \
   --recursive \
   http://git.code.sf.net/p/ngspice/ngspice \
-  -b 'ngspice-${NGSPICEVER}' \
+  -b ngspice-${NGSPICEVER} \
   ngspice && \
 cd /opt/ngspice && \
 ./autogen.sh --adms && \
