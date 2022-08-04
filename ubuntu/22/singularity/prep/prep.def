@@ -17,13 +17,15 @@ apt-get install -y --no-install-recommends \
   gnupg \
   software-properties-common \
   wget
-sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
-wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-#wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | apt-key add - && \
-#apt-add-repository 'deb https://apt.kitware.com/ubuntu/ jammy main'
-#apt-get update && \
-#apt-get install -y \
-#  kitware-archive-keyring && \
+rm -rf /etc/apt/sources.list.d/pgdg.list \
+  /etc/apt/sources.list.d/kitware.list \
+  /usr/share/keyrings/pgdg-archive-keyring.gpg \
+  /usr/share/keyrings/kitware-archive-keyring.gpg && \
+wget -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/pgdg-archive-keyring.gpg >/dev/null
+wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+sh -c 'echo "deb [signed-by=/usr/share/keyrings/pgdg-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
+sh -c 'echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] http://apt.kitware.com/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/kitware.list' && \
+apt-get update && \
 cd /opt && \
 apt-get install -y --no-install-recommends \
   autoconf \

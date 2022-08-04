@@ -15,5 +15,5 @@ export CUDA_PATH=/usr/local/cuda
 export CUDAROOT=/usr/local/cuda
 export CUDA_ROOT=/usr/local/cuda
 
-. /etc/profile.d/modules.sh
+. /etc/profile
 export MODULEPATH=/usr/local/modulefiles/dev
