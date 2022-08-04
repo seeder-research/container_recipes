@@ -16,7 +16,7 @@ module load \
   metis \
   suitesparse \
   trilinos
-export XYCE_VER=7.0
+export XYCE_VER=7.5
 export XYCE_SRC=/opt/Xyce-Release-${XYCE_VER}.0
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
 export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
@@ -24,11 +24,10 @@ export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
 cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
 cd /opt && \
 wget --no-check-certificate \
-  https://github.com/Xyce/Xyce/archive/Release-${XYCE_VER}.0.tar.gz && \
+  https://github.com/Xyce/Xyce/archive/refs/tags/Release-${XYCE_VER}.0.tar.gz && \
 tar xf /opt/Release-${XYCE_VER}.0.tar.gz && \
 mkdir -p ${XYCE_SRC}/builddir && \
 cd ${XYCE_SRC} && \
-sed -e "s@3\.4,@3.5, 3.4,@g" -i ./configure.ac && \
 ./bootstrap && \
 cd ${XYCE_SRC}/builddir && \
 ${XYCE_SRC}/configure \
