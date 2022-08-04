@@ -12,9 +12,13 @@ mpi       /opt
 tbb       /opt
 
 %post
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
 rm -rf /etc/apt/sources.list.d/oneAPI.list
 echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | tee /etc/apt/sources.list.d/oneAPI.list
 apt-get update && \
+apt-get install -y \
+  linux-headers-$(uname -r) && \
 apt-get install -y \
   intel-basekit && \
 mkdir -p /usr/local/modulefiles/dev/intel && \
@@ -34,6 +38,9 @@ mv /opt/mpi \
   /usr/local/modulefiles/dev/intel/. && \
 mv /opt/tbb \
   /usr/local/modulefiles/dev/intel/. && \
+apt-get purge -y \
+  linux-headers-$(uname -r) && \
+apt-get autoremove -y && \
 rm -rf \
   /var/lib/apt/lists/*
 
