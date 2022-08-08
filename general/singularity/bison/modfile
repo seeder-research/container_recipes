@@ -13,11 +13,13 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment."
 
-prepend-path      PATH              $root/bin
+setenv            BISON_ROOT        ${root}
 
-prepend-path      LD_LIBRARY_PATH   $root/lib
-prepend-path      LIBRARY_PATH      $root/lib
-prepend-path      LD_RUN_PATH       $root/lib
+prepend-path      PATH              ${root}/bin
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib
+prepend-path      LIBRARY_PATH      ${root}/lib
+prepend-path      LD_RUN_PATH       ${root}/lib
 
 prepend-path      MANPATH           ${root}/share/man
 

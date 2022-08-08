@@ -30,3 +30,5 @@ prepend-path	  INCLUDE_PATH	    ${root}/include/intel64/lp64:${root}/include
 prepend-path      PKG_CONFIG_PATH   ${root}/tools/pkgconfig
 
 prepend-path      NLSPATH           ${root}/lib/intel64/locale/%l_%t/%N
+
+prepend-path      CMAKE_MODULE_PATH ${root}/lib/cmake/mkl

@@ -8,63 +8,189 @@ modfile    /opt
 . /etc/profile
 export MODULEPATH="/usr/local/modulefiles:/usr/local/modulefiles/dev"
 module load \
+  pbspro \
   openmpi \
   intel/mkl \
   bison \
   flex \
-  adms \
-  metis \
-  suitesparse \
-  trilinos
-export XYCE_VER=7.5
-export XYCE_SRC=/opt/Xyce-Release-${XYCE_VER}.0
+  adms
+export SUITESPARSEVER_MAJ=5
+export SUITESPARSEVER_MIN=12
+export SUITESPARSEVER_PATCH=0
+export SUITESPARSEVER=${SUITESPARSEVER_MAJ}.${SUITESPARSEVER_MIN}.${SUITESPARSEVER_PATCH}
+export SUITESPARSE_FILE=v${SUITESPARSEVER}.tar.gz
+export SUITESPARSESRCDIR=/opt/SuiteSparse-${SUITESPARSEVER}
+export TRILINOSVER_MAJ=13
+export TRILINOSVER_MIN=4
+export TRILINOSVER_PATCH=0
+export TRILINOSVER=${TRILINOSVER_MAJ}.${TRILINOSVER_MIN}.${TRILINOSVER_PATCH}
+export TRILINOS_FILE=trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}.tar.gz
+export TRILINOSSRCDIR=/opt/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}
+export XYCEVER_MAJ=7
+export XYCEVER_MIN=5
+export XYCEVER_PATCH=0
+export XYCEVER=${XYCEVER_MAJ}.${XYCEVER_MIN}.${XYCEVER_PATCH}
+export XYCE_FILE=Release-${XYCEVER_MAJ}.${XYCEVER_MIN}.${XYCEVER_PATCH}.tar.gz
+export XYCESRCDIR=/opt/Xyce-Release-${XYCEVER}
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
 export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
 export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+export ARCHDIR=/usr/local/trilinos/${TRILINOSVER}_xyce
+export CCFLAGS="-O3"
+export CXXFLAGS="-O3"
+export CMAKE_MODULE_PATH="${MKLROOT}/lib/cmake/mkl;${TBBROOT}/lib/cmake/tbb"
 cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
 cd /opt && \
 wget --no-check-certificate \
-  https://github.com/Xyce/Xyce/archive/refs/tags/Release-${XYCE_VER}.0.tar.gz && \
-tar xf /opt/Release-${XYCE_VER}.0.tar.gz && \
-mkdir -p ${XYCE_SRC}/builddir && \
-cd ${XYCE_SRC} && \
-./bootstrap && \
-cd ${XYCE_SRC}/builddir && \
-${XYCE_SRC}/configure \
-  CXXFLAGS="-m64 -O3 -std=c++11 -fopenmp -fPIC" \
-  ARCHDIR="${LIBTRILINOS_ROOT}" \
-  CPPFLAGS="-m64 -I${SUITESPARSE_ROOT}/include -I${LIBTRILINOS_ROOT}/include -I${MKLROOT}/include" \
-  LDFLAGS="-L${LIBTRILINOS_ROOT}/lib -L${SUITESPARSE_ROOT}/lib -L${MKLROOT}/lib/intel64 -L/usr/lib/x86_64-linux-gnu -Wl,--no-as-needed -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64 -lmkl_sequential -lmkl_intel_lp64 -lmkl_core -Wl,--as-needed -lteuchoscore -lpthread -lm -ldl" \
-  --prefix=/usr/local/xyce/${XYCE_VER} \
-  --enable-admsmodels \
-  --enable-neuronmodels \
-  --enable-reaction_parser \
-  --enable-xyce-shareable \
-  --disable-static \
-  --enable-shared \
-  --enable-mpi \
-  --enable-intel_fft \
-  --enable-adms_sensitivities \
-  CXX=mpicxx \
-  CC=mpicc \
-  F77=mpifort \
-  F90=mpifort \
-  FC=mpifort && \
-sed -e "s/-Wl,--as-needed//g" -i src/Makefile && \
-sed -e "s/-Wl,--as-needed//g" -i Makefile && \
-make -j$(nproc) && \
-make install && \
-cd /usr/local/xyce/${XYCE_VER} && \
+  https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/${SUITESPARSE_FILE} && \
+wget --no-check-certificate \
+  https://github.com/trilinos/Trilinos/archive/refs/tags/${TRILINOS_FILE} && \
+wget --no-check-certificate \
+  https://github.com/Xyce/Xyce/archive/refs/tags/${XYCE_FILE} && \
+tar xf /opt/${SUITESPARSE_FILE} && \
+tar xf /opt/${TRILINOS_FILE} && \
+tar xf /opt/${XYCE_FILE} && \
+mkdir -p  /opt/SuiteSparse-${SUITESPARSEVER}/builddir && \
+cd /opt/SuiteSparse-${SUITESPARSEVER}/builddir && \
+cmake \
+ -G "Unix Makefiles" \
+ -DSuiteSparsePath=${SUITESPARSESRCDIR} \
+ -DCMAKE_INSTALL_PREFIX=${ARCHDIR} \
+ -DCMAKE_C_FLAGS="${CCFLAGS}" \
+ -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
+ ${XYCESRCDIR}/cmake/trilinos/AMD && \
+cmake --build . -t install && \
+mkdir -p /opt/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir && \
+cd /opt/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir && \
+cmake \
+ -G "Unix Makefiles" \
+ -C ${XYCESRCDIR}/cmake/trilinos/trilinos-config-MPI.cmake \
+ -DCMAKE_C_COMPILER=mpicc \
+ -DCMAKE_CXX_COMPILER=mpic++ \
+ -DCMAKE_Fortran_COMPILER=mpif77 \
+ -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
+ -DCMAKE_C_FLAGS="${CCFLAGS}" \
+ -DCMAKE_Fortran_FLAGS="${CXXFLAGS}" \
+ -DCMAKE_INSTALL_PREFIX=${ARCHDIR} \
+ -DCMAKE_CXX_EXTENSIONS=ON \
+ -DCMAKE_BUILD_TYPE="Release" \
+ -DTrilinos_ENABLE_CXX11=ON \
+ -DTPL_ENABLE_Boost=OFF \
+ -DTPL_ENABLE_BoostLib=OFF \
+ -DTPL_ENABLE_CUDA=OFF \
+ -DTPL_ENABLE_DLlib=ON \
+  -DTPL_DLlib_INCLDUE_DIRS="/usr/include" \
+  -DTPL_DLlib_LIBRARIES="/usr/lib/x86_64-linux-gnu/libdl.so.2" \
+ -DTPL_ENABLE_HDF5=OFF \
+ -DTPL_ENABLE_Matio=OFF \
+ -DTPL_ENABLE_MATLAB=OFF \
+ -DTPL_ENABLE_MATLABLib=OFF \
+ -DTPL_ENABLE_mlpack=OFF \
+ -DTPL_ENABLE_MKL=OFF \
+ -DTPL_ENABLE_TBB=OFF \
+ -DTPL_ENABLE_Pthread=ON \
+  -DTPL_Pthread_INCLUDE_DIRS="/usr/include" \
+  -DTPL_Pthread_LIBRARIES="/usr/lib/x86_64-linux-gnu/libpthread.so.0" \
+ -DTPL_ENABLE_METIS=OFF \
+ -DTPL_ENABLE_MTMETIS=OFF \
+ -DTPL_ENABLE_ParMETIS=OFF \
+ -DTPL_ENABLE_Pnetcdf=OFF \
+ -DTPL_ENABLE_Netcdf=OFF \
+ -DTPL_ENABLE_Scotch=OFF \
+ -DTPL_ENABLE_SuperLUDist=OFF \
+ -DTPL_ENABLE_SuperLUMT=OFF \
+ -DTPL_ENABLE_SuperLU=OFF \
+ -DTPL_ENABLE_Cholmod=OFF \
+ -DTPL_ENABLE_UMFPACK=OFF \
+ -DTPL_ENABLE_HYPRE=OFF \
+ -DTPL_ENABLE_PETSC=OFF \
+ -DTPL_ENABLE_BLACS=OFF \
+ -DTPL_ENABLE_SCALAPACK=OFF \
+ -DTPL_ENABLE_GLPK=OFF \
+ -DTPL_ENABLE_Eigen=OFF \
+ -DTPL_ENABLE_Zlib=OFF \
+ -DTPL_ENABLE_XDMF=OFF \
+ -DTPL_ENABLE_AMD=ON \
+ -DAMD_LIBRARY_DIRS="${ARCHDIR}/lib" \
+ -DTPL_AMD_INCLUDE_DIRS="${ARCHDIR}/include" \
+ -DTPL_ENABLE_BLAS=ON \
+ -DBLAS_LIBRARY_DIRS="${MKLROOT}/lib/intel64" \
+ -DBLAS_LIBRARY_NAMES="mkl_intel_lp64;mkl_gnu_thread;mkl_core" \
+ -DTPL_ENABLE_LAPACK=ON \
+ -DLAPACK_LIBRARY_DIRS="${MKLROOT}/lib/intel64" \
+ -DLAPACK_LIBRARY_NAMES="mkl_intel_lp64;mkl_gnu_thread;mkl_core" \
+ -DTPL_ENABLE_MPI=ON \
+ -DTrilinos_ENABLE_ALL_PACKAGES=OFF \
+ -DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF \
+ -DTrilinos_ENABLE_ALL_FORWARD_DEP_PACKAGES=OFF \
+ -DTrilinos_ENABLE_OpenMP=ON \
+ -DTrilinos_ENABLE_NOX=ON \
+  -DNOX_ENABLE_LOCA=ON \
+ -DTrilinos_ENABLE_EpetraExt=ON \
+  -DEpetraExt_BUILD_BTF=ON \
+  -DEpetraExt_BUILD_EXPERIMENTAL=ON \
+  -DEpetraExt_BUILD_GRAPH_REORDERINGS=ON \
+ -DTrilinos_ENABLE_TrilinosCouplings=ON \
+ -DTrilinos_ENABLE_Ifpack=ON \
+ -DTrilinos_ENABLE_Isorropia=ON \
+ -DTrilinos_ENABLE_AztecOO=ON \
+ -DTrilinos_ENABLE_Belos=ON \
+ -DTrilinos_ENABLE_Teuchos=ON \
+  -DTeuchos_ENABLE_COMPLEX=ON \
+ -DTrilinos_ENABLE_Amesos=ON \
+  -DAmesos_ENABLE_KLU=ON \
+ -DTrilinos_ENABLE_Sacado=ON \
+ -DTrilinos_ENABLE_Kokkos=ON \
+ -DTrilinos_ENABLE_ShyLU=OFF \
+ -DTrilinos_ENABLE_KokkosCore=ON \
+ -DTrilinos_ENABLE_Stokhos=ON \
+ -DTrilinos_ENABLE_PyTrilinos=OFF \
+ -DTrilinos_ENABLE_Amesos2=ON \
+  -DAmesos2_ENABLE_Basker=ON \
+ -DTrilinos_ENABLE_Zoltan=ON \
+ -DBUILD_SHARED_LIBS=ON \
+ -DTrilinos_ENABLE_EXPLICIT_INSTANTIATION=ON \
+ -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
+${TRILINOSSRCDIR} && \
+cmake --build . -j$(nproc) -t install && \
+mkdir -p /opt/Xyce-Release-${XYCEVER}/builddir && \
+cd /opt/Xyce-Release-${XYCEVER}/builddir && \
+cmake \
+ -G "Unix Makefiles" \
+ -DCMAKE_C_COMPILER=mpicc \
+ -DCMAKE_CXX_COMPILER=mpic++ \
+ -DCMAKE_Fortran_COMPILER=mpif77 \
+ -DCMAKE_CXX_FLAGS="$FLAGS" \
+ -DCMAKE_C_FLAGS="$FLAGS" \
+ -DCMAKE_Fortran_FLAGS="$FLAGS" \
+ -DCMAKE_CXX_EXTENSIONS=ON \
+ -DCMAKE_BUILD_TYPE="Release" \
+ -DCMAKE_INCLUDE_PATH="${FLEX_ROOT}/include;${BISON_ROOT}/include" \
+ -DCMAKE_LIBRARY_PATH="${FLEX_ROOT}/lib;${BISON_ROOT}/lib" \
+ -DCMAKE_INSTALL_PREFIX=/usr/local/xyce/${XYCEVER} \
+ -DTrilinos_ROOT=${ARCHDIR} \
+ -DBUILD_SHARED_LIBS=ON \
+ -DXyce_PLUGIN_SUPPORT=ON \
+ -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
+${XYCESRCDIR} && \
+cmake --build . -j$(nproc) -t install && \
+rm -rf * && \
+cd /usr/local/xyce/${XYCEVER} && \
 if [ ! -d /usr/local/modulefiles/xyce ]; then
     mkdir -p /usr/local/modulefiles/xyce
 fi
 cd /usr/local/modulefiles/xyce && \
-mv /opt/
-  /usr/local/modulefiles/xyce/${XYCE_VER} && \
+sed -i "s/@libver@/${TRILINOSVER}_xyce/" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/xyce/${XYCEVER} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${XYCE_VER}" >> .version && \
+echo set ModulesVersion "${XYCEVER}" >> .version && \
 rm -rf \
   /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/${XYCE_VER} \
-  ${XYCE_SRC} \
-  /opt/Release-${XYCE_VER}.0.tar.gz \
+  ${SUITESPARSESRCDIR} \
+  ${TRILINOSSRCDIR} \
+  ${XYCESRCDIR} \
+  /opt/install_xyce_trilinos.sh \
+  /opt/${TRILINOS_FILE} \
+  /opt/${SUITESPARSE_FILE} \
+  /opt/${XYCE_FILE}

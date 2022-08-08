@@ -22,3 +22,5 @@ prepend-path      LIBRARY_PATH      ${root}/lib/intel64/gcc4.8
 
 prepend-path	  CPATH		    ${root}/include
 prepend-path	  INCLUDE_PATH	    ${root}/include
+
+prepend-path      CMAKE_MODULE_PATH ${root}/lib/cmake/tbb

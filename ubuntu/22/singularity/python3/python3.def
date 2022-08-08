@@ -1,0 +1,13 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+apt-get update && \
+apt-get install --no-install-recommends -y \
+  build-essential \
+  virtualenv \
+  python3 && \
+rm -rf \
+  /var/lib/apt/lists/*

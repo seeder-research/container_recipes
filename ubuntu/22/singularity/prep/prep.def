@@ -67,6 +67,7 @@ apt-get install -y --no-install-recommends \
   libgegl-dev \
   libglu1-mesa-dev \
   libgmp-dev \
+  libgomp1 \
   libgoogle-perftools-dev \
   libhdf5-dev \
   libhwloc-dev \

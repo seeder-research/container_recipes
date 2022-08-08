@@ -63,6 +63,7 @@ apt-get install -y --no-install-recommends \
   libgegl-dev \
   libglu1-mesa-dev \
   libgmp-dev \
+  libgomp1 \
   libhdf5-dev \
   libhwloc-dev \
   libical-dev \
