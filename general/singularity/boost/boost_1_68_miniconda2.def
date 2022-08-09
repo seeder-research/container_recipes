@@ -12,7 +12,8 @@ modfile                /opt
 export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
 export BOOSTVER_MAJOR=1
 export BOOSTVER_MINOR=68
-export BOOSTVER=${BOOSTVER_MAJOR}.${BOOSTVER_MINOR}
+export BOOSTVER_PATCH=0
+export BOOSTVER=${BOOSTVER_MAJOR}.${BOOSTVER_MINOR}.${BOOSTVER_PATCH}
 export CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH:/opt/conda/include/python2.7m"
 module load openmpi 
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
@@ -20,8 +21,8 @@ export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
 export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
 cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
 cd /opt && \
-git clone --recursive https://github.com/boostorg/boost.git -b boost-${BOOSTVER}.0 /opt/boost-${BOOSTVER}.0 && \
-cd /opt/boost-${BOOSTVER}.0 && \
+git clone --recursive https://github.com/boostorg/boost.git -b boost-${BOOSTVER} /opt/boost-${BOOSTVER} && \
+cd /opt/boost-${BOOSTVER} && \
 ./bootstrap.sh --with-toolset=gcc && \
 echo "using mpi ;" >> user-config.jam && \
 ./tools/build/src/engine/bjam -j$(nproc) \
@@ -65,4 +66,4 @@ echo set ModulesVersion "${BOOSTVER}" >> .version && \
 cd /opt && \
 rm -rf \
   /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/boost-${BOOSTVER}.0
+  /opt/boost-${BOOSTVER}
