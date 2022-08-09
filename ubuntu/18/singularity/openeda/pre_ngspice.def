@@ -1,9 +1,6 @@
 BootStrap: localimage
 From: pre.sif
 
-%files
-r31      /opt
-
 %post
 apt update && \
 apt-get install -y \

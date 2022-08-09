@@ -1,23 +1,23 @@
 BootStrap: localimage
 From: pre.sif
 
-%appenv ngspice
-. /etc/profile
-module load ngspice
-
-%appenv xyce
-. /etc/profile
-module load xyce
-
 %post
 add-apt-repository --yes ppa:kicad/kicad-6.0-releases && \
 apt update && \
 apt install -y --no-install-recommends \
   kicad && \
 apt install -y \
+  feedgnuplot \
+  gawk \
+  gnuplot \
+  gnuplot-doc \
+  gnuplot-data \
+  gnuplot-x11 \
+  gtkwave \
   gwave \
   ipython3 \
-  ipython3-qtconsole \
+  libxaw7 \
+  libxaw7-dev \
   python3-ipython \
   python3-ipython-genutils \
   python3-matplotlib \
@@ -27,7 +27,9 @@ apt install -y \
   python3-pandas-lib \
   python3-pip \
   python3-scipy \
-  python3-sympy && \
+  python3-sympy \
+  xserver-xorg \
+  xserver-xorg-dev && \
 apt autoclean -y && \
 apt autoremove -y && \
 pip3 install --upgrade pip && \

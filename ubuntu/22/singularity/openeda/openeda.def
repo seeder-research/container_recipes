@@ -1,0 +1,20 @@
+BootStrap: localimage
+From: pre.sif
+
+%appenv ngspice
+. /etc/profile
+module load ngspice
+
+%appenv xyce
+. /etc/profile
+module load xyce
+
+%post
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+apt-get update && \
+apt-get upgrade -y && \
+apt-get autoremove -y && \
+apt-get autoclean -y && \
+rm -rf \
+  /var/lib/apt/lists/*
