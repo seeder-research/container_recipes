@@ -1,0 +1,31 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export NETGENVER_MAJ=1
+export NETGENVER_MIN=5
+export NETGENVER_PATCH=227
+export NETGENVER=${NETGENVER_MAJ}.${NETGENVER_MIN}.${NETGENVER_PATCH}
+export NETGENURL="https://github.com/RTimothyEdwards/netgen"
+cd /opt && \
+git clone ${NETGENURL} \
+  -b ${NETGENVER} && \
+cd /opt/netgen && \
+./configure \
+  --prefix=/usr/local/netgen/${NETGENVER} && \
+make -j$(nproc) && \
+make install && \
+if [ ! -d /usr/local/modulefiles/netgen ]; then
+  mkdir -p /usr/local/modulefiles/netgen
+fi
+cd /usr/local/modulefiles/netgen && \
+mv /opt/modfile \
+  /usr/local/modulefiles/netgen/${NETGENVER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${NETGENVER}" >> .version && \
+rm -rf \
+  /opt/netgen

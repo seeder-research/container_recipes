@@ -1,0 +1,22 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+set               name              netgen
+set               version           [file tail [info script]]
+set               root              /usr/local/$name/$version
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds ${name} (version ${version}) path to your environment,"
+}
+
+module-whatis "adds ${name} (version ${version}) to your environment."
+
+setenv              NETGEN_HOME       ${root}
+
+prepend-path        PATH              ${root}/bin
+
+prepend-path        LD_LIBRARY_PATH   ${root}/lib
+prepend-path        LIBRARY_PATH      ${root}/lib
+prepend-path        LD_RUN_PATH       ${root}/lib
