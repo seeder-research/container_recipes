@@ -1,0 +1,37 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export IVERILOGVER_MAJ=11
+export IVERILOGVER_MIN=0
+export IVERILOGVER=${IVERILOGVER_MAJ}.${IVERILOGVER_MIN}
+export IVERILOGURL="https://github.com/steveicarus/iverilog"
+module load \
+  bison \
+  flex
+cd /opt && \
+git clone ${IVERILOGURL} -b v${IVERILOGVER_MAJ}_${IVERILOGVER_MIN} && \
+cd /opt/iverilog && \
+git checkout \
+  --track \
+  -b v11-branch \
+  origin/v11-branch && \
+sh autoconf.sh && \
+./configure \
+  --prefix=/usr/local/iverilog/${IVERILOGVER} && \
+make -j$(nproc) && \
+make install && \
+if [ ! -d /usr/local/modulefiles/iverilog ]; then
+  mkdir -p /usr/local/modulefiles/iverilog
+fi
+mv /opt/modfile \
+  /usr/local/modulefiles/iverilog/${IVERILOGVER} && \
+cd /usr/local/modulefiles/iverilog/ && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${IVERILOGVER}" >> .version && \
+rm -rf \
+  /opt/iverilog

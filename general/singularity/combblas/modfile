@@ -15,13 +15,13 @@ module-whatis "adds $name library (version $version) to your environment variabl
 
 prereq        openmpi
 
-setenv            COMBBLAS_ROOT     ${root}
+setenv              COMBBLAS_ROOT     ${root}
 
-prepend-path      LD_LIBRARY_PATH   ${root}/lib
-prepend-path      LD_RUN_PATH       ${root}/lib
-prepend-path      LIBRARY_PATH      ${root}/lib
+prepend-path        LD_LIBRARY_PATH   ${root}/lib
+prepend-path        LD_RUN_PATH       ${root}/lib
+prepend-path        LIBRARY_PATH      ${root}/lib
 
-prepend-path	  CPATH		    ${root}/include
-prepend-path	  INCLUDE_PATH	    ${root}/include
+prepend-path        CPATH             ${root}/include
+prepend-path        INCLUDE_PATH      ${root}/include
 
-prepend-path      CMAKE_MODULE_PATH ${root}/lib/cmake/CombBLAS
+prepend-path -d ";" CMAKE_MODULE_PATH ${root}/lib/cmake/CombBLAS

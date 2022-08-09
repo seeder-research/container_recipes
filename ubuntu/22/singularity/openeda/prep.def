@@ -7,6 +7,7 @@ apt update && \
 apt install -y --no-install-recommends \
   kicad && \
 apt install -y \
+  ccache \
   feedgnuplot \
   gawk \
   gnuplot \
@@ -16,8 +17,14 @@ apt install -y \
   gtkwave \
   gwave \
   ipython3 \
+  libcairo2 \
+  libcairo2-dev \
+  libffi8 \
+  libffi-dev \
+  libgoogle-perftools-dev \
   libxaw7 \
   libxaw7-dev \
+  perl-doc \
   python3-ipython \
   python3-ipython-genutils \
   python3-matplotlib \
@@ -29,7 +36,9 @@ apt install -y \
   python3-scipy \
   python3-sympy \
   xserver-xorg \
-  xserver-xorg-dev && \
+  xserver-xorg-dev \
+  zlib1g \
+  zlib1g-dev && \
 apt autoclean -y && \
 apt autoremove -y && \
 pip3 install --upgrade pip && \

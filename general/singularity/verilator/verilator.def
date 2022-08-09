@@ -1,0 +1,35 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+module load \
+  bison \
+  flex \
+  systemc
+export VERILATORVER_MAJ=4
+export VERILATORVER_MIN=224
+export VERILATORVER=${VERILATORVER_MAJ}.${VERILATORVER_MIN}
+cd /opt && \
+git clone https://github.com/verilator/verilator && \
+cd /opt/verilator && \
+git checkout v${VERILATORVER} && \
+autoconf && \
+./configure \
+  --prefix=/usr/local/verilator/${VERILATORVER} &&\
+make -j$(nproc) && \
+make install && \
+cd /opt && \
+if [ ! -d /usr/local/modulefiles/verilator ]; then
+  mkdir /usr/local/modulefiles/verilator
+fi
+mv /opt/modfile \
+  /usr/local/modulefiles/verilator/${VERILATORVER} && \
+cd /usr/local/modulefiles/verilator && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${VERILATORVER}" >> .version && \
+rm -rf \
+  /opt/verilator
