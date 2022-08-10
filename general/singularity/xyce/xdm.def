@@ -1,0 +1,40 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+. /etc/profile
+module load \
+  bison \
+  flex \
+  openmpi \
+  boost
+export XDMVER_MAJ=2
+export XDMVER_MIN=5
+export XDMVER_PATCH=0
+export XDMVER=${XDMVER_MAJ}.${XDMVER_MIN}.${XDMVER_PATCH}
+export XDMURL="https://github.com/Xyce/XDM"
+if [ ! -d /opt/builddir ]; then
+  mkdir /opt/builddir
+fi
+if [ ! -d /opt/tmpdir ]; then
+  mkdir /opt/tmpdir
+fi
+mv ${LIBBOOST_ROOT}/lib/cmake/boost_python-*/libboost_python-*mt*.cmake \
+  /opt/tmpdir && \
+mv ${LIBBOOST_ROOT}/lib/cmake/boost_python-*/libboost_python-*static*.cmake \
+  /opt/tmpdir && \
+cd /opt && \
+git clone ${XDMURL} -b Release-${XDMVER} && \
+cd /opt/builddir && \
+cmake \
+  -DCMAKE_INSTALL_PATH=/usr/local/xdm/${XDMVER} \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DBOOST_ROOT=${LIBBOOST_ROOT} \
+  /opt/XDM && \
+cmake --build . -j$(nproc) -t install && \
+cd /opt && \
+mv /opt/tmpdir/*.cmake \
+  ${LIBBOOST_ROOT}/lib/cmake/boost_python-1.79.0/. && \
+rm -rf \
+  /opt/builddir \
+  /opt/XDM

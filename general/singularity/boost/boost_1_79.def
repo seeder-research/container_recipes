@@ -28,7 +28,7 @@ echo "using mpi ;" >> user-config.jam && \
   variant=release \
   link=static \
   threading=multi \
-  install
+  install && \
 ./tools/build/src/engine/bjam -j$(nproc) \
   --prefix=/usr/local/boost/${BOOSTVER} \
   --layout=system \
@@ -36,7 +36,7 @@ echo "using mpi ;" >> user-config.jam && \
   variant=release \
   link=static \
   threading=multi \
-  install
+  install && \
 ./tools/build/src/engine/bjam -j$(nproc) \
   --prefix=/usr/local/boost/${BOOSTVER} \
   --layout=versioned \
@@ -44,7 +44,7 @@ echo "using mpi ;" >> user-config.jam && \
   variant=release \
   link=shared \
   threading=multi \
-  install
+  install && \
 ./tools/build/src/engine/bjam -j$(nproc) \
   --prefix=/usr/local/boost/${BOOSTVER} \
   --layout=system \
@@ -52,8 +52,10 @@ echo "using mpi ;" >> user-config.jam && \
   variant=release \
   link=shared \
   threading=multi \
-  install
-mkdir /usr/local/modulefiles/dev/boost && \
+  install && \
+if [ ! -d /usr/local/modulefiles/dev/boost ]; then
+  mkdir /usr/local/modulefiles/dev/boost
+fi
 cd /usr/local/modulefiles/dev/boost && \
 mv /opt/modfile \
   /usr/local/modulefiles/dev/boost/${BOOSTVER} && \

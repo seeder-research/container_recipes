@@ -1,0 +1,33 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+export CUDDVER_MAJ=3
+export CUDDVER_MIN=0
+export CUDDVER_PATCH=0
+export CUDDVER=${CUDDVER_MAJ}.${CUDDVER_MIN}.${CUDDVER_PATCH}
+export CUDDURL="https://www.davidkebo.com/source/cudd_versions/cudd-${CUDDVER}.tar.gz"
+cd /opt && \
+wget --no-check-certificate \
+  ${CUDDURL} && \
+tar xf \
+  /opt/cudd-${CUDDVER}.tar.gz && \
+cd /opt/cudd-${CUDDVER} && \
+./configure \
+  --prefix=/usr/local/cudd/${CUDDVER} && \
+make -j$(nproc) && \
+make install && \
+if [ ! -d /usr/local/modulefiles/cudd ]; then
+  mkdir -p /usr/local/modulefiles/cudd
+fi
+cd /opt && \
+mv /opt/modfile \
+  /usr/local/modulefiles/cudd/${CUDDVER} && \
+echo "#%Module" > /usr/local/modulefiles/cudd/.version && \
+echo set ModulesVersion "${CUDDVER}" >> /usr/local/modulefiles/cudd/.version && \
+rm -rf \
+  /opt/cudd-${CUDDVER} \
+  /opt/cudd-${CUDDVER}.tar.gz
