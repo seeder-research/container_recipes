@@ -25,6 +25,8 @@ if [ ! -d /usr/local/berkerley-abc/latest ]; then
   mv libabc.a /usr/local/berkeley-abc/latest/lib/. && \
   make clean && \
   cd /usr/local/modulefiles/berkeley-abc && \
+  echo "#%Module" > .version && \
+  echo set ModulesVersion "${OPENSTAVER}" >> .version && \
   mv /opt/modfile \
     /usr/local/modulefiles/berkeley-abc/latest
 fi
