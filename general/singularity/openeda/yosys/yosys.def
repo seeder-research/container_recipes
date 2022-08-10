@@ -25,7 +25,10 @@ cd /opt/builddir && \
 make -f \
   /opt/yosys/Makefile \
   config-gcc && \
-make -j$(nproc) install && \
+make \
+  -f /opt/yosys/Makefile \
+  -j$(nproc) \
+  install && \
 cd /opt && \
 if [ ! -d /usr/local/modulefiles/yosys ]; then
   mkdir /usr/local/modulefiles/yosys
