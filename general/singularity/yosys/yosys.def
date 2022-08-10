@@ -1,0 +1,40 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export YOSYSVER_MAJ=0
+export YOSYSVER_MIN=20
+export YOSYSVER=${YOSYSVER_MAJ}.${YOSYSVER_MIN}
+export YOSYSURL="https://github.com/YosysHQ/yosys"
+export YOSYS_HOME=/usr/local/yosys/${YOSYSVER}
+export PREFIX=${YOSYS_HOME}
+module load \
+  bison \
+  flex
+if [ ! -d /opt/builddir ]; then
+  mkdir -p /opt/builddir
+fi
+cd /opt && \
+git clone ${YOSYSURL} \
+  -b yosys-${YOSYSVER} && \
+cd /opt/builddir && \
+make -f \
+  /opt/yosys/Makefile \
+  config-gcc && \
+make -j$(nproc) install && \
+cd /opt && \
+if [ ! -d /usr/local/modulefiles/yosys ]; then
+  mkdir /usr/local/modulefiles/yosys
+fi
+mv /opt/modfile \
+  /usr/local/modulefiles/yosys/${YOSYSVER} && \
+cd /usr/local/modulefiles/yosys && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${YOSYSVER}" >> .version && \
+rm -rf \
+  /opt/yosys \
+  /opt/builddir
