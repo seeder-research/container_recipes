@@ -1,0 +1,34 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+export ABC_USE_PIC=1
+export ABCURL="https://github.com/berkeley-abc/abc"
+if [ ! -d /usr/local/berkerley-abc/latest ]; then
+  mkdir -p /usr/local/berkeley-abc/latest
+  if [ ! -d /usr/local/modulefiles/berkeley-abc ]; then
+    mkdir -p /usr/local/modulefiles/berkeley-abc
+  fi
+  cd /usr/local/berkeley-abc/latest && \
+  git clone ${ABCURL} ./src && \
+  mkdir -p /usr/local/berkeley-abc/latest/bin && \
+  mkdir -p /usr/local/berkeley-abc/latest/lib && \
+  cd /usr/local/berkeley-abc/latest/src && \
+  make -j$(nproc) && \
+  make -j${nproc} libabc.so && \
+  make -j${nproc} libabc.a && \
+  mv abc /usr/local/berkeley-abc/latest/bin/. && \
+  mv libabc.so /usr/local/berkeley-abc/latest/lib/. && \
+  mv libabc.a /usr/local/berkeley-abc/latest/lib/. && \
+  make clean && \
+  cd /usr/local/modulefiles/berkeley-abc && \
+  mv /opt/modfile \
+    /usr/local/modulefiles/berkeley-abc/latest
+fi
+
+if [ -f /opt/modfile ]; then
+  rm -rf /opt/modfile
+fi
