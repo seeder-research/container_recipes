@@ -1,0 +1,44 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export OPENSTAVER_MAJ=2
+export OPENSTAVER_MIN=2
+export OPENSTAVER_PATCH=0
+export OPENSTAVER=${OPENSTAVER_MAJ}.${OPENSTAVER_MIN}.${OPENSTAVER_PATCH}
+export OPENSTAURL="https://github.com/The-OpenROAD-Project/OpenSTA"
+export OPENSTA_HOME=/usr/local/opensta/${OPENSTAVER}
+module load \
+  bison \
+  cudd \
+  flex
+if [ ! -d /opt/builddir ]; then
+  mkdir -p /opt/builddir
+fi
+cd /opt && \
+git clone ${OPENSTAURL} \
+  -b v${OPENSTAVER} && \
+cd /opt/builddir && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=${OPENSTA_HOME} \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DUSE_CUDD=ON \
+  -DCUDD_ROOT=${CUDD_ROOT} \
+  /opt/OpenSTA/. && \
+cmake --build . -j$(nproc) -t install && \
+cd /opt && \
+if [ ! -d /usr/local/modulefiles/opensta ]; then
+  mkdir /usr/local/modulefiles/opensta
+fi
+mv /opt/modfile \
+  /usr/local/modulefiles/opensta/${OPENSTAVER} && \
+cd /usr/local/modulefiles/opensta && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${OPENSTAVER}" >> .version && \
+rm -rf \
+  /opt/OpenSTA \
+  /opt/builddir
