@@ -1,0 +1,38 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export GRAYWOLFVER_MAJ=0
+export GRAYWOLFVER_MIN=1
+export GRAYWOLFVER_PATCH=6
+export GRAYWOLFVER=${GRAYWOLFVER_MAJ}.${GRAYWOLFVER_MIN}.${GRAYWOLFVER_PATCH}
+export GRAYWOLFURL="https://github.com/rubund/graywolf"
+if [ ! -d /usr/local/modulefiles/graywolf ]; then
+  mkdir /usr/local/modulefiles/graywolf
+fi
+if [ ! -d /opt/builddir ]; then
+  mkdir /opt/builddir
+fi
+cd /opt && \
+git clone ${GRAYWOLFURL} && \
+cd /opt/builddir && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=/usr/local/graywolf/${GRAYWOLFVER} \
+  -DCMAKE_BUILD_TYPE="Release" \
+  /opt/graywolf && \
+cmake --build . \
+  -j$(nproc) \
+  -t install && \
+cd /opt && \
+mv /opt/modfile \
+  /usr/local/modulefiles/graywolf/${GRAYWOLFVER} && \
+cd /usr/local/modulefiles/graywolf && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${GRAYWOLFVER}" >> .version && \
+rm -rf \
+  /opt/graywolf \
+  /opt/builddir

@@ -24,6 +24,8 @@ apt install -y \
   libffi8 \
   libffi-dev \
   libgoogle-perftools-dev \
+  libgsl27 \
+  libgsl-dev \
   libreadline8 \
   libreadline-dev \
   libxaw7 \
