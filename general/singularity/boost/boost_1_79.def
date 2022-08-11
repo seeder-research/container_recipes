@@ -23,13 +23,13 @@ cd /opt && \
 git clone --recursive https://github.com/boostorg/boost.git -b boost-${BOOSTVER} /opt/boost-${BOOSTVER} && \
 cd /opt/boost-${BOOSTVER} && \
 ./bootstrap.sh --with-toolset=gcc && \
-echo "using mpi ;" >> user-config.jam && \
-./tools/build/src/engine/bjam -j$(nproc) \
+echo "using mpi ;" >> project-config.jam && \
+./b2 -j$(nproc) \
   --prefix=/usr/local/boost/${BOOSTVER} \
   --layout=system \
   toolset=gcc \
   variant=release \
-  link=static \
+  link=shared,static \
   threading=multi \
   install && \
 cd /usr/local/modulefiles/dev/boost && \
