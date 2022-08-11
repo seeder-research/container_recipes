@@ -49,6 +49,7 @@ apt install -y \
   python3-sympy \
   tcsh \
   tcl-tclreadline \
+  tcllib \
   xserver-xorg \
   xserver-xorg-dev \
   zlib1g \
