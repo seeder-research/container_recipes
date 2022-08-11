@@ -21,13 +21,18 @@ apt install -y \
   ksh \
   libcairo2 \
   libcairo2-dev \
+  libeigen3-dev \
   libffi8 \
   libffi-dev \
   libgoogle-perftools-dev \
   libgsl27 \
   libgsl-dev \
+  liblemon-dev \
+  liblemon1.3.1 \
   libreadline8 \
   libreadline-dev \
+  libspdlog-dev \
+  libspdlog1 \
   libxaw7 \
   libxaw7-dev \
   ninja-build \
@@ -43,6 +48,7 @@ apt install -y \
   python3-scipy \
   python3-sympy \
   tcsh \
+  tcl-tclreadline \
   xserver-xorg \
   xserver-xorg-dev \
   zlib1g \
