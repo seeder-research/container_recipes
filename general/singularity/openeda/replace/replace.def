@@ -1,0 +1,47 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export REPLACEVER_MAJ=1
+export REPLACEVER_MIN=1
+export REPLACEVER_PATCH=1
+export REPLACEVER=${REPLACEVER_MAJ}.${REPLACEVER_MIN}.${REPLACEVER_PATCH}
+export REPLACEURL="https://github.com/The-OpenROAD-Project/replace"
+export REPLACE_HOME=/usr/local/replace/${REPLACEVER}
+if [ ! -d /usr/local/modulefiles/replace ]; then
+  mkdir /usr/local/modulefiles/replace
+fi
+module load \
+  bison \
+  flex
+if [ ! -d /opt/builddir ]; then
+  mkdir -p /opt/builddir
+fi
+cd /opt && \
+git clone --recursive ${REPLACEURL} \
+  -b standalone && \
+cd /opt/builddir && \
+cmake \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${REPLACE_HOME} \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DREPLACE_HOME=/opt/replace \
+  -DPROJECT_SOURCE_DIR=/opt/replace \
+  -DUSE_CIMG_LIB=ON \
+  /opt/replace && \
+cmake --build . \
+  -j$(nproc) \
+  -t install && \
+cd /opt && \
+mv /opt/modfile \
+  /usr/local/modulefiles/replace/${REPLACEVER} && \
+cd /usr/local/modulefiles/replace && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${REPLACEVER}" >> .version && \
+rm -rf \
+  /opt/OpenROAD \
+  /opt/builddir

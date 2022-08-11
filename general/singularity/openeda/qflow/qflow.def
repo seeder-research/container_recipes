@@ -1,0 +1,42 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+module load \
+  bison \
+  flex \
+  cudd \
+  yosys \
+  opensta \
+  magic \
+  netgen \
+  graywolf \
+  qrouter \
+  opentimer \
+  replace
+export QFLOWVER_MAJ=1
+export QFLOWVER_MIN=4
+export QFLOWVER_PATCH=98
+export QFLOWVER=${QFLOWVER_MAJ}.${QFLOWVER_MIN}
+export QFLOWURL="https://github.com/RTimothyEdwards/qflow"
+if [ ! -d /usr/local/modulefiles/qflow ]; then
+  mkdir /usr/local/modulefiles/qflow
+fi
+cd /opt && \
+git clone ${QFLOWURL} && \
+cd /opt/qflow && \
+./configure \
+  --prefix=/usr/local/qflow/${QFLOWVER} && \
+make -j$(nproc) install && \
+cd /opt && \
+mv /opt/modfile \
+  /usr/local/modulefiles/qflow/${QFLOWVER} && \
+cd /usr/local/modulefiles/qflow && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${QFLOWVER}" >> .version && \
+rm -rf \
+  /opt/qflow
