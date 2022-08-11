@@ -17,7 +17,7 @@ cd /opt && \
 git clone ${QROUTERURL} && \
 cd /opt/qrouter && \
 ./configure \
-  --prefix=/usr/local/qrouter/${QROUTERVER} \
+  --prefix=/usr/local/qrouter/${QROUTERVER} && \
 make -j$(nproc) install && \
 cd /opt && \
 mv /opt/modfile \
