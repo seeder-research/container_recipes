@@ -1,0 +1,39 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export OPENTIMERVER_MAJ=2
+export OPENTIMERVER_MIN=1
+export OPENTIMERVER_PATCH=0
+export OPENTIMERVER=${OPENTIMERVER_MAJ}.${OPENTIMERVER_MIN}.${OPENTIMERVER_PATCH}
+export OPENTIMERURL="https://github.com/OpenTimer/OpenTimer"
+export OPENTIMER_HOME=/usr/local/opentimer/${OPENTIMERVER}
+if [ ! -d /usr/local/modulefiles/opentimer ]; then
+  mkdir /usr/local/modulefiles/opentimer
+fi
+if [ ! -d /opt/builddir ]; then
+  mkdir -p /opt/builddir
+fi
+cd /opt && \
+git clone ${OPENTIMERURL} && \
+cd /opt/builddir && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=${OPENTIMER_HOME} \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DCMAKE_CXX_COMPILER=/usr/bin/g++ \
+  -DCMAKE_CXX_FLAGS="-fPIC -shared" \
+  /opt/OpenTimer/. && \
+cmake --build . -j$(nproc) -t install && \
+cd /opt && \
+mv /opt/modfile \
+  /usr/local/modulefiles/opentimer/${OPENTIMERVER} && \
+cd /usr/local/modulefiles/opentimer && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${OPENTIMERVER}" >> .version && \
+rm -rf \
+  /opt/opentimer \
+  /opt/builddir
