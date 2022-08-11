@@ -47,6 +47,10 @@ apt install -y \
   python3-pip \
   python3-scipy \
   python3-sympy \
+  qtbase5-dev \
+  qtbase5-dev-tools \
+  qt5-qmake \
+  qt5-image-formats-plugins \
   tcsh \
   tcl-tclreadline \
   tcllib \

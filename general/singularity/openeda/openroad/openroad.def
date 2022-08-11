@@ -33,9 +33,12 @@ cmake \
   -DUSE_STSTEM_BOOST=ON \
   -DUSE_SYSTEM_OPENSTA=OFF \
   -DUSE_SYSTEM_ABC=OFF \
+  -DBUILD_GUI=ON \
   -DCMAKE_PREFIX_PATH="${LIBBOOST_ROOT}/lib/cmake" \
   /opt/OpenROAD/. && \
-cmake --build . -t install && \
+cmake --build . \
+  -j$(nproc) \
+  -t install && \
 cd /opt && \
 mv /opt/modfile \
   /usr/local/modulefiles/openroad/${OPENROADVER} && \
