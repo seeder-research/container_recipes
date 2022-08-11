@@ -33,7 +33,7 @@ cmake \
   -DUSE_STSTEM_BOOST=ON \
   -DUSE_SYSTEM_OPENSTA=OFF \
   -DUSE_SYSTEM_ABC=OFF \
-  -DCMAKE_PREFIX_PATH="${LIBBOOST_ROOT}/lib/cmake"
+  -DCMAKE_PREFIX_PATH="${LIBBOOST_ROOT}/lib/cmake" \
   /opt/OpenROAD/. && \
 cmake --build . -t install && \
 cd /opt && \
