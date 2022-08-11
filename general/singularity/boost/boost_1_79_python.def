@@ -25,7 +25,6 @@ cd /opt/boost-${BOOSTVER} && \
 ./bootstrap.sh --with-toolset=gcc && \
 echo "using mpi ;" >> project-config.jam && \
 echo "using python ;" >> project-config.jam && \
-./tools/build/src/engine
 ./b2 -j$(nproc) \
   --prefix=/usr/local/boost/${BOOSTVER} \
   --layout=system \
