@@ -1,0 +1,29 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export QROUTERVER_MAJ=1
+export QROUTERVER_MIN=4
+export QROUTERVER=${QROUTERVER_MAJ}.${QROUTERVER_MIN}
+export QROUTERURL="https://github.com/RTimothyEdwards/qrouter"
+if [ ! -d /usr/local/modulefiles/qrouter ]; then
+  mkdir /usr/local/modulefiles/qrouter
+fi
+cd /opt && \
+git clone ${QROUTERURL} && \
+cd /opt/qrouter && \
+./configure \
+  --prefix=/usr/local/qrouter/${QROUTERVER} \
+make -j$(nproc) install && \
+cd /opt && \
+mv /opt/modfile \
+  /usr/local/modulefiles/qrouter/${QROUTERVER} && \
+cd /usr/local/modulefiles/qrouter && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${QROUTERVER}" >> .version && \
+rm -rf \
+  /opt/qrouter
