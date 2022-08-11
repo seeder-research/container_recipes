@@ -6,7 +6,6 @@
 prereq bison
 prereq flex
 prereq cudd
-prereq opensta
 prereq boost
 
 set               name              openroad
