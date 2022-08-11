@@ -9,6 +9,9 @@ modfile    /opt
 . /.singularity.d/env/90-environment.sh
 export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
 export NGSPICEVER=37
+if [ ! -d /usr/local/modulefiles/ngspice ]; then
+    mkdir -p /usr/local/modulefiles/ngspice
+fi
 module load \
   bison \
   flex \
@@ -40,10 +43,7 @@ cd /opt/ngspice && \
   LDFLAGS="-m64 -s -L${MKLROOT}/lib/intel64 -L/usr/lib/x86_64-linux-gnu -Wl,--no-as-needed -lmkl_cdft_core -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -Wl,--as-needed -lpthread -lm -ldl" && \
 make clean && \
 make -j$(nproc) install && \
-cd /opt
-if [ ! -d /usr/local/modulefiles/ngspice ]; then
-    mkdir -p /usr/local/modulefiles/ngspice
-fi
+cd /opt && \
 cd /usr/local/modulefiles/ngspice && \
 mv /opt/modfile \
   /usr/local/modulefiles/ngspice/${NGSPICEVER} && \

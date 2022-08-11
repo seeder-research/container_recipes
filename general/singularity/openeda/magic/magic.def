@@ -11,6 +11,9 @@ export MAGICVER_MIN=3
 export MAGICVER_PATCH=315
 export MAGICVER=${MAGICVER_MAJ}.${MAGICVER_MIN}.${MAGICVER_PATCH}
 export MAGICURL="https://github.com/RTimothyEdwards/magic"
+if [ ! -d /usr/local/modulefiles/magic ]; then
+  mkdir -p /usr/local/modulefiles/magic
+fi
 cd /opt && \
 git clone ${MAGICURL} \
   -b ${MAGICVER} && \
@@ -19,9 +22,6 @@ cd /opt/magic && \
   --prefix=/usr/local/magic/${MAGICVER} && \
 make -j$(nproc) && \
 make install && \
-if [ ! -d /usr/local/modulefiles/magic ]; then
-  mkdir -p /usr/local/modulefiles/magic
-fi
 cd /usr/local/modulefiles/magic && \
 mv /opt/modfile \
   /usr/local/modulefiles/magic/${MAGICVER} && \

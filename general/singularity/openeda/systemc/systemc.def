@@ -12,6 +12,9 @@ export SYSTEMCVER=${SYSTEMCVER_MAJ}.${SYSTEMCVER_MIN}.${SYSTEMCVER_PATCH}
 export SYSTEMC_HOME=/usr/local/systemc/${SYSTEMCVER}
 export SYSTEMC_INCLUDE=${SYSTEMC_HOME}/include
 export SYSTEMC_LIBDIR=${SYSTEMC_HOME}/lib
+if [ ! -d /usr/local/modulefiles/systemc ]; then
+  mkdir /usr/local/modulefiles/systemc
+fi
 cd /opt && \
 wget --no-check-certificate \
   https://www.accellera.org/images/downloads/standards/systemc/systemc-${SYSTEMCVER}.tar.gz && \
@@ -27,9 +30,6 @@ cmake \
   /opt/systemc-${SYSTEMCVER}/. && \
 cmake --build . -j$(nproc) -t install && \
 cd /opt && \
-if [ ! -d /usr/local/modulefiles/systemc ]; then
-  mkdir /usr/local/modulefiles/systemc
-fi
 mv /opt/modfile \
   /usr/local/modulefiles/systemc/${SYSTEMCVER} && \
 cd /usr/local/modulefiles/systemc && \

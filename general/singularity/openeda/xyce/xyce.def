@@ -14,6 +14,9 @@ module load \
   bison \
   flex \
   adms
+if [ ! -d /usr/local/modulefiles/xyce ]; then
+    mkdir -p /usr/local/modulefiles/xyce
+fi
 export SUITESPARSEVER_MAJ=5
 export SUITESPARSEVER_MIN=12
 export SUITESPARSEVER_PATCH=0
@@ -176,9 +179,6 @@ ${XYCESRCDIR} && \
 cmake --build . -j$(nproc) -t install && \
 rm -rf * && \
 cd /usr/local/xyce/${XYCEVER} && \
-if [ ! -d /usr/local/modulefiles/xyce ]; then
-    mkdir -p /usr/local/modulefiles/xyce
-fi
 cd /usr/local/modulefiles/xyce && \
 sed -i "s/@libver@/${TRILINOSVER}_xyce/" /opt/modfile && \
 mv /opt/modfile \

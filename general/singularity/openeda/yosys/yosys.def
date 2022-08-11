@@ -12,6 +12,9 @@ export YOSYSVER=${YOSYSVER_MAJ}.${YOSYSVER_MIN}
 export YOSYSURL="https://github.com/YosysHQ/yosys"
 export YOSYS_HOME=/usr/local/yosys/${YOSYSVER}
 export PREFIX=${YOSYS_HOME}
+if [ ! -d /usr/local/modulefiles/yosys ]; then
+  mkdir /usr/local/modulefiles/yosys
+fi
 module load \
   bison \
   flex
@@ -30,9 +33,6 @@ make \
   -j$(nproc) \
   install && \
 cd /opt && \
-if [ ! -d /usr/local/modulefiles/yosys ]; then
-  mkdir /usr/local/modulefiles/yosys
-fi
 mv /opt/modfile \
   /usr/local/modulefiles/yosys/${YOSYSVER} && \
 cd /usr/local/modulefiles/yosys && \

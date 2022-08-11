@@ -1,0 +1,34 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+export PADRINGURL="https://github.com/donn/padring"
+if [ ! -d /usr/local/padring/latest ]; then
+  mkdir -p /usr/local/padring/latest
+  if [ ! -d /usr/local/modulefiles/padring ]; then
+    mkdir -p /usr/local/modulefiles/padring
+  fi
+  cd /opt && \
+  git clone ${PADRINGURL} && \
+  mkdir -p /usr/local/padring/latest/bin && \
+  cd /opt/padring && \
+  bash ./bootstrap.sh && \
+  cd /opt/padring/build && \
+  ninja clean && \
+  ninja && \
+  mv padring /usr/local/padring/latest/bin/. && \
+  cd /usr/local/modulefiles/padring && \
+  echo "#%Module" > .version && \
+  echo set ModulesVersion "${OPENSTAVER}" >> .version && \
+  mv /opt/modfile \
+    /usr/local/modulefiles/padring/latest && \
+  rm -rf \
+    /opt/padring
+fi
+
+if [ -f /opt/modfile ]; then
+  rm -rf /opt/modfile
+fi

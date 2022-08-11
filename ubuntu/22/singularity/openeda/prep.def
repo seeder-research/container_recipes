@@ -28,6 +28,7 @@ apt install -y \
   libreadline-dev \
   libxaw7 \
   libxaw7-dev \
+  ninja-build \
   perl-doc \
   python3-ipython \
   python3-ipython-genutils \
@@ -56,6 +57,7 @@ pip3 install --upgrade sympy && \
 pip3 install --upgrade pandas && \
 pip3 install bokeh && \
 pip3 install DeCiDa && \
+pip3 install kivy && \
 pip3 install pyinstaller && \
 rm -rf \
   /var/lib/apt/lists/*

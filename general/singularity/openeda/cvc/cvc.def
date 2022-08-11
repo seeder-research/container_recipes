@@ -1,0 +1,40 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export CVCVER_MAJ=1
+export CVCVER_MIN=1
+export CVCVER_PATCH=3
+export CVCVER=${CVCVER_MAJ}.${CVCVER_MIN}.${CVCVER_PATCH}
+export CVCURL="https://github.com/d-m-bailey/cvc/archive/refs/tags/v${CVCVER}.tar.gz"
+export CVC_HOME=/usr/local/cvc/${CVCVER}
+export PREFIX=${CVC_HOME}
+if [ ! -d /usr/local/modulefiles/cvc ]; then
+  mkdir /usr/local/modulefiles/cvc
+fi
+module load \
+  bison \
+  flex
+cd /opt && \
+wget --no-check-certificate \
+  ${CVCURL} && \
+tar xf /opt/v${CVCVER}.tar.gz && \
+cd /opt/cvc-${CVCVER} && \
+autoreconf -vif && \
+./configure \
+  --disable-nls \
+  --prefix=${CVC_HOME} && \
+make -j$(nproc) install && \
+cd /opt && \
+mv /opt/modfile \
+  /usr/local/modulefiles/cvc/${CVCVER} && \
+cd /usr/local/modulefiles/cvc && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${CVCVER}" >> .version && \
+rm -rf \
+  /opt/cvc-${CVCVER} \
+  /opt/v${CVCVER}.tar.gz

@@ -10,6 +10,9 @@ export IVERILOGVER_MAJ=11
 export IVERILOGVER_MIN=0
 export IVERILOGVER=${IVERILOGVER_MAJ}.${IVERILOGVER_MIN}
 export IVERILOGURL="https://github.com/steveicarus/iverilog"
+if [ ! -d /usr/local/modulefiles/iverilog ]; then
+  mkdir -p /usr/local/modulefiles/iverilog
+fi
 module load \
   bison \
   flex
@@ -25,9 +28,6 @@ sh autoconf.sh && \
   --prefix=/usr/local/iverilog/${IVERILOGVER} && \
 make -j$(nproc) && \
 make install && \
-if [ ! -d /usr/local/modulefiles/iverilog ]; then
-  mkdir -p /usr/local/modulefiles/iverilog
-fi
 mv /opt/modfile \
   /usr/local/modulefiles/iverilog/${IVERILOGVER} && \
 cd /usr/local/modulefiles/iverilog/ && \

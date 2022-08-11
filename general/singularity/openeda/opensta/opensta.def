@@ -12,6 +12,9 @@ export OPENSTAVER_PATCH=0
 export OPENSTAVER=${OPENSTAVER_MAJ}.${OPENSTAVER_MIN}.${OPENSTAVER_PATCH}
 export OPENSTAURL="https://github.com/The-OpenROAD-Project/OpenSTA"
 export OPENSTA_HOME=/usr/local/opensta/${OPENSTAVER}
+if [ ! -d /usr/local/modulefiles/opensta ]; then
+  mkdir /usr/local/modulefiles/opensta
+fi
 module load \
   bison \
   cudd \
@@ -31,9 +34,6 @@ cmake \
   /opt/OpenSTA/. && \
 cmake --build . -j$(nproc) -t install && \
 cd /opt && \
-if [ ! -d /usr/local/modulefiles/opensta ]; then
-  mkdir /usr/local/modulefiles/opensta
-fi
 mv /opt/modfile \
   /usr/local/modulefiles/opensta/${OPENSTAVER} && \
 cd /usr/local/modulefiles/opensta && \
