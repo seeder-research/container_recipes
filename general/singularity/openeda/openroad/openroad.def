@@ -1,0 +1,47 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export OPENROADVER_MAJ=2
+export OPENROADVER_MIN=0
+export OPENROADVER_PATCH=0
+export OPENROADVER=${OPENROADVER_MAJ}.${OPENROADVER_MIN}.${OPENROADVER_PATCH}
+export OPENROADURL="https://github.com/The-OpenROAD-Project/OpenROAD"
+export OPENROAD_HOME=/usr/local/openroad/latest
+if [ ! -d /usr/local/modulefiles/openroad ]; then
+  mkdir /usr/local/modulefiles/openroad
+fi
+module load \
+  bison \
+  flex \
+  cudd \
+  boost
+if [ ! -d /opt/builddir ]; then
+  mkdir -p /opt/builddir
+fi
+cd /opt && \
+git clone --recursive ${OPENROADURL} && \
+cd /opt/builddir && \
+cmake \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${OPENROAD_HOME} \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DUSE_STSTEM_BOOST=ON \
+  -DUSE_SYSTEM_OPENSTA=OFF \
+  -DUSE_SYSTEM_ABC=OFF \
+  -DCMAKE_PREFIX_PATH="${LIBBOOST_ROOT}/lib/cmake"
+  /opt/OpenROAD/. && \
+cmake --build . -t install && \
+cd /opt && \
+mv /opt/modfile \
+  /usr/local/modulefiles/openroad/${OPENROADVER} && \
+cd /usr/local/modulefiles/openroad && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${OPENROADVER}" >> .version && \
+rm -rf \
+  /opt/OpenROAD \
+  /opt/builddir
