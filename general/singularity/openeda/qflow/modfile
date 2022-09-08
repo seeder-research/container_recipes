@@ -13,7 +13,6 @@ prereq            netgen
 prereq            graywolf
 prereq            qrouter
 prereq            opentimer
-prereq            replace
 
 set               name              qflow
 set               version           [file tail [info script]]

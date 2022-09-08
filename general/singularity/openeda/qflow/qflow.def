@@ -16,8 +16,7 @@ module load \
   netgen \
   graywolf \
   qrouter \
-  opentimer \
-  replace
+  opentimer
 export QFLOWVER_MAJ=1
 export QFLOWVER_MIN=4
 export QFLOWVER_PATCH=98
@@ -27,11 +26,12 @@ if [ ! -d /usr/local/modulefiles/qflow ]; then
   mkdir /usr/local/modulefiles/qflow
 fi
 cd /opt && \
-git clone ${QFLOWURL} && \
+git clone --recursive ${QFLOWURL} && \
 cd /opt/qflow && \
 ./configure \
   --prefix=/usr/local/qflow/${QFLOWVER} && \
-make -j$(nproc) install && \
+make -j$(nproc) && \
+make install && \
 cd /opt && \
 mv /opt/modfile \
   /usr/local/modulefiles/qflow/${QFLOWVER} && \
