@@ -14,11 +14,12 @@ echo Asia/Singapore > /etc/timezone && \
 TZ=Asia/Singapore apt install -y tzdata && \
 apt-get install -y --no-install-recommends \
   ca-certificates \
+  curl \
   gnupg \
   software-properties-common \
   wget && \
 cd /opt && \
-wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor | tee /usr/share/keyrings/kitware-archive-keyring.gpg && \
+curl -fsSL https://apt.kitware.com/keys/kitware-archive-latest.asc | gpg --dearmor | tee /usr/share/keyrings/kitware-archive-keyring.gpg > /dev/null && \
 echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main" > /etc/apt/sources.list.d/kitware.list && \
 apt-get update && \
 apt-get install -y \
@@ -31,7 +32,6 @@ apt-get install -y --no-install-recommends \
   bc \
   build-essential \
   bzip2 \
-  curl \
   doxygen \
   environment-modules \
   expat \
