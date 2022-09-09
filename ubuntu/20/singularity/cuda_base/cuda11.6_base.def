@@ -12,12 +12,22 @@ apt-get install -y \
   apt-transport-https \
   apt-utils && \
 apt-mark unhold \
-  cuda-toolkit-11-4 \
-  cuda-libraries-11-4 \
-  cuda-libraries-dev-11-4 \
-  cuda-nvml-dev-11-4 \
-  libcublas-11-4 \
-  libcublas-dev-11-4 \
+  cuda-toolkit-11-6 \
+  cuda-libraries-11-6 \
+  cuda-libraries-dev-11-6 \
+  cuda-nvml-dev-11-6 \
+  libcublas-11-6 \
+  libcublas-dev-11-6 \
+  libcufft-11-6 \
+  libcufft-dev-11-6 \
+  libcufile-11-6 \
+  libcufile-dev-11-6 \
+  libcurand-11-6 \
+  libcurand-dev-11-6 \
+  libcusolver-11-6 \
+  libcusolver-dev-11-6 \
+  libcusparse-11-6 \
+  libcusparse-dev-11-6 \
   libnccl-dev \
   libnccl2 && \
 apt-get upgrade -y && \
@@ -25,15 +35,25 @@ ln -snf /usr/share/zoneinfo/Asia/Singapore /etc/localtime && \
 echo Asia/Singapore > /etc/timezone && \
 TZ=Asia/Singapore apt install -y tzdata && \
 apt-get install -y \
-  cuda-toolkit-11-4 \
-  cuda-nvml-dev-11-4 && \
+  cuda-toolkit-11-6 \
+  cuda-nvml-dev-11-6 && \
 apt-mark hold \
-  cuda-toolkit-11-4 \
-  cuda-libraries-11-4 \
-  cuda-libraries-dev-11-4 \
-  cuda-nvml-dev-11-4 \
-  libcublas-11-4 \
-  libcublas-dev-11-4 \
+  cuda-toolkit-11-6 \
+  cuda-libraries-11-6 \
+  cuda-libraries-dev-11-6 \
+  cuda-nvml-dev-11-6 \
+  libcublas-11-6 \
+  libcublas-dev-11-6 \
+  libcufft-11-6 \
+  libcufft-dev-11-6 \
+  libcufile-11-6 \
+  libcufile-dev-11-6 \
+  libcurand-11-6 \
+  libcurand-dev-11-6 \
+  libcusolver-11-6 \
+  libcusolver-dev-11-6 \
+  libcusparse-11-6 \
+  libcusparse-dev-11-6 \
   libnccl-dev \
   libnccl2 && \
 rm -f /.singularity.d/env/90-environment.sh && \
