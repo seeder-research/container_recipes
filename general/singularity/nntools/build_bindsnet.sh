@@ -39,8 +39,8 @@ $CONDA_DIR/bin/conda install -y \
   -c anaconda \
   foolbox \
   opencv-python \
-  scikit_image \
-  scikit_learn && \
+  scikit-image \
+  scikit-learn && \
 $CONDA_DIR/bin/conda install -y \
   -c anaconda \
   pytorch-gpu && \
