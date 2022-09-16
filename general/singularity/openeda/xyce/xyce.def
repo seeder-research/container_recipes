@@ -18,7 +18,7 @@ if [ ! -d /usr/local/modulefiles/xyce ]; then
     mkdir -p /usr/local/modulefiles/xyce
 fi
 export SUITESPARSEVER_MAJ=5
-export SUITESPARSEVER_MIN=12
+export SUITESPARSEVER_MIN=13
 export SUITESPARSEVER_PATCH=0
 export SUITESPARSEVER=${SUITESPARSEVER_MAJ}.${SUITESPARSEVER_MIN}.${SUITESPARSEVER_PATCH}
 export SUITESPARSE_FILE=v${SUITESPARSEVER}.tar.gz
