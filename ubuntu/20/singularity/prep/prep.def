@@ -106,6 +106,8 @@ apt-get install -y --no-install-recommends \
   libxml2 \
   libxml-libxml-perl \
   libxml-perl \
+  libxnvctrl-dev \
+  libxnvctrl0 \
   libxrender-dev \
   libxt-dev \
   locales \
