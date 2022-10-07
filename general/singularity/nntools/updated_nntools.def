@@ -1,0 +1,78 @@
+BootStrap: localimage
+From: pre.sif
+
+%appenv annarchy
+export VENV_DIR=/usr/local/annarchy
+export PATH=${VENV_DIR}/bin:$PATH
+
+%appenv bindsnet
+export VENV_DIR=/usr/local/bindsnet
+export PATH=${VENV_DIR}/bin:$PATH
+
+%appenv chainer
+export VENV_DIR=/usr/local/chainer
+export PATH=${VENV_DIR}/bin:$PATH
+
+%appenv keras_py2
+export VENV_DIR=/usr/local/keras/ubuntu/20/py2
+export PATH=${VENV_DIR}/bin:$PATH
+
+%appenv keras_py3
+export VENV_DIR=/usr/local/keras/ubuntu/20/py3
+export PATH=${VENV_DIR}/bin:$PATH
+
+%appenv mxnet
+export VENV_DIR=/usr/local/mxnet
+export PATH=${VENV_DIR}/bin:$PATH
+
+%appenv nengo
+export VENV_DIR=/usr/local/nengo
+export PATH=${VENV_DIR}/bin:$PATH
+
+%appenv nupic
+export VENV_DIR=/usr/local/nupic
+export PATH=${VENV_DIR}/bin:$PATH
+
+%appenv opennn
+export VENV_DIR=/usr/local/opennn
+export PATH=${VENV_DIR}/bin:$PATH
+
+%appenv pytorch_py2
+export VENV_DIR=/usr/local/pytorch/ubuntu/20/py2
+export PATH=${VENV_DIR}/bin:$PATH
+
+%appenv pytorch_py3
+module load 
+
+%appenv snntoolset
+export VENV_DIR=/usr/local/snntoolset
+export PATH=${VENV_DIR}/bin:$PATH
+. /etc/profile.d/modules.sh
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  genn \
+  nest
+
+%appenv tensorflow
+export VENV_DIR=/usr/local/tf
+export PATH=${VENV_DIR}/bin:$PATH
+
+%post
+/bin/bash /opt/build_annarchy.sh
+/bin/bash /opt/build_bindsnet.sh
+/bin/bash /opt/build_chainer.sh
+/bin/bash /opt/build_keras.sh
+/bin/bash /opt/build_mxnet.sh
+/bin/bash /opt/build_nengo.sh
+/bin/bash /opt/build_nupic.sh
+/bin/bash /opt/build_opennn.sh
+/bin/bash /opt/build_pytorch.sh
+/bin/bash /opt/build_snntoolset.sh
+/bin/bash /opt/build_tensorflow.sh
+if [ -e /opt/Miniconda2-latest-Linux-x86_64.sh ]; then
+    rm -f /opt/Miniconda2-latest-Linux-x86_64.sh
+fi
+if [ -e /opt/Miniconda3-latest-Linux-x86_64.sh ]; then
+    rm -f /opt/Miniconda3-latest-Linux-x86_64.sh
+fi
+rm -f /opt/build_*.sh
