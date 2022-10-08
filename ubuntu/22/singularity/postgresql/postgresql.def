@@ -1,0 +1,13 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
+apt-get update && \
+apt-get install -y --no-install-recommends \
+  postgresql \
+  postgresql-server-dev-all \
+  postgresql-contrib && \
+rm -rf \
+  /var/lib/apt/lists/*

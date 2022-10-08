@@ -1,0 +1,45 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
+apt-get update && \
+apt-get install -y --no-install-recommends \
+  freeglut3 \
+  freeglut3-dev \
+  libegl1 \
+  libegl1-mesa \
+  libegl1-mesa-dev \
+  libgegl-0.4-0 \
+  libgegl-common \
+  libgegl-dev \
+  libglu1-mesa-dev \
+  libx11-dev \
+  libx11-xcb-dev \
+  libxaw7-dev \
+  libxaw7 \
+  libxcb-glx0-dev \
+  libxcb-icccm4-dev \
+  libxcb-image0-dev \
+  libxcb-keysyms1-dev \
+  libxcb-randr0-dev \
+  libxcb-render-util0-dev \
+  libxcb-shape0-dev \
+  libxcb-shm0-dev \
+  libxcb-sync-dev \
+  libxcb-xfixes0-dev \
+  libxcb1-dev \
+  libxext-dev \
+  libxft-dev \
+  libxfixes-dev \
+  libxi-dev \
+  libxi6 \
+  libxkbcommon-x11-dev \
+  libxnvctrl-dev \
+  libxnvctrl0 \
+  libxrender-dev \
+  libxt-dev \
+  mesa-common-dev && \
+rm -rf \
+  /var/lib/apt/lists/*
