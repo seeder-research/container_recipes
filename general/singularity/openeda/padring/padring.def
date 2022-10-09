@@ -5,26 +5,27 @@ From: pre.sif
 modfile        /opt
 
 %post
+export PADRINGVER=latest
 export PADRINGURL="https://github.com/donn/padring"
-if [ ! -d /usr/local/padring/latest ]; then
-  mkdir -p /usr/local/padring/latest
+if [ ! -d /usr/local/padring/${PADRINGVER} ]; then
+  mkdir -p /usr/local/padring/${PADRINGVER}
   if [ ! -d /usr/local/modulefiles/padring ]; then
     mkdir -p /usr/local/modulefiles/padring
   fi
   cd /opt && \
   git clone ${PADRINGURL} && \
-  mkdir -p /usr/local/padring/latest/bin && \
+  mkdir -p /usr/local/padring/${PADRINGVER}/bin && \
   cd /opt/padring && \
   bash ./bootstrap.sh && \
   cd /opt/padring/build && \
   ninja clean && \
   ninja && \
-  mv padring /usr/local/padring/latest/bin/. && \
+  mv padring /usr/local/padring/${PADRINGVER}/bin/. && \
   cd /usr/local/modulefiles/padring && \
   echo "#%Module" > .version && \
-  echo set ModulesVersion "${OPENSTAVER}" >> .version && \
+  echo set ModulesVersion "${PADRINGVER}" >> .version && \
   mv /opt/modfile \
-    /usr/local/modulefiles/padring/latest && \
+    /usr/local/modulefiles/padring/${PADRINGVER} && \
   rm -rf \
     /opt/padring
 fi
