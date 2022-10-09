@@ -11,7 +11,7 @@ export OPENROADVER_MIN=0
 export OPENROADVER_PATCH=0
 export OPENROADVER=${OPENROADVER_MAJ}.${OPENROADVER_MIN}.${OPENROADVER_PATCH}
 export OPENROADURL="https://github.com/The-OpenROAD-Project/OpenROAD"
-export OPENROAD_HOME=/usr/local/openroad/latest
+export OPENROAD_HOME=/usr/local/openroad/${OPENROADVER}
 if [ ! -d /usr/local/modulefiles/openroad ]; then
   mkdir /usr/local/modulefiles/openroad
 fi
@@ -30,10 +30,14 @@ cmake \
   -G "Unix Makefiles" \
   -DCMAKE_INSTALL_PREFIX=${OPENROAD_HOME} \
   -DCMAKE_BUILD_TYPE="Release" \
-  -DUSE_STSTEM_BOOST=ON \
+  -DUSE_SYSTEM_BOOST=ON \
   -DUSE_SYSTEM_OPENSTA=OFF \
   -DUSE_SYSTEM_ABC=OFF \
+  -DUSE_CUDD=ON \
+  -DCUDD_DIR=${CUDD_ROOT} \
   -DBUILD_GUI=ON \
+  -DGPU=ON \
+  -DCMAKE_CUDA_ARCHITECTURES="60" \
   -DCMAKE_PREFIX_PATH="${LIBBOOST_ROOT}/lib/cmake" \
   /opt/OpenROAD/. && \
 cmake --build . \

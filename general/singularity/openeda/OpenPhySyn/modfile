@@ -5,8 +5,10 @@
 
 prereq bison
 prereq flex
+prereq cudd
+prereq boost
 
-set               name              replace
+set               name              openphysyn
 set               version           [file tail [info script]]
 set               root              /usr/local/$name/$version
 
@@ -17,7 +19,7 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment."
 
-setenv              REPLACE_ROOT      ${root}
+setenv              OPENPHYSYN_ROOT   ${root}
 
 prepend-path        PATH              ${root}/bin
 

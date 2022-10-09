@@ -42,6 +42,8 @@ mv /opt/modfile \
 cd /usr/local/modulefiles/replace && \
 echo "#%Module" > .version && \
 echo set ModulesVersion "${REPLACEVER}" >> .version && \
+cd ${REPLACE_HOME}/bin && \
+ln -s ./replace RePlAce && \
 rm -rf \
   /opt/OpenROAD \
   /opt/builddir

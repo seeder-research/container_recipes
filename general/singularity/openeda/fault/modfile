@@ -2,10 +2,7 @@
 ##
 ## modulefile
 ##
-
-prereq            systemc
-
-set               name              verilator
+set               name              fault
 set               version           [file tail [info script]]
 set               root              /usr/local/$name/$version
 
@@ -16,10 +13,6 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment."
 
-setenv            VERILATOR_ROOT    ${root}
+setenv            FAULT_ROOT        ${root}
 
 prepend-path      PATH              ${root}/bin
-
-prepend-path      MANPATH           ${root}/share/man
-
-prepend-path      PKG_CONFIG_PATH   ${root}/share/pkgconfig

@@ -1,0 +1,42 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export OPENPHYSYNVER=latest
+export OPENPHYSYNURL="https://github.com/scale-lab/OpenPhySyn"
+export OPENPHYSYN_HOME=/usr/local/openphysyn/${OPENPHYSYN}
+if [ ! -d /usr/local/modulefiles/openphysyn ]; then
+  mkdir /usr/local/modulefiles/openphysyn
+fi
+module load \
+  bison \
+  flex \
+  cudd \
+  boost
+if [ ! -d /opt/builddir ]; then
+  mkdir -p /opt/builddir
+fi
+cd /opt && \
+git clone --recursive ${OPENPHYSYNURL} && \
+cd /opt/builddir && \
+cmake \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${OPENPHYSYN_HOME} \
+  -DCMAKE_BUILD_TYPE="Release" \
+  /opt/OpenPhySyn/. && \
+cmake --build . \
+  -j$(nproc) \
+  -t install && \
+cd /opt && \
+mv /opt/modfile \
+  /usr/local/modulefiles/openphysyn/${OPENPHYSYNVER} && \
+cd /usr/local/modulefiles/openphysyn && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${OPENPHYSYNVER}" >> .version && \
+rm -rf \
+  /opt/OpenPhySyn \
+  /opt/builddir

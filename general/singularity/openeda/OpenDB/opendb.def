@@ -1,0 +1,36 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+module load \
+  bison \
+  flex \
+  boost
+export OPENDBVER=latest
+export OPENDBHOME=/usr/local/opendb/${OPENDBVER}
+if [ ! -d /usr/local/modulefiles/opendb ]; then
+    mkdir -p /usr/local/modulefiles/opendb
+fi
+cd /opt && \
+git clone --recursive \
+  https://github.com/The-OpenROAD-Project/OpenDB.git && \
+mkdir -p /opt/OpenDB/build && \
+cd /opt/OpenDB/build && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=${OPENDBHOME} \
+  -DCMAKE_BUILD_TYPE="Release" \
+  /opt/OpenDB && \
+cmake --build . \
+  -j$(nproc) \
+  -t install && \
+cd /usr/local/modulefiles/opendb && \
+mv /opt/modfile \
+  /usr/local/modulefiles/opendb/${OPENDBVER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${OPENDBVER}" >> .version && \
+rm -rf \
+  /opt/OpenDB

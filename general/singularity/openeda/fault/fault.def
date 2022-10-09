@@ -1,0 +1,31 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export FAULTVER_MAJ=0
+export FAULTVER_MIN=5
+export FAULTVER_PATCH=0
+export FAULTVER=${FAULTVER_MAJ}.${FAULTVER_MIN}.${FAULTVER_PATCH}
+export FAULTURL="https://github.com/AUCOHL/fault"
+if [ ! -d /usr/local/modulefiles/fault ]; then
+  mkdir /usr/local/modulefiles/fault
+fi
+cd /opt && \
+git clone --recursive ${FAULTURL} && \
+cd /opt/fault && \
+./configure \
+  --prefix=/usr/local/fault/${FAULTVER} && \
+make -j$(nproc) && \
+make install && \
+cd /opt && \
+mv /opt/modfile \
+  /usr/local/modulefiles/fault/${FAULTVER} && \
+cd /usr/local/modulefiles/fault && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${FAULTVER}" >> .version && \
+rm -rf \
+  /opt/fault
