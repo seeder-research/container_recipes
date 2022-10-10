@@ -35,8 +35,9 @@ git clone --recursive \
   /opt/${APPNAME} && \
 cd /opt/${APPNAME} && \
 ./configure \
-  --prefix=${APPROOT} && \
-  --with-replace=${REPLACE_ROOT}/bin && \
+  --prefix=${APPROOT} \
+  --with-magic=${MAGIC_ROOT}/bin/magic \
+  --with-replace=${REPLACE_ROOT}/bin/RePlAce && \
 make -j$(nproc) && \
 make install && \
 cd /opt && \
