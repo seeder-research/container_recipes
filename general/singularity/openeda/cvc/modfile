@@ -8,7 +8,7 @@ prereq flex
 
 set               name              cvc
 set               version           [file tail [info script]]
-set               root              /usr/local/$name/$version
+set               root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 

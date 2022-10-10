@@ -12,15 +12,15 @@ prereq adms
 set              name              xyce
 set              version           [file tail [info script]]
 set              libver            @libver@
-set              root              /usr/local/$name/$version
+set              root              /usr/local/${name}/${version}
 set              admsHeaders       ${root}/share/xml
 
 proc ModulesHelp { } {
 
-  puts stderr "\tAdds $name (version $version) to your environment variables"
+  puts stderr "\tAdds ${name} (version ${version}) to your environment variables"
 }
 
-module-whatis "adds $name (version $version) to your environment variables."
+module-whatis "adds ${name} (version ${version}) to your environment variables."
 
 setenv            XYCE_ROOT         ${root}
 

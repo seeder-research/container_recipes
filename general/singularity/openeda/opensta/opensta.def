@@ -25,6 +25,8 @@ fi
 cd /opt && \
 git clone ${OPENSTAURL} \
   -b v${OPENSTAVER} && \
+sed -i "s/SWIG REQUIRED 3.0/SWIG REQUIRED/g" \
+  /opt/OpenSTA/CMakeLists.txt && \
 cd /opt/builddir && \
 cmake \
   -DCMAKE_INSTALL_PREFIX=${OPENSTA_HOME} \

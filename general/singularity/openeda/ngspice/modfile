@@ -5,14 +5,14 @@
 
 set              name              ngspice
 set              version           [file tail [info script]]
-set              root              /usr/local/$name/$version
+set              root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
-  puts stderr "\tAdds $name (version $version) to your environment variables"
+  puts stderr "\tAdds ${name} (version ${version}) to your environment variables"
 }
 
-module-whatis "adds $name (version $version) to your environment variables."
+module-whatis "adds ${name} (version ${version}) to your environment variables."
 
 prereq           bison
 prereq           flex
