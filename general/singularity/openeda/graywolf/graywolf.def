@@ -6,33 +6,39 @@ modfile        /opt
 
 %post
 . /etc/profile
-export GRAYWOLFVER_MAJ=0
-export GRAYWOLFVER_MIN=1
-export GRAYWOLFVER_PATCH=6
-export GRAYWOLFVER=${GRAYWOLFVER_MAJ}.${GRAYWOLFVER_MIN}.${GRAYWOLFVER_PATCH}
-export GRAYWOLFURL="https://github.com/rubund/graywolf"
-if [ ! -d /usr/local/modulefiles/graywolf ]; then
-  mkdir /usr/local/modulefiles/graywolf
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=0
+export APPVER_MIN=1
+export APPVER_PATCH=6
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPURL="https://github.com/rubund/graywolf"
+export APPNAME="graywolf"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 if [ ! -d /opt/builddir ]; then
   mkdir /opt/builddir
 fi
 cd /opt && \
-git clone ${GRAYWOLFURL} && \
+git clone --recursive ${APPURL} && \
 cd /opt/builddir && \
 cmake \
-  -DCMAKE_INSTALL_PREFIX=/usr/local/graywolf/${GRAYWOLFVER} \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
+  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
   -DCMAKE_BUILD_TYPE="Release" \
-  /opt/graywolf && \
+  /opt/${APPNAME} && \
 cmake --build . \
   -j$(nproc) \
   -t install && \
 cd /opt && \
 mv /opt/modfile \
-  /usr/local/modulefiles/graywolf/${GRAYWOLFVER} && \
-cd /usr/local/modulefiles/graywolf && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${GRAYWOLFVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/graywolf \
+  /opt/${APPNAME} \
   /opt/builddir

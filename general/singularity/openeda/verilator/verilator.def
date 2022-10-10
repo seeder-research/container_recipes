@@ -10,26 +10,32 @@ module load \
   bison \
   flex \
   systemc
-export VERILATORVER_MAJ=4
-export VERILATORVER_MIN=224
-export VERILATORVER=${VERILATORVER_MAJ}.${VERILATORVER_MIN}
-if [ ! -d /usr/local/modulefiles/verilator ]; then
-  mkdir /usr/local/modulefiles/verilator
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=4
+export APPVER_MIN=224
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}
+export APPURL="https://github.com/verilator/verilator"
+export APPNAME="verilator"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 cd /opt && \
-git clone https://github.com/verilator/verilator && \
-cd /opt/verilator && \
-git checkout v${VERILATORVER} && \
+git clone --recursive \
+  ${APPURL} \
+  /opt/${APPNAME} && \
+cd /opt/${APPNAME} && \
+git checkout v${APPVER} && \
 autoconf && \
 ./configure \
-  --prefix=/usr/local/verilator/${VERILATORVER} &&\
+  --prefix=${APPROOT} && \
 make -j$(nproc) && \
 make install && \
 cd /opt && \
 mv /opt/modfile \
-  /usr/local/modulefiles/verilator/${VERILATORVER} && \
-cd /usr/local/modulefiles/verilator && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${VERILATORVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/verilator
+  /opt/${APPNAME}

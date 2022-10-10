@@ -6,34 +6,40 @@ modfile        /opt
 
 %post
 . /etc/profile
-export OPENTIMERVER_MAJ=2
-export OPENTIMERVER_MIN=1
-export OPENTIMERVER_PATCH=0
-export OPENTIMERVER=${OPENTIMERVER_MAJ}.${OPENTIMERVER_MIN}.${OPENTIMERVER_PATCH}
-export OPENTIMERURL="https://github.com/OpenTimer/OpenTimer"
-export OPENTIMER_HOME=/usr/local/opentimer/${OPENTIMERVER}
-if [ ! -d /usr/local/modulefiles/opentimer ]; then
-  mkdir /usr/local/modulefiles/opentimer
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=2
+export APPVER_MIN=1
+export APPVER_PATCH=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPURL="https://github.com/OpenTimer/OpenTimer"
+export APPNAME="opentimer"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 if [ ! -d /opt/builddir ]; then
   mkdir -p /opt/builddir
 fi
 cd /opt && \
-git clone ${OPENTIMERURL} && \
+git clone --recursive \
+  ${APPURL} \
+  /opt/${APPNAME} && \
 cd /opt/builddir && \
 cmake \
-  -DCMAKE_INSTALL_PREFIX=${OPENTIMER_HOME} \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
   -DCMAKE_BUILD_TYPE="Release" \
-  -DCMAKE_CXX_COMPILER=/usr/bin/g++ \
+  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
+  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
   -DCMAKE_CXX_FLAGS="-fPIC -shared" \
-  /opt/OpenTimer/. && \
+  /opt/${APPNAME}/. && \
 cmake --build . -j$(nproc) -t install && \
 cd /opt && \
 mv /opt/modfile \
-  /usr/local/modulefiles/opentimer/${OPENTIMERVER} && \
-cd /usr/local/modulefiles/opentimer && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${OPENTIMERVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/opentimer \
+  /opt/${APPNAME} \
   /opt/builddir

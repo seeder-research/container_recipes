@@ -6,6 +6,14 @@ modfile        /opt
 
 %post
 . /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=1
+export APPVER_MIN=4
+export APPVER_PATCH=98
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}
+export APPURL="https://github.com/RTimothyEdwards/qflow"
+export APPNAME="qflow"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 module load \
   bison \
   flex \
@@ -18,27 +26,24 @@ module load \
   qrouter \
   opentimer \
   replace
-export QFLOWVER_MAJ=1
-export QFLOWVER_MIN=4
-export QFLOWVER_PATCH=98
-export QFLOWVER=${QFLOWVER_MAJ}.${QFLOWVER_MIN}
-export QFLOWURL="https://github.com/RTimothyEdwards/qflow"
-if [ ! -d /usr/local/modulefiles/qflow ]; then
-  mkdir /usr/local/modulefiles/qflow
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 cd /opt && \
-git clone --recursive ${QFLOWURL} && \
-cd /opt/qflow && \
+git clone --recursive \
+  ${APPURL} \
+  /opt/${APPNAME} && \
+cd /opt/${APPNAME} && \
 ./configure \
-  --prefix=/usr/local/qflow/${QFLOWVER} && \
+  --prefix=${APPROOT} && \
   --with-replace=${REPLACE_ROOT}/bin && \
 make -j$(nproc) && \
 make install && \
 cd /opt && \
 mv /opt/modfile \
-  /usr/local/modulefiles/qflow/${QFLOWVER} && \
-cd /usr/local/modulefiles/qflow && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${QFLOWVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/qflow
+  /opt/${APPNAME}

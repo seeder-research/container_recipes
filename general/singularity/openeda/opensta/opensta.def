@@ -6,14 +6,16 @@ modfile        /opt
 
 %post
 . /etc/profile
-export OPENSTAVER_MAJ=2
-export OPENSTAVER_MIN=2
-export OPENSTAVER_PATCH=0
-export OPENSTAVER=${OPENSTAVER_MAJ}.${OPENSTAVER_MIN}.${OPENSTAVER_PATCH}
-export OPENSTAURL="https://github.com/The-OpenROAD-Project/OpenSTA"
-export OPENSTA_HOME=/usr/local/opensta/${OPENSTAVER}
-if [ ! -d /usr/local/modulefiles/opensta ]; then
-  mkdir /usr/local/modulefiles/opensta
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=2
+export APPVER_MIN=2
+export APPVER_PATCH=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPURL="https://github.com/The-OpenROAD-Project/OpenSTA"
+export APPNAME="opensta"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 module load \
   bison \
@@ -23,24 +25,28 @@ if [ ! -d /opt/builddir ]; then
   mkdir -p /opt/builddir
 fi
 cd /opt && \
-git clone ${OPENSTAURL} \
-  -b v${OPENSTAVER} && \
+git clone --recursive ${APPURL} \
+  -b v${APPVER} \
+  /opt/${APPNAME} && \
 sed -i "s/SWIG REQUIRED 3.0/SWIG REQUIRED/g" \
   /opt/OpenSTA/CMakeLists.txt && \
 cd /opt/builddir && \
 cmake \
-  -DCMAKE_INSTALL_PREFIX=${OPENSTA_HOME} \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
+  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
   -DCMAKE_BUILD_TYPE="Release" \
   -DUSE_CUDD=ON \
   -DCUDD_ROOT=${CUDD_ROOT} \
-  /opt/OpenSTA/. && \
+  /opt/${APPNAME}/. && \
 cmake --build . -j$(nproc) -t install && \
 cd /opt && \
 mv /opt/modfile \
-  /usr/local/modulefiles/opensta/${OPENSTAVER} && \
-cd /usr/local/modulefiles/opensta && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${OPENSTAVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/OpenSTA \
+  /opt/${APPNAME} \
   /opt/builddir

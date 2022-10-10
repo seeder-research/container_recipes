@@ -6,11 +6,13 @@ modfile        /opt
 
 %post
 . /etc/profile
-export OPENPHYSYNVER=latest
-export OPENPHYSYNURL="https://github.com/scale-lab/OpenPhySyn"
-export OPENPHYSYN_HOME=/usr/local/openphysyn/${OPENPHYSYN}
-if [ ! -d /usr/local/modulefiles/openphysyn ]; then
-  mkdir /usr/local/modulefiles/openphysyn
+export HOME_BASE="/usr/local"
+export APPVER=latest
+export APPURL="https://github.com/scale-lab/OpenPhySyn"
+export APPNAME="openphysyn"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 module load \
   bison \
@@ -21,22 +23,26 @@ if [ ! -d /opt/builddir ]; then
   mkdir -p /opt/builddir
 fi
 cd /opt && \
-git clone --recursive ${OPENPHYSYNURL} && \
+git clone --recursive \
+  ${APPURL} \
+  /opt/${APPNAME} && \
 cd /opt/builddir && \
 cmake \
   -G "Unix Makefiles" \
-  -DCMAKE_INSTALL_PREFIX=${OPENPHYSYN_HOME} \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
+  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
   -DCMAKE_BUILD_TYPE="Release" \
-  /opt/OpenPhySyn/. && \
+  /opt/${APPNAME}/. && \
 cmake --build . \
   -j$(nproc) \
   -t install && \
 cd /opt && \
 mv /opt/modfile \
-  /usr/local/modulefiles/openphysyn/${OPENPHYSYNVER} && \
-cd /usr/local/modulefiles/openphysyn && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${OPENPHYSYNVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/OpenPhySyn \
+  /opt/${APPNAME} \
   /opt/builddir

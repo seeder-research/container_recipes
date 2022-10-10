@@ -6,14 +6,16 @@ modfile        /opt
 
 %post
 . /etc/profile
-export OPENROADVER_MAJ=2
-export OPENROADVER_MIN=0
-export OPENROADVER_PATCH=0
-export OPENROADVER=${OPENROADVER_MAJ}.${OPENROADVER_MIN}.${OPENROADVER_PATCH}
-export OPENROADURL="https://github.com/The-OpenROAD-Project/OpenROAD"
-export OPENROAD_HOME=/usr/local/openroad/${OPENROADVER}
-if [ ! -d /usr/local/modulefiles/openroad ]; then
-  mkdir /usr/local/modulefiles/openroad
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=2
+export APPVER_MIN=0
+export APPVER_PATCH=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPURL="https://github.com/The-OpenROAD-Project/OpenROAD"
+export APPNAME="openroad"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 module load \
   bison \
@@ -24,11 +26,15 @@ if [ ! -d /opt/builddir ]; then
   mkdir -p /opt/builddir
 fi
 cd /opt && \
-git clone --recursive ${OPENROADURL} && \
+git clone --recursive \
+  ${APPURL} \
+  /opt/${APPNAME} && \
 cd /opt/builddir && \
 cmake \
   -G "Unix Makefiles" \
-  -DCMAKE_INSTALL_PREFIX=${OPENROAD_HOME} \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
+  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
   -DCMAKE_BUILD_TYPE="Release" \
   -DUSE_SYSTEM_BOOST=ON \
   -DUSE_SYSTEM_OPENSTA=OFF \
@@ -39,16 +45,16 @@ cmake \
   -DGPU=ON \
   -DCMAKE_CUDA_ARCHITECTURES="60" \
   -DCMAKE_PREFIX_PATH="${LIBBOOST_ROOT}/lib/cmake" \
-  /opt/OpenROAD/. && \
+  /opt/${APPNAME}/. && \
 cmake --build . \
   -j$(nproc) \
   -t install && \
 cd /opt && \
 mv /opt/modfile \
-  /usr/local/modulefiles/openroad/${OPENROADVER} && \
-cd /usr/local/modulefiles/openroad && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${OPENROADVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/OpenROAD \
+  /opt/${APPNAME} \
   /opt/builddir

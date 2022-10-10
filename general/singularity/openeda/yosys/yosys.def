@@ -6,14 +6,16 @@ modfile        /opt
 
 %post
 . /etc/profile
-export YOSYSVER_MAJ=0
-export YOSYSVER_MIN=20
-export YOSYSVER=${YOSYSVER_MAJ}.${YOSYSVER_MIN}
-export YOSYSURL="https://github.com/YosysHQ/yosys"
-export YOSYS_HOME=/usr/local/yosys/${YOSYSVER}
-export PREFIX=${YOSYS_HOME}
-if [ ! -d /usr/local/modulefiles/yosys ]; then
-  mkdir /usr/local/modulefiles/yosys
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=0
+export APPVER_MIN=22
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}
+export APPURL="https://github.com/YosysHQ/yosys"
+export APPNAME="yosys"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export PREFIX=${APPROOT}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 module load \
   bison \
@@ -22,22 +24,24 @@ if [ ! -d /opt/builddir ]; then
   mkdir -p /opt/builddir
 fi
 cd /opt && \
-git clone ${YOSYSURL} \
-  -b yosys-${YOSYSVER} && \
+git clone --recursive \
+  ${APPURL} \
+  -b ${APPNAME}-${APPVER} \
+  /opt/${APPNAME} && \
 cd /opt/builddir && \
 make -f \
-  /opt/yosys/Makefile \
+  /opt/${APPNAME}/Makefile \
   config-gcc && \
 make \
-  -f /opt/yosys/Makefile \
+  -f /opt/${APPNAME}/Makefile \
   -j$(nproc) \
   install && \
 cd /opt && \
 mv /opt/modfile \
-  /usr/local/modulefiles/yosys/${YOSYSVER} && \
-cd /usr/local/modulefiles/yosys && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${YOSYSVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/yosys \
+  /opt/${APPNAME} \
   /opt/builddir

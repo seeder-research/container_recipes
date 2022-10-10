@@ -6,14 +6,16 @@ modfile        /opt
 
 %post
 . /etc/profile
-export REPLACEVER_MAJ=1
-export REPLACEVER_MIN=1
-export REPLACEVER_PATCH=1
-export REPLACEVER=${REPLACEVER_MAJ}.${REPLACEVER_MIN}.${REPLACEVER_PATCH}
-export REPLACEURL="https://github.com/The-OpenROAD-Project/replace"
-export REPLACE_HOME=/usr/local/replace/${REPLACEVER}
-if [ ! -d /usr/local/modulefiles/replace ]; then
-  mkdir /usr/local/modulefiles/replace
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=1
+export APPVER_MIN=1
+export APPVER_PATCH=1
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPURL="https://github.com/The-OpenROAD-Project/replace"
+export APPNAME="replace"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 module load \
   bison \
@@ -22,28 +24,34 @@ if [ ! -d /opt/builddir ]; then
   mkdir -p /opt/builddir
 fi
 cd /opt && \
-git clone --recursive ${REPLACEURL} \
-  -b standalone && \
+git clone --recursive \
+  ${APPURL} \
+  -b standalone \
+  /opt/${APPNAME} && \
 cd /opt/builddir && \
+sed -i "s/#include <climits>/#include <climits>\n#include <limits>/" \
+  /opt/${APPNAME}/src/replace_private.h && \
 cmake \
   -G "Unix Makefiles" \
-  -DCMAKE_INSTALL_PREFIX=${REPLACE_HOME} \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
   -DCMAKE_BUILD_TYPE="Release" \
-  -DREPLACE_HOME=/opt/replace \
-  -DPROJECT_SOURCE_DIR=/opt/replace \
+  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
+  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
+  -DREPLACE_HOME=/opt/${APPNAME} \
+  -DPROJECT_SOURCE_DIR=/opt/${APPNAME} \
   -DUSE_CIMG_LIB=ON \
-  /opt/replace && \
+  /opt/${APPNAME} && \
 cmake --build . \
   -j$(nproc) \
   -t install && \
 cd /opt && \
 mv /opt/modfile \
-  /usr/local/modulefiles/replace/${REPLACEVER} && \
-cd /usr/local/modulefiles/replace && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${REPLACEVER}" >> .version && \
-cd ${REPLACE_HOME}/bin && \
-ln -s ./replace RePlAce && \
+echo set ModulesVersion "${APPVER}" >> .version && \
+cd ${APPROOT}/bin && \
+ln -s ./${APPNAME} RePlAce && \
 rm -rf \
-  /opt/OpenROAD \
+  /opt/${APPNAME} \
   /opt/builddir

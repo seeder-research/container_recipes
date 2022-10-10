@@ -6,32 +6,37 @@ modfile        /opt
 
 %post
 . /etc/profile
-export IVERILOGVER_MAJ=11
-export IVERILOGVER_MIN=0
-export IVERILOGVER=${IVERILOGVER_MAJ}.${IVERILOGVER_MIN}
-export IVERILOGURL="https://github.com/steveicarus/iverilog"
-if [ ! -d /usr/local/modulefiles/iverilog ]; then
-  mkdir -p /usr/local/modulefiles/iverilog
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=11
+export APPVER_MIN=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}
+export APPURL="https://github.com/steveicarus/iverilog"
+export APPNAME="iverilog"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 module load \
   bison \
   flex
 cd /opt && \
-git clone ${IVERILOGURL} -b v${IVERILOGVER_MAJ}_${IVERILOGVER_MIN} && \
-cd /opt/iverilog && \
+git clone --recursive \
+  ${APPURL} \
+  -b v${APPVER_MAJ}_${APPVER_MIN} && \
+cd /opt/${APPNAME} && \
 git checkout \
   --track \
   -b v11-branch \
   origin/v11-branch && \
 sh autoconf.sh && \
 ./configure \
-  --prefix=/usr/local/iverilog/${IVERILOGVER} && \
+  --prefix=${APPROOT} && \
 make -j$(nproc) && \
 make install && \
 mv /opt/modfile \
-  /usr/local/modulefiles/iverilog/${IVERILOGVER} && \
-cd /usr/local/modulefiles/iverilog/ && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME}/ && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${IVERILOGVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/iverilog
+  /opt/${APPNAME}

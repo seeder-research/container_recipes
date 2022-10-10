@@ -5,37 +5,46 @@ From: pre.sif
 modfile        /opt
 
 %post
-export SYSTEMCVER_MAJ=2
-export SYSTEMCVER_MIN=3
-export SYSTEMCVER_PATCH=3
-export SYSTEMCVER=${SYSTEMCVER_MAJ}.${SYSTEMCVER_MIN}.${SYSTEMCVER_PATCH}
-export SYSTEMC_HOME=/usr/local/systemc/${SYSTEMCVER}
-export SYSTEMC_INCLUDE=${SYSTEMC_HOME}/include
-export SYSTEMC_LIBDIR=${SYSTEMC_HOME}/lib
-if [ ! -d /usr/local/modulefiles/systemc ]; then
-  mkdir /usr/local/modulefiles/systemc
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=2
+export APPVER_MIN=3
+export APPVER_PATCH=3
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPNAME="systemc"
+export APPURL="https://www.accellera.org/images/downloads/standards/systemc/systemc-${APPVER}.tar.gz"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export APP_INCLUDE=${APPROOT}/include
+export APP_LIBDIR=${APPROOT}/lib
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 cd /opt && \
 wget --no-check-certificate \
-  https://www.accellera.org/images/downloads/standards/systemc/systemc-${SYSTEMCVER}.tar.gz && \
-tar xf /opt/systemc-${SYSTEMCVER}.tar.gz && \
-mkdir -p /opt/systemc-${SYSTEMCVER}/builddir
-cd /opt/systemc-${SYSTEMCVER}/builddir && \
+  ${APPURL} && \
+tar xf /opt/${APPNAME}-${APPVER}.tar.gz && \
+mkdir -p /opt/${APPNAME}-${APPVER}/builddir
+cd /opt/${APPNAME}-${APPVER}/builddir && \
 cmake \
-  -DCMAKE_INSTALL_PREFIX=${SYSTEMC_HOME} \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
+  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
   -DCMAKE_BUILD_TYPE="Release" \
   -DBUILD_SHARED_LIBS=TRUE \
   -DCMAKE_CXX_STANDARD="14" \
   -DENABLE_PTHREADS=ON \
-  /opt/systemc-${SYSTEMCVER}/. && \
-cmake --build . -j$(nproc) -t install && \
+  /opt/${APPNAME}-${APPVER}/. && \
+cmake \
+  --build . \
+  -j$(nproc) \
+  -t install && \
 cd /opt && \
 mv /opt/modfile \
-  /usr/local/modulefiles/systemc/${SYSTEMCVER} && \
-cd /usr/local/modulefiles/systemc && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${SYSTEMCVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/systemc-${SYSTEMCVER} \
-  /opt/systemc-${SYSTEMCVER}.tar.gz
+  /opt/${APPNAME}-${APPVER} \
+  /opt/${APPNAME}-${APPVER}.tar.gz
 

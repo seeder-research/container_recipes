@@ -6,26 +6,30 @@ modfile        /opt
 
 %post
 . /etc/profile
-export MAGICVER_MAJ=8
-export MAGICVER_MIN=3
-export MAGICVER_PATCH=315
-export MAGICVER=${MAGICVER_MAJ}.${MAGICVER_MIN}.${MAGICVER_PATCH}
-export MAGICURL="https://github.com/RTimothyEdwards/magic"
-if [ ! -d /usr/local/modulefiles/magic ]; then
-  mkdir -p /usr/local/modulefiles/magic
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=8
+export APPVER_MIN=3
+export APPVER_PATCH=315
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPURL="https://github.com/RTimothyEdwards/magic"
+export APPNAME="magic"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 cd /opt && \
-git clone ${MAGICURL} \
-  -b ${MAGICVER} && \
-cd /opt/magic && \
+git clone --recursive \
+  ${APPURL} \
+  -b ${APPVER} && \
+cd /opt/${APPNAME} && \
 ./configure \
-  --prefix=/usr/local/magic/${MAGICVER} && \
+  --prefix=${APPROOT} && \
 make -j$(nproc) && \
 make install && \
-cd /usr/local/modulefiles/magic && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 mv /opt/modfile \
-  /usr/local/modulefiles/magic/${MAGICVER} && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${MAGICVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/magic
+  /opt/${APPNAME}

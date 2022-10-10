@@ -6,24 +6,30 @@ modfile        /opt
 
 %post
 . /etc/profile
-export QROUTERVER_MAJ=1
-export QROUTERVER_MIN=4
-export QROUTERVER=${QROUTERVER_MAJ}.${QROUTERVER_MIN}
-export QROUTERURL="https://github.com/RTimothyEdwards/qrouter"
-if [ ! -d /usr/local/modulefiles/qrouter ]; then
-  mkdir /usr/local/modulefiles/qrouter
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=1
+export APPVER_MIN=4
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}
+export APPURL="https://github.com/RTimothyEdwards/qrouter"
+export APPNAME="qrouter"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+unset LD_RUN_PATH
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 cd /opt && \
-git clone ${QROUTERURL} && \
-cd /opt/qrouter && \
+git clone --recursive \
+  ${APPURL} \
+  /opt/${APPNAME} && \
+cd /opt/${APPNAME} && \
 ./configure \
-  --prefix=/usr/local/qrouter/${QROUTERVER} && \
+  --prefix=${APPROOT} && \
 make -j$(nproc) install && \
 cd /opt && \
 mv /opt/modfile \
-  /usr/local/modulefiles/qrouter/${QROUTERVER} && \
-cd /usr/local/modulefiles/qrouter && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${QROUTERVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/qrouter
+  /opt/${APPNAME}

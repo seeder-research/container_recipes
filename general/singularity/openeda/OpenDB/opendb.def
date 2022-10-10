@@ -6,31 +6,38 @@ modfile        /opt
 
 %post
 . /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER="latest"
+export APPURL="https://github.com/The-OpenROAD-Project/OpenDB.git"
+export APPNAME="opendb"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 module load \
   bison \
   flex \
   boost
-export OPENDBVER=latest
-export OPENDBHOME=/usr/local/opendb/${OPENDBVER}
-if [ ! -d /usr/local/modulefiles/opendb ]; then
-    mkdir -p /usr/local/modulefiles/opendb
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+    mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 cd /opt && \
 git clone --recursive \
-  https://github.com/The-OpenROAD-Project/OpenDB.git && \
-mkdir -p /opt/OpenDB/build && \
-cd /opt/OpenDB/build && \
+  ${APPURL} \
+  /opt/${APPNAME} && \
+mkdir -p /opt/${APPNAME}/build && \
+cd /opt/${APPNAME}/build && \
 cmake \
-  -DCMAKE_INSTALL_PREFIX=${OPENDBHOME} \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
+  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
   -DCMAKE_BUILD_TYPE="Release" \
-  /opt/OpenDB && \
+  /opt/${APPNAME} && \
 cmake --build . \
   -j$(nproc) \
   -t install && \
-cd /usr/local/modulefiles/opendb && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 mv /opt/modfile \
-  /usr/local/modulefiles/opendb/${OPENDBVER} && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${OPENDBVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/OpenDB
+  /opt/${APPNAME}

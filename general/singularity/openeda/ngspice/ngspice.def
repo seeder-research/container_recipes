@@ -7,10 +7,13 @@ modfile    /opt
 %post
 . /etc/profile
 . /.singularity.d/env/90-environment.sh
-export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
-export NGSPICEVER=37
-if [ ! -d /usr/local/modulefiles/ngspice ]; then
-    mkdir -p /usr/local/modulefiles/ngspice
+export HOME_BASE="/usr/local"
+export APPVER=37
+export APPURL="http://git.code.sf.net/p/ngspice/ngspice"
+export APPNAME="ngspice"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+    mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 module load \
   bison \
@@ -20,13 +23,13 @@ module load \
 cd /opt && \
 git clone \
   --recursive \
-  http://git.code.sf.net/p/ngspice/ngspice \
-  -b ngspice-${NGSPICEVER} \
-  ngspice && \
-cd /opt/ngspice && \
+  ${APPURL} \
+  -b ${APPNAME}-${APPVER} \
+  ${APPNAME} && \
+cd /opt/${APPNAME} && \
 ./autogen.sh --adms && \
 ./configure \
-  --prefix=/usr/local/ngspice/${NGSPICEVER} \
+  --prefix=${APPROOT} \
   --enable-xspice \
   --enable-cider \
   --enable-adms \
@@ -44,11 +47,11 @@ cd /opt/ngspice && \
 make clean && \
 make -j$(nproc) install && \
 cd /opt && \
-cd /usr/local/modulefiles/ngspice && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 mv /opt/modfile \
-  /usr/local/modulefiles/ngspice/${NGSPICEVER} && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${NGSPICEVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/ngspice \
-  /opt/${NGSPICEVER}
+  /opt/${APPNAME} \
+  /opt/${APPVER}

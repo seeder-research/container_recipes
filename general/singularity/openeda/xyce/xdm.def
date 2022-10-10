@@ -8,30 +8,40 @@ module load \
   flex \
   openmpi \
   boost
-export XDMVER_MAJ=2
-export XDMVER_MIN=5
-export XDMVER_PATCH=0
-export XDMVER=${XDMVER_MAJ}.${XDMVER_MIN}.${XDMVER_PATCH}
-export XDMURL="https://github.com/Xyce/XDM"
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=2
+export APPVER_MIN=5
+export APPVER_PATCH=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPURL="https://github.com/Xyce/XDM"
+export APPNAME="xdm"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 if [ ! -d /opt/builddir ]; then
   mkdir /opt/builddir
 fi
 cd /opt && \
-git clone ${XDMURL} -b Release-${XDMVER} && \
+git clone --recursive \
+  ${APPURL} \
+  -b Release-${APPVER} \
+  /opt/${APPNAME} && \
 sed -i "s/(isnan/(std::isnan/g" \
-  /opt/XDM/src/c_boost/expr/ast_common.hpp && \
+  /opt/${APPNAME}/src/c_boost/expr/ast_common.hpp && \
 cd /opt/builddir && \
 cmake \
-  -DCMAKE_INSTALL_PREFIX=/usr/local/xdm/${XDMVER} \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
   -DCMAKE_BUILD_TYPE="Release" \
   -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
   -DCMAKE_C_COMPILER="/usr/bin/gcc" \
   -DCMAKE_CXX_FLAGS="-O3 -fPIC" \
-  -DPYINSTALLER_PATH="/usr/local/openeda/pythonlibs/bin/pyinstaller" \
+  -DPYINSTALLER_PATH="${HOME_BASE}/pythonlibs/bin/pyinstaller" \
   -DBOOST_ROOT=${LIBBOOST_ROOT} \
-  /opt/XDM && \
-cmake --build . -j$(nproc) -t install && \
+  /opt/${APPNAME} && \
+cmake \
+  --build . \
+  -j$(nproc) \
+  -t install && \
 cd /opt && \
 rm -rf \
   /opt/builddir \
-  /opt/XDM
+  /opt/${APPNAME}

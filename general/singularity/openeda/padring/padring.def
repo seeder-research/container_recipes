@@ -5,29 +5,34 @@ From: pre.sif
 modfile        /opt
 
 %post
-export PADRINGVER=latest
-export PADRINGURL="https://github.com/donn/padring"
-if [ ! -d /usr/local/padring/${PADRINGVER} ]; then
-  mkdir -p /usr/local/padring/${PADRINGVER}
-  if [ ! -d /usr/local/modulefiles/padring ]; then
-    mkdir -p /usr/local/modulefiles/padring
+export HOME_BASE="/usr/local"
+export APPVER=latest
+export APPURL="https://github.com/donn/padring"
+export APPNAME="padring"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${APPROOT} ]; then
+  mkdir -p ${APPROOT}
+  if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+    mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
   fi
   cd /opt && \
-  git clone ${PADRINGURL} && \
-  mkdir -p /usr/local/padring/${PADRINGVER}/bin && \
-  cd /opt/padring && \
+  git clone --recursive \
+    ${APPURL} \
+    /opt/${APPNAME} && \
+  mkdir -p ${APPROOT}/bin && \
+  cd /opt/${APPNAME} && \
   bash ./bootstrap.sh && \
-  cd /opt/padring/build && \
+  cd /opt/${APPNAME}/build && \
   ninja clean && \
   ninja && \
-  mv padring /usr/local/padring/${PADRINGVER}/bin/. && \
-  cd /usr/local/modulefiles/padring && \
+  mv ${APPNAME} ${APPROOT}/bin/. && \
+  cd ${HOME_BASE}/modulefiles/${APPNAME} && \
   echo "#%Module" > .version && \
-  echo set ModulesVersion "${PADRINGVER}" >> .version && \
+  echo set ModulesVersion "${APPVER}" >> .version && \
   mv /opt/modfile \
-    /usr/local/modulefiles/padring/${PADRINGVER} && \
+    ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
   rm -rf \
-    /opt/padring
+    /opt/${APPNAME}
 fi
 
 if [ -f /opt/modfile ]; then

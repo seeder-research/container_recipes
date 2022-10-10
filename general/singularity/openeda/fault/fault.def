@@ -6,26 +6,29 @@ modfile        /opt
 
 %post
 . /etc/profile
-export FAULTVER_MAJ=0
-export FAULTVER_MIN=5
-export FAULTVER_PATCH=0
-export FAULTVER=${FAULTVER_MAJ}.${FAULTVER_MIN}.${FAULTVER_PATCH}
-export FAULTURL="https://github.com/AUCOHL/fault"
-if [ ! -d /usr/local/modulefiles/fault ]; then
-  mkdir /usr/local/modulefiles/fault
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=0
+export APPVER_MIN=5
+export APPVER_PATCH=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPURL="https://github.com/AUCOHL/fault"
+export APPNAME="fault"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 cd /opt && \
-git clone --recursive ${FAULTURL} && \
-cd /opt/fault && \
+git clone --recursive ${APPURL} && \
+cd /opt/${APPNAME} && \
 ./configure \
-  --prefix=/usr/local/fault/${FAULTVER} && \
+  --prefix=${APPROOT} && \
 make -j$(nproc) && \
 make install && \
 cd /opt && \
 mv /opt/modfile \
-  /usr/local/modulefiles/fault/${FAULTVER} && \
-cd /usr/local/modulefiles/fault && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${FAULTVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
-  /opt/fault
+  /opt/${APPNAME}
