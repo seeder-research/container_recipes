@@ -1,0 +1,49 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export HOME_BASE=/usr/local
+export APPVER_MAJ=15
+export APPVER_MIN=0
+export APPVER_PATCH=2
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPURL="https://github.com/llvm/llvm-project"
+export APPNAME="llvm"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d /usr/local/modulefiles/dev/${APPNAME} ]; then
+    mkdir -p /usr/local/modulefiles/dev/${APPNAME}
+fi
+cd /opt && \
+git clone --recursive \
+  ${APPURL} \
+  -b llvmorg-${APPVER} \
+  /opt/${APPNAME} && \
+mkdir -p \
+  /opt/builddir && \
+cmake -S /opt/${APPNAME}/${APPNAME} \
+  -B /opt/builddir \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
+  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
+  -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;flang;libclc;lld;lldb;mlir;openmp;polly;pstl" \
+  -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind;compiler-rt" && \
+cd /opt/builddir && \
+cmake \
+  --build . \
+  -j$(nproc) \
+  -t install && \
+cd /opt && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/${APPNAME}/${APPVER} && \
+cd /usr/local/modulefiles/dev/${APPNAME} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
+rm -rf \
+  /opt/${APPNAME} \
+  /opt/builddir

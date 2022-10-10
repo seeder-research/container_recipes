@@ -1,0 +1,35 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=0
+export APPVER_MIN=27
+export APPVER_PATCH=11
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPURL="https://github.com/klayout/klayout"
+export APPNAME="klayout"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${APPROOT} ]; then
+  mkdir -p ${APPROOT}
+fi
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
+fi
+cd /opt && \
+git clone --recursive \
+  ${APPURL} \
+  -b v${APPVER} && \
+cd /opt/${APPNAME} && \
+./build.sh -release -prefix=${APPROOT}/bin && \
+mv /opt/modfile \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
+rm -rf \
+  /opt/${APPNAME}
