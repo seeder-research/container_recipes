@@ -5,19 +5,25 @@ From: pre.sif
 modfile    /opt
 
 %post
-export QT_VER=5.14.2
-export SEDSTR="s/@pver@/${QT_VER}/g"
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=5
+export APPVER_MIN=14
+export APPVER_REV=2
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPURL="https://code.qt.io/qt/qt5.git"
+export APPNAME="qt"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 cd /opt && \
-git clone https://code.qt.io/qt/qt5.git -b v${QT_VER} \
-  qt-src && \
-cd /opt/qt-src && \
-perl init-repository \
-  --module-subset=essential,addon,deprecated,-qtandroidextras,-qtconnectivity,-qtdocgallery,-qtgamepad,-qtlocation,-qtmacextras,-qtpurchasing,-qtsensors,-qtwebengine,-qtwinextras && \
+git clone \
+  ${APPURL} \
+  -b v${APPVER} \
+  /opt/qt-src && \
 mkdir /opt/qt-build && \
 cd /opt/qt-build && \
 sed -i "/qmutex_linux/d" /opt/qt-src/qtbase/src/corelib/thread/thread.pri && \
 /opt/qt-src/configure \
-  -prefix /usr/local/qt/${QT_VER} \
+  -prefix ${APPROOT} \
+  -platform "linux-g++-64" \
   -confirm-license \
   -opensource \
   -nomake examples \
@@ -41,14 +47,13 @@ sed -i "/qmutex_linux/d" /opt/qt-src/qtbase/src/corelib/thread/thread.pri && \
   -qt-xcb && \
 cd /opt/qt-build && \
 make module-qtscript && \
-make -j$(nproc) && \
+make && \
 make install && \
-mkdir -p /usr/local/modulefiles/dev/qt && \
-cd /usr/local/modulefiles/dev/qt && \
-sed -i ${SEDSTR} /opt/modfile && \
+mkdir -p /usr/local/modulefiles/dev/${APPNAME} && \
+cd /usr/local/modulefiles/dev/${APPNAME} && \
 mv /opt/modfile \
-  /usr/local/modulefiles/dev/qt/${QT_VER} && \
-echo "#%Module" > /usr/local/modulefiles/dev/qt/.version && \
-echo set ModulesVersion "${QT_VER}" >> /usr/local/modulefiles/dev/qt/.version && \
+  /usr/local/modulefiles/dev/${APPNAME}/${APPVER} && \
+echo "#%Module" > /usr/local/modulefiles/dev/${APPNAME}/.version && \
+echo set ModulesVersion "${APPVER}" >> /usr/local/modulefiles/dev/${APPNAME}/.version && \
 rm -rf \
   /opt/qt*

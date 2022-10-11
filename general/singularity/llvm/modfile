@@ -23,3 +23,14 @@ prepend-path      CPATH             ${root}/include
 prepend-path      LD_LIBRARY_PATH   ${root}/lib
 prepend-path      LIBRARY_PATH      ${root}/lib
 prepend-path      LD_RUN_PATH       ${root}/lib
+
+prepend-path -d ";"     CMAKE_MODULE_PATH ${root}/lib/cmake/polly
+prepend-path -d ";"     CMAKE_MODULE_PATH ${root}/lib/cmake/openmp
+prepend-path -d ";"     CMAKE_MODULE_PATH ${root}/lib/cmake/mlir
+prepend-path -d ";"     CMAKE_MODULE_PATH ${root}/lib/cmake/llvm
+prepend-path -d ";"     CMAKE_MODULE_PATH ${root}/lib/cmake/lld
+prepend-path -d ";"     CMAKE_MODULE_PATH ${root}/lib/cmake/flang
+prepend-path -d ";"     CMAKE_MODULE_PATH ${root}/lib/cmake/clang
+prepend-path -d ";"     CMAKE_MODULE_PATH ${root}/lib/cmake/ParallelSTL
+
+prepend-path      MANPATH           ${root}/share/man

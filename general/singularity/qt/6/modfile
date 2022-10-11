@@ -13,7 +13,7 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} ${version} to your environment."
 
-setenv		  QT_HOME	    $root
+setenv		  QT_HOME	    ${root}
 
 prepend-path      PATH              ${root}/bin
 

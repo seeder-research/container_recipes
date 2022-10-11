@@ -10,15 +10,14 @@ module load \
   bison \
   flex
 export HOME_BASE="/usr/local"
-export APPVER_MAJ=5
-export APPVER_MIN=15
-export APPVER_REV=2
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPVER_MAJOR=6
+export APPVER_MINOR=2
+export APPVER_REV=4
+export APPVER=${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}
 export APPURL="https://code.qt.io/qt/qt5.git"
 export APPNAME="qt"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 mkdir -p /usr/local/modulefiles/dev/${APPNAME} && \
-cd /usr/local/modulefiles/dev/${APPNAME} && \
 mv /opt/modfile \
   /usr/local/modulefiles/dev/${APPNAME}/${APPVER} && \
 echo "#%Module" > /usr/local/modulefiles/dev/${APPNAME}/.version && \
@@ -31,11 +30,10 @@ git clone --recursive \
   /opt/qt-src && \
 mkdir /opt/qt-build && \
 cd /opt/qt-build && \
-sed -i 's@thread/qmutex_linux.cpp@@' /opt/qt-src/qtbase/src/corelib/thread/thread.pri && \
-sed -i '/qdbusmarshaller/d' /opt/qt-src/qtbase/src/dbus/dbus.pro && \
 /opt/qt-src/configure \
   -prefix ${APPROOT} \
   -platform "linux-g++-64" \
+  -cmake-generator "Unix Makefiles" \
   -confirm-license \
   -opensource \
   -release \
@@ -55,8 +53,9 @@ sed -i '/qdbusmarshaller/d' /opt/qt-src/qtbase/src/dbus/dbus.pro && \
   -skip qtwayland \
   -skip qtwebengine \
   -skip qtwinextras && \
-make && \
-make install && \
+cmake \
+  --build /opt/qt-build \
+  -t install && \
 cd /opt && \
 rm -rf \
-  /opt/qt*
+  /opt/${APPNAME}*
