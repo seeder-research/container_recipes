@@ -1,0 +1,20 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
+rm -rf \
+  /etc/apt/sources.list.d/kitware.list \
+  /usr/share/keyrings/kitware-archive-keyring.gpg && \
+curl -fsSL https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+sh -c 'echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] http://apt.kitware.com/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/kitware.list' && \
+apt-get update && \
+apt-get install -y --no-install-recommends \
+  cmake \
+  cmake-curses-gui \
+  cmake-data \
+  cmake-doc \
+  cmake-qt-gui && \
+rm -rf \
+  /var/lib/apt/lists/*

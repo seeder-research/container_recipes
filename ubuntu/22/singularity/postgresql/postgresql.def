@@ -4,6 +4,10 @@ From: pre.sif
 %post
 export TERM=xterm
 export DEBIAN_FRONTEND=noninteractive
+rm -rf /etc/apt/sources.list.d/pgdg.list \
+  /usr/share/keyrings/pgdg-archive-keyring.gpg && \
+curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc 2>/dev/null | gpg --dearmor | tee /usr/share/keyrings/pgdg-archive-keyring.gpg >/dev/null
+sh -c 'echo "deb [signed-by=/usr/share/keyrings/pgdg-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
 apt-get update && \
 apt-get install -y --no-install-recommends \
   postgresql \

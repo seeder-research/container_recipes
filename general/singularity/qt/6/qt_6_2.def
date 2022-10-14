@@ -41,6 +41,7 @@ cd /opt/qt-build && \
   -nomake examples \
   -nomake tests \
   -no-rpath \
+  -no-feature-clang \
   -bundled-xcb-xinput \
   -xkbcommon \
   -skip qtandroidextras \

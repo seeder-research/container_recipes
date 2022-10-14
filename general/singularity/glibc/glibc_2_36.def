@@ -18,20 +18,29 @@ if [ ! -d /usr/local/modulefiles/dev/${APPNAME} ]; then
 fi
 cd /opt && \
 git clone --recursive \
-  https://github.com/torvolds/linux \
+  https://github.com/SELinuxProject/selinux-kernel \
   -b v6.0 \
   /opt/linux-kernel && \
+git clone --recursive \
+  https://github.com/SELinuxProject/selinux \
+  -b libselinux-3.4 \
+  /opt/selinux && \
 git clone --recursive \
   ${APPURL} \
   -b ${APPNAME}-${APPVER} \
   /opt/${APPNAME} && \
+cd /opt/linux-kernel && \
+make headers && \
+cd /opt/selinux/libselinux/include && \
+make PREFIX=/opt/linux-kernel/usr install && \
 mkdir /opt/builddir && \
+cd /opt/builddir && \
 /opt/${APPNAME}/configure \
   --prefix=${APPROOT} \
   --enable-shared \
   --enable-kernel=2.6.12 \
-  CC="/usr/bin/gcc -m64" \
-  CFLAGS="-O3 -fPIC -I/opt/linux-kernel/include" && \
+  --enable-stack-protector=strong \
+  CC="/usr/bin/gcc -m64" && \
 make -j$(nproc) && \
 make install && \
 cd /opt && \

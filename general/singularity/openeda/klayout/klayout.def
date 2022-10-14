@@ -17,15 +17,25 @@ export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 if [ ! -d ${APPROOT} ]; then
   mkdir -p ${APPROOT}
 fi
+if [ ! -d /opt/builddir ]; then
+  mkdir /opt/builddir
+fi
+rm -rf \
+  /opt/builddir/*
 if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
   mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 cd /opt && \
 git clone --recursive \
   ${APPURL} \
-  -b v${APPVER} && \
+  -b v${APPVER} \
+  /opt/${APPNAME} && \
 cd /opt/${APPNAME} && \
-./build.sh -release -prefix=${APPROOT}/bin && \
+./build.sh \
+  -ruby "ruby" \
+  -release \
+  -prefix "${APPROOT}/bin" \
+  -build "/opt/builddir" && \
 mv /opt/modfile \
   ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
 cd ${HOME_BASE}/modulefiles/${APPNAME} && \
