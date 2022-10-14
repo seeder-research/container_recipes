@@ -32,8 +32,6 @@ apt-get install -y --no-install-recommends \
   doxygen \
   environment-modules \
   expat \
-  freeglut3 \
-  freeglut3-dev \
   g++ \
   gawk \
   gcc \
@@ -48,16 +46,9 @@ apt-get install -y --no-install-recommends \
   libbz2-dev \
   libedit2 \
   libedit-dev \
-  libegl1 \
-  libegl1-mesa \
-  libegl1-mesa-dev \
   libexpat1 \
   libexpat1-dev \
   libfontconfig1-dev \
-  libgegl-0.4-0 \
-  libgegl-common \
-  libgegl-dev \
-  libglu1-mesa-dev \
   libgmp-dev \
   libgomp1 \
   libgoogle-perftools-dev \
@@ -82,35 +73,10 @@ apt-get install -y --no-install-recommends \
   libssl-dev \
   libssl3 \
   libtool \
-  libx11-dev \
-  libx11-xcb-dev \
-  libxaw7-dev \
-  libxaw7 \
-  libxcb-glx0-dev \
-  libxcb-icccm4-dev \
-  libxcb-image0-dev \
-  libxcb-keysyms1-dev \
-  libxcb-randr0-dev \
-  libxcb-render-util0-dev \
-  libxcb-shape0-dev \
-  libxcb-shm0-dev \
-  libxcb-sync-dev \
-  libxcb-xfixes0-dev \
-  libxcb1-dev \
-  libxext-dev \
-  libxft-dev \
-  libxfixes-dev \
-  libxi-dev \
-  libxi6 \
-  libxkbcommon-x11-dev \
   libxml2-dev \
   libxml2 \
   libxml-libxml-perl \
   libxml-perl \
-  libxnvctrl-dev \
-  libxnvctrl0 \
-  libxrender-dev \
-  libxt-dev \
   locales \
   locales-all \
   localehelper \
@@ -119,7 +85,6 @@ apt-get install -y --no-install-recommends \
   man-db \
   mandoc \
   mercurial \
-  mesa-common-dev \
   nano \
   ninja-build \
   numactl \
