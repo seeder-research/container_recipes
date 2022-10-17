@@ -1,5 +1,5 @@
 BootStrap: docker
-From: ubuntu:focal
+From: ubuntu:disco
 
 %files
 90-environment.sh      /opt
