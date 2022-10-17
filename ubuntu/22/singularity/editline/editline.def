@@ -9,7 +9,6 @@ apt-get install --no-install-recommends -y \
   libreadline-dev \
   libreadline8 \
   libedit2 \
-  libedit-dev \
-  libeditreadline-dev && \
+  libedit-dev && \
 rm -rf \
   /var/lib/apt/lists/*
