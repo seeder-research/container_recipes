@@ -26,6 +26,7 @@ echo set ModulesVersion "${APPVER}" >> /usr/local/modulefiles/dev/${APPNAME}/.ve
 module load ${APPNAME}/${APPVER} && \
 cd /opt && \
 git clone --recursive \
+  -j 8 \
   ${APPURL} \
   -b v${APPVER} \
   /opt/qt-src && \
@@ -43,7 +44,7 @@ sed -i '/qdbusmarshaller/d' /opt/qt-src/qtbase/src/dbus/dbus.pro && \
   -nomake examples \
   -nomake tests \
   -no-rpath \
-  -bundled-xcb-xinput \
+  -syslog \
   -xkbcommon \
   -skip qtandroidextras \
   -skip qtconnectivity \
@@ -54,7 +55,13 @@ sed -i '/qdbusmarshaller/d' /opt/qt-src/qtbase/src/dbus/dbus.pro && \
   -skip qtsensors \
   -skip qtwayland \
   -skip qtwebengine \
-  -skip qtwinextras && \
+  -skip qtwinextras \
+  -qt-freetype \
+  -qt-harfbuzz \
+  -qt-libjpeg \
+  -qt-libpng \
+  -qt-pcre \
+  -qt-xcb && \
 make && \
 make install && \
 cd /opt && \

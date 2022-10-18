@@ -14,7 +14,8 @@ export APPURL="https://code.qt.io/qt/qt5.git"
 export APPNAME="qt"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 cd /opt && \
-git clone \
+git clone --recursive \
+  -j 8 \
   ${APPURL} \
   -b v${APPVER} \
   /opt/qt-src && \
@@ -29,6 +30,7 @@ sed -i "/qmutex_linux/d" /opt/qt-src/qtbase/src/corelib/thread/thread.pri && \
   -nomake examples \
   -nomake tests \
   -no-rpath \
+  -syslog \
   -skip qtandroidextras \
   -skip qtconnectivity \
   -skip qtgamepad \

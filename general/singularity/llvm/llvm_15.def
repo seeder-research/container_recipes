@@ -19,6 +19,7 @@ if [ ! -d /usr/local/modulefiles/dev/${APPNAME} ]; then
 fi
 cd /opt && \
 git clone --recursive \
+  -j 8 \
   ${APPURL} \
   -b llvmorg-${APPVER} \
   /opt/${APPNAME} && \
@@ -32,7 +33,9 @@ cmake -S /opt/${APPNAME}/${APPNAME} \
   -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
   -DCMAKE_C_COMPILER="/usr/bin/gcc" \
   -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;flang;libclc;lld;lldb;mlir;openmp;polly;pstl" \
-  -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind;compiler-rt" && \
+  -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind;compiler-rt" \
+  -DLLVM_ENABLE_RTTI=ON \
+  -DLLVM_BUILD_LLVM_DYLIB=ON && \
 cd /opt/builddir && \
 cmake \
   --build . \

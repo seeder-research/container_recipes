@@ -15,6 +15,7 @@ export APPNAME="qt"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 cd /opt && \
 git clone --recursive \
+  -j 8 \
   ${APPURL} \
   -b v${QT_VER} \
   /opt/qt-src && \
@@ -27,6 +28,7 @@ cd /opt/qt-build && \
   -nomake examples \
   -nomake tests \
   -no-rpath \
+  -syslog \
   -skip qtandroidextras \
   -skip qtconnectivity \
   -skip qtgamepad \

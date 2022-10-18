@@ -25,6 +25,7 @@ echo set ModulesVersion "${APPVER}" >> /usr/local/modulefiles/dev/${APPNAME}/.ve
 module load ${APPNAME}/${APPVER} && \
 cd /opt && \
 git clone --recursive \
+  -j 8 \
   ${APPURL} \
   -b v${APPVER} \
   /opt/qt-src && \
@@ -41,8 +42,8 @@ cd /opt/qt-build && \
   -nomake examples \
   -nomake tests \
   -no-rpath \
+  -syslog \
   -no-feature-clang \
-  -bundled-xcb-xinput \
   -xkbcommon \
   -skip qtandroidextras \
   -skip qtconnectivity \
@@ -53,7 +54,13 @@ cd /opt/qt-build && \
   -skip qtsensors \
   -skip qtwayland \
   -skip qtwebengine \
-  -skip qtwinextras && \
+  -skip qtwinextras \
+  -qt-freetype \
+  -qt-harfbuzz \
+  -qt-libjpeg \
+  -qt-libpng \
+  -qt-pcre \
+  -qt-xcb && \
 cmake \
   --build /opt/qt-build \
   -t install && \
