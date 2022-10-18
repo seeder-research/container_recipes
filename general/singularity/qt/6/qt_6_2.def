@@ -61,9 +61,8 @@ cd /opt/qt-build && \
   -qt-libpng \
   -qt-pcre \
   -qt-xcb && \
-cmake \
-  --build /opt/qt-build \
-  -t install && \
+make && \
+make install && \
 cd /opt && \
 rm -rf \
   /opt/${APPNAME}*

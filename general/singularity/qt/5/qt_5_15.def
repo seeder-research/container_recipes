@@ -45,6 +45,7 @@ sed -i '/qdbusmarshaller/d' /opt/qt-src/qtbase/src/dbus/dbus.pro && \
   -nomake tests \
   -no-rpath \
   -syslog \
+  -bundled-xcb-xinput \
   -xkbcommon \
   -skip qtandroidextras \
   -skip qtconnectivity \
