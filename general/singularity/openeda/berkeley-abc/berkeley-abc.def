@@ -7,7 +7,7 @@ modfile        /opt
 %post
 export ABC_USE_PIC=1
 export HOME_BASE="/usr/local"
-export APPNAME="berkerley-abc"
+export APPNAME="berkeley-abc"
 export APPVER="latest"
 export APPURL="https://github.com/berkeley-abc/abc"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
