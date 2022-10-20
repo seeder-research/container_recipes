@@ -1,0 +1,60 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+module load \
+  boost \
+  opensta \
+  berkeley-abc
+export HOME_BASE="/usr/local"
+export APPVER="latest"
+export APPURL="https://github.com/lnis-uofu/LSOracle"
+export APPNAME="lsoracle"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export YOSYSURL="https://github.com/YosysHQ/yosys"
+export YOSYS_VER="yosys-0.22"
+export YOSYS_ROOT="/opt/yosys"
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
+fi
+if [ ! -d /opt/builddir ]; then
+  mkdir /opt/builddir
+fi
+cd /opt && \
+git clone \
+  --recursive ${YOSYSURL} \
+  -b ${YOSYS_VER} \
+  ${YOSYS_ROOT} && \
+git clone \
+  --recursive ${APPURL} \
+  /opt/${APPNAME} && \
+cd /opt/builddir && \
+cmake \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
+  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DYOSYS_PLUGIN=ON \
+  -DYOSYS_INCLUDE_DIR=${YOSYS_ROOT} \
+  -DLOCAL_BOOST=OFF \
+  -DENABLE_LIBABC=ON \
+  -DENABLE_ABC=ON \
+  -DENABLE_OPENSTA=ON \
+  /opt/${APPNAME} && \
+cmake --build . \
+  -j$(nproc) \
+  -t install && \
+cd /opt && \
+mv /opt/modfile \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
+rm -rf \
+  /opt/${APPNAME} \
+  /opt/builddir

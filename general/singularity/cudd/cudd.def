@@ -5,29 +5,32 @@ From: pre.sif
 modfile        /opt
 
 %post
-export CUDDVER_MAJ=3
-export CUDDVER_MIN=0
-export CUDDVER_PATCH=0
-export CUDDVER=${CUDDVER_MAJ}.${CUDDVER_MIN}.${CUDDVER_PATCH}
-export CUDDURL="https://www.davidkebo.com/source/cudd_versions/cudd-${CUDDVER}.tar.gz"
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=3
+export APPVER_MIN=0
+export APPVER_PATCH=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPURL="https://www.davidkebo.com/source/cudd_versions/cudd-${APPVER}.tar.gz"
+export APPNAME="cudd"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 cd /opt && \
 wget --no-check-certificate \
-  ${CUDDURL} && \
+  ${APPURL} && \
 tar xf \
-  /opt/cudd-${CUDDVER}.tar.gz && \
-cd /opt/cudd-${CUDDVER} && \
+  /opt/${APPNAME}-${APPVER}.tar.gz && \
+cd /opt/${APPNAME}-${APPVER} && \
 ./configure \
-  --prefix=/usr/local/cudd/${CUDDVER} && \
+  --prefix=${APPROOT} && \
 make -j$(nproc) && \
 make install && \
-if [ ! -d /usr/local/modulefiles/cudd ]; then
-  mkdir -p /usr/local/modulefiles/cudd
+if [ ! -d /usr/local/modulefiles/${APPNAME} ]; then
+  mkdir -p /usr/local/modulefiles/${APPNAME}
 fi
 cd /opt && \
 mv /opt/modfile \
-  /usr/local/modulefiles/cudd/${CUDDVER} && \
-echo "#%Module" > /usr/local/modulefiles/cudd/.version && \
-echo set ModulesVersion "${CUDDVER}" >> /usr/local/modulefiles/cudd/.version && \
+  /usr/local/modulefiles/${APPNAME}/${APPVER} && \
+echo "#%Module" > /usr/local/modulefiles/${APPNAME}/.version && \
+echo set ModulesVersion "${APPVER}" >> /usr/local/modulefiles/${APPNAME}/.version && \
 rm -rf \
-  /opt/cudd-${CUDDVER} \
-  /opt/cudd-${CUDDVER}.tar.gz
+  /opt/${APPNAME}-${APPVER} \
+  /opt/${APPNAME}-${APPVER}.tar.gz
