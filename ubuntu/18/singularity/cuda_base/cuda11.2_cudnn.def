@@ -8,9 +8,10 @@ From: nvidia/cuda:11.2.2-cudnn8-devel-ubuntu18.04
 export TERM=xterm
 export DEBIAN_FRONTEND=noninteractive
 apt-get update && \
-apt-get install -y \
+apt-get install -y --no-install-recommends \
   apt-transport-https \
-  apt-utils && \
+  apt-utils \
+  time && \
 echo "libnccl2 install" | /usr/bin/dpkg --set-selections && \
 echo "libnccl-dev install" | /usr/bin/dpkg --set-selections && \
 echo "libcudnn8 install" | /usr/bin/dpkg --set-selections && \

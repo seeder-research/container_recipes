@@ -5,6 +5,14 @@ From: nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04
 90-environment.sh      /opt
 
 %post
-rm -f /.singularity.d/env/90-environment.sh && \
-mv /opt/90-environment.sh /.singularity.d/env/90-environment.sh
-
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+apt-get update && \
+apt-get upgrade -y && \
+apt-get install -y --no-install-recommends \
+  time && \
+rm -rfv \
+  /var/lib/apt/lists/* \
+  /.singularity.d/env/90-environment.sh && \
+mv /opt/90-environment.sh \
+  /.singularity.d/env/90-environment.sh

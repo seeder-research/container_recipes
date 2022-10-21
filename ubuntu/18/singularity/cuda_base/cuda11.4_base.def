@@ -8,9 +8,10 @@ From: nvidia/cuda:11.4.2-devel-ubuntu18.04
 export TERM=xterm
 export DEBIAN_FRONTEND=noninteractive
 apt-get update && \
-apt-get install -y \
+apt-get install -y --no-install-recommends \
   apt-transport-https \
-  apt-utils && \
+  apt-utils \
+  time && \
 apt-mark unhold \
   cuda-toolkit-11-4 \
   cuda-libraries-11-4 \
