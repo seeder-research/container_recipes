@@ -1,0 +1,5 @@
+BootStrap: docker
+From: 0x01be/openroad
+
+%post
+yum upgrade -y
