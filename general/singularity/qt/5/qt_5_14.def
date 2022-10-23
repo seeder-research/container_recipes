@@ -45,8 +45,7 @@ sed -i "/qmutex_linux/d" /opt/qt-src/qtbase/src/corelib/thread/thread.pri && \
   -qt-harfbuzz \
   -qt-libjpeg \
   -qt-libpng \
-  -qt-pcre \
-  -qt-xcb && \
+  -qt-pcre && \
 cd /opt/qt-build && \
 make module-qtscript && \
 make && \

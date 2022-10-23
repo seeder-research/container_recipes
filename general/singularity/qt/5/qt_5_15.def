@@ -61,8 +61,7 @@ sed -i '/qdbusmarshaller/d' /opt/qt-src/qtbase/src/dbus/dbus.pro && \
   -qt-harfbuzz \
   -qt-libjpeg \
   -qt-libpng \
-  -qt-pcre \
-  -qt-xcb && \
+  -qt-pcre && \
 make && \
 make install && \
 cd /opt && \
