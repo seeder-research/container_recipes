@@ -14,19 +14,28 @@ apt-get install -y --no-install-recommends \
   libdbus-c++-dev \
   libdbus2.0-cil \
   libdbus2.0-cil-dev \
+  libdouble-conversion3 \
   libegl1 \
   libegl1-mesa \
   libegl1-mesa-dev \
+  libevdev2 \
   libgegl-0.4-0 \
   libgegl-common \
   libgegl-dev \
   libglu1-mesa-dev \
+  libgudev-1.0-0 \
   libharfbuzz-bin \
   libharfbuzz-dev \
   libharfbuzz-icu0 \
   libharfbuzz0b \
+  libinput-bin \
+  libinput10\ 
+  libmd4c0 \
+  libmtdev1 \
   libsqlite3-0 \
   libsqlite3-dev \
+  libwacom-common \
+  libwacom9 \
   libwayland-dev \
   libwayland-egl1 \
   libwayland-egl-backend-dev \
