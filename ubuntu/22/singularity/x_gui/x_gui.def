@@ -12,8 +12,8 @@ apt-get install -y --no-install-recommends \
   libdbus-1-dev \
   libdbus-c++-1-0v5 \
   libdbus-c++-dev \
-  libdbus2.0-cli \
-  libdbus2.0-cli-dev \
+  libdbus2.0-cil \
+  libdbus2.0-cil-dev \
   libegl1 \
   libegl1-mesa \
   libegl1-mesa-dev \
