@@ -1,0 +1,132 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
+apt-get update && \
+apt-get install -y \
+  apt-transport-https \
+  apt-utils && \
+apt-get upgrade -y && \
+ln -snf /usr/share/zoneinfo/Asia/Singapore /etc/localtime && \
+echo Asia/Singapore > /etc/timezone && \
+TZ=Asia/Singapore apt install -y tzdata && \
+apt-get install -y --no-install-recommends \
+  ca-certificates \
+  curl \
+  gnupg \
+  software-properties-common \
+  wget
+apt-get update && \
+cd /opt && \
+apt-get install -y --no-install-recommends \
+  autoconf \
+  automake \
+  autopoint \
+  bash-completion \
+  bc \
+  build-essential \
+  bzip2 \
+  ccache \
+  doxygen \
+  environment-modules \
+  expat \
+  g++ \
+  g++-9 \
+  g++-10 \
+  g++-11 \
+  g++-12 \
+  gawk \
+  gcc \
+  gcc-9 \
+  gcc-10 \
+  gcc-11 \
+  gcc-12 \
+  gettext \
+  gfortran \
+  git \
+  gperf \
+  graphviz \
+  gzip \
+  help2man \
+  kmod \
+  libasound2-dev \
+  libbz2-dev \
+  libcap-dev \
+  libedit2 \
+  libedit-dev \
+  libevent-dev \
+  libexpat1 \
+  libexpat1-dev \
+  libfontconfig1-dev \
+  libgmp-dev \
+  libgomp1 \
+  libgoogle-perftools-dev \
+  libgstreamer1.0-dev \
+  libgstreamer-plugins-bad1.0-dev \
+  libgstreamer-plugins-base1.0-dev \
+  libgstreamer-plugins-good1.0-dev \
+  libhdf5-dev \
+  libhwloc-dev \
+  libical-dev \
+  libicu-dev \
+  libmpc-dev \
+  libmpfr-dev \
+  libmpfrc++-dev \
+  libncurses-dev \
+  libncurses5-dev \
+  libncurses5 \
+  libncurses6 \
+  libnetcdf19 \
+  libnetcdf-dev \
+  libnetcdf-c++4-dev \
+  libnetcdf-c++4-1 \
+  libnetcdff-dev \
+  libnetcdff7 \
+  libnss3-dev \
+  libpciaccess-dev \
+  libpciaccess0 \
+  libpci-dev \
+  libpulse-dev \
+  libssl-dev \
+  libssl3 \
+  libtool \
+  libudev-dev \
+  libxml2-dev \
+  libxml2 \
+  libxml-libxml-perl \
+  libxml-perl \
+  libxslt1-dev \
+  locales \
+  locales-all \
+  localehelper \
+  localepurge \
+  m4 \
+  man-db \
+  mandoc \
+  mercurial \
+  nano \
+  ninja-build \
+  nodejs \
+  numactl \
+  patch \
+  perl \
+  rsh-client \
+  rsh-server \
+  rsync \
+  ssh \
+  swig \
+  tcl \
+  tcl-dev \
+  texinfo \
+  tk \
+  tk-dev \
+  xdot \
+  unzip \
+  zlib1g \
+  zlib1g-dev && \
+locale-gen en_US.UTF-8 && \
+update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8
+rm -rfv \
+  /var/lib/apt/lists/*

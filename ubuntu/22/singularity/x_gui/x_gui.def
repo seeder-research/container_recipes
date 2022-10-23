@@ -62,6 +62,9 @@ apt-get install -y --no-install-recommends \
   libxcb-xfixes0-dev \
   libxcb-xinerama0-dev \
   libxcb1-dev \
+  libxcomposite-dev \
+  libxcursor-dev \
+  libxdamage-dev \
   libxext-dev \
   libxft-dev \
   libxfixes-dev \
@@ -70,7 +73,10 @@ apt-get install -y --no-install-recommends \
   libxkbcommon-x11-dev \
   libxnvctrl-dev \
   libxnvctrl0 \
+  libxrandr-dev \
   libxrender-dev \
+  libxss-dev \
+  libxtst-dev \
   libxt-dev \
   mesa-common-dev && \
 rm -rf \
