@@ -14,7 +14,6 @@ apt-get install -y --no-install-recommends \
   cmake \
   cmake-curses-gui \
   cmake-data \
-  cmake-doc \
-  cmake-qt-gui && \
+  cmake-doc && \
 rm -rf \
   /var/lib/apt/lists/*
