@@ -29,7 +29,8 @@ apt-get install -y --no-install-recommends \
   libharfbuzz-icu0 \
   libharfbuzz0b \
   libinput-bin \
-  libinput10\ 
+  libinput-dev \
+  libinput10 \
   libmd4c0 \
   libmtdev1 \
   libsqlite3-0 \

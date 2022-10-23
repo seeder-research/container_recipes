@@ -1,0 +1,45 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export CC=/usr/bin/gcc-12
+export CXX=/usr/bin/g++-12
+export HOME_BASE="/usr/local"
+export MODFILE_BASE="${HOME_BASE}/modulefiles/dev"
+export APPVER_MAJ=3
+export APPVER_MIN=1
+export APPVER_REV=2
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPNAME=ruby
+export APPURL="https://cache.ruby-lang.org/pub/${APPNAME}/${APPVER_MAJ}.${APPVER_MIN}/${APPNAME}-${APPVER}.tar.gz"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${MODFILE_BASE}/${APPNAME} ]; then
+    mkdir -pv ${MODFILE_BASE}/${APPNAME}
+fi
+if [ ! -f ${MODFILE_BASE}/${APPNAME}/${APPVER} ]; then
+    mv /opt/modfile \
+      ${MODFILE_BASE}/${APPNAME}/${APPVER}
+fi
+if [ ! -f ${MODFILE_BASE}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODFILE_BASE}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODFILE_BASE}/${APPNAME}/.version && \
+fi
+cd /opt && \
+wget --no-check-certificate \
+  ${APPURL} && \
+tar xf /opt/${APPNAME}-${APPVER}.tar.gz && \
+cd /opt/${APPNAME}-${APPVER} && \
+./configure \
+  --prefix=${APPROOT} \
+  --enable-shared && \
+make -j$(nproc) && \
+make install && \
+cd /opt && \
+rm -rfv \
+  /opt/${APPNAME}-${APPVER}.tar.gz \
+  /opt/${APPNAME}-${APPVER}
+
