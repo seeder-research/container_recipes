@@ -8,7 +8,9 @@ modfile    /opt
 . /etc/profile.d/modules.sh
 module load \
   bison \
-  flex
+  flex \
+  llvm \
+  ruby
 export HOME_BASE="/usr/local"
 export APPVER_MAJOR=6
 export APPVER_MINOR=2
@@ -17,23 +19,35 @@ export APPVER=${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}
 export APPURL="https://code.qt.io/qt/qt5.git"
 export APPNAME="qt"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-mkdir -p /usr/local/modulefiles/dev/${APPNAME} && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/${APPNAME}/${APPVER} && \
-echo "#%Module" > /usr/local/modulefiles/dev/${APPNAME}/.version && \
-echo set ModulesVersion "${APPVER}" >> /usr/local/modulefiles/dev/${APPNAME}/.version && \
-module load ${APPNAME}/${APPVER} && \
+export CC="$(which clang)"
+export CXX="$(which clang++)"
+if [ ! -d /usr/local/modulefiles/dev/${APPNAME} ]; then
+    mkdir -p /usr/local/modulefiles/dev/${APPNAME}
+fi
+if [ ! -f /usr/local/modulefiles/dev/${APPNAME}/${APPVER} ]; then
+    mv /opt/modfile \
+      /usr/local/modulefiles/dev/${APPNAME}/${APPVER}
+fi
+if [ ! -f /usr/local/modulefiles/dev/${APPNAME}/.version ]; then
+    echo "#%Module" > /usr/local/modulefiles/dev/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> /usr/local/modulefiles/dev/${APPNAME}/.version
+fi
+if [ ! -d /opt/qt-build ]; then
+    mkdir -p /opt/qt-build
+else
+    rm -rfv /opt/qt-build/*
+fi
 cd /opt && \
 git clone --recursive \
   -j 8 \
   ${APPURL} \
   -b v${APPVER} \
   /opt/qt-src && \
-mkdir /opt/qt-build && \
 cd /opt/qt-build && \
 /opt/qt-src/configure \
   -prefix ${APPROOT} \
-  -platform "linux-g++-64" \
+  -platform "linux-clang" \
+  -linker "lld" \
   -cmake-generator "Unix Makefiles" \
   -confirm-license \
   -opensource \
@@ -42,8 +56,7 @@ cd /opt/qt-build && \
   -nomake examples \
   -nomake tests \
   -no-rpath \
-  -syslog \
-  -no-feature-clang \
+  -bundled-xcb-xinput \
   -xkbcommon \
   -skip qtandroidextras \
   -skip qtconnectivity \
@@ -52,17 +65,16 @@ cd /opt/qt-build && \
   -skip qtmacextras \
   -skip qtpurchasing \
   -skip qtsensors \
-  -skip qtwayland \
   -skip qtwebengine \
-  -skip qtwinextras \
-  -qt-freetype \
-  -qt-harfbuzz \
-  -qt-libjpeg \
-  -qt-libpng \
-  -qt-pcre \
-  -qt-xcb && \
-make && \
+  -skip qtwinextras && \
+mkdir -p \
+  /opt/qt-build/qtbase/tranlations && \
+make qtbase && \
+make -j4 && \
 make install && \
 cd /opt && \
-rm -rf \
+rm -rfv \
   /opt/${APPNAME}*
+if [ -f /opt/modfile ]; then
+    rm -fv /opt/modfile
+fi

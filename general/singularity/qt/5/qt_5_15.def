@@ -8,22 +8,31 @@ modfile    /opt
 . /etc/profile.d/modules.sh
 module load \
   bison \
-  flex
+  flex \
+  llvm \
+  ruby
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=5
 export APPVER_MIN=15
-export APPVER_REV=2
+export APPVER_REV=6
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
 export APPURL="https://code.qt.io/qt/qt5.git"
 export APPNAME="qt"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-mkdir -p /usr/local/modulefiles/dev/${APPNAME} && \
-cd /usr/local/modulefiles/dev/${APPNAME} && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/${APPNAME}/${APPVER} && \
-echo "#%Module" > /usr/local/modulefiles/dev/${APPNAME}/.version && \
-echo set ModulesVersion "${APPVER}" >> /usr/local/modulefiles/dev/${APPNAME}/.version && \
-module load ${APPNAME}/${APPVER} && \
+export OPENSSL_LIB="-L/usr/lib/x86_64-linux-gnu -lssl -lcrypto"
+export CC="$(which clang)"
+export CXX="$(which clang++)"
+if [ ! -d /usr/local/modulefiles/dev/${APPNAME}]; then
+    mkdir -p /usr/local/modulefiles/dev/${APPNAME}
+fi
+if [ ! -f /usr/local/modulefiles/dev/${APPNAME}/${APPVER} ]; then
+    mv /opt/modfile \
+      /usr/local/modulefiles/dev/${APPNAME}/${APPVER}
+fi
+if [ ! -f /usr/local/modulefiles/dev/${APPNAME}/.version ]; then
+    echo "#%Module" > /usr/local/modulefiles/dev/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> /usr/local/modulefiles/dev/${APPNAME}/.version
+fi
 cd /opt && \
 git clone --recursive \
   -j 8 \
@@ -32,11 +41,10 @@ git clone --recursive \
   /opt/qt-src && \
 mkdir /opt/qt-build && \
 cd /opt/qt-build && \
-sed -i 's@thread/qmutex_linux.cpp@@' /opt/qt-src/qtbase/src/corelib/thread/thread.pri && \
-sed -i '/qdbusmarshaller/d' /opt/qt-src/qtbase/src/dbus/dbus.pro && \
 /opt/qt-src/configure \
   -prefix ${APPROOT} \
-  -platform "linux-g++-64" \
+  -platform "linux-clang" \
+  -linker "lld" \
   -confirm-license \
   -opensource \
   -release \
@@ -54,16 +62,10 @@ sed -i '/qdbusmarshaller/d' /opt/qt-src/qtbase/src/dbus/dbus.pro && \
   -skip qtmacextras \
   -skip qtpurchasing \
   -skip qtsensors \
-  -skip qtwayland \
   -skip qtwebengine \
-  -skip qtwinextras \
-  -qt-freetype \
-  -qt-harfbuzz \
-  -qt-libjpeg \
-  -qt-libpng \
-  -qt-pcre && \
-make && \
-make install && \
+  -skip qtwinextras && \
+gmake && \
+gmake install && \
 cd /opt && \
-rm -rf \
+rm -rfv \
   /opt/qt*
