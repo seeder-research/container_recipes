@@ -25,6 +25,14 @@ rm -rf \
 if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
   mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
 fi
+if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} ]; then
+    mv /opt/modfile \
+      ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
+    echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
+fi
 cd /opt && \
 git clone --recursive \
   ${APPURL} \
@@ -32,14 +40,19 @@ git clone --recursive \
   /opt/${APPNAME} && \
 cd /opt/${APPNAME} && \
 ./build.sh \
-  -ruby "ruby" \
+  -qmake "$(which qmake) -spec linux-g++" \
+  -ruby "$(which ruby)" \
   -release \
   -prefix "${APPROOT}/bin" \
   -build "/opt/builddir" && \
-mv /opt/modfile \
-  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
-cd ${HOME_BASE}/modulefiles/${APPNAME} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${APPVER}" >> .version && \
-rm -rf \
-  /opt/${APPNAME}
+cd ${APPROOT} && \
+mkdir -p ${APPROOT}/lib && \
+mv ${APPROOT}/pymod \
+  ${APPROOT}/lib/python && \
+mv ${APPROOT}/bin/lib* \
+  ${APPROOT}/lib/. && \
+mv ${APPROOT}/bin/*_plugins \
+  ${APPROOT}/lib/. && \
+rm -rfv \
+  /opt/${APPNAME} \
+  /opt/builddir
