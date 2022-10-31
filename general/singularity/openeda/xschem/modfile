@@ -1,0 +1,20 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+set               name              xschem
+set               version           [file tail [info script]]
+set               root              /usr/local/${name}/${version}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds ${name} (version ${version}) path to your environment,"
+}
+
+module-whatis "adds ${name} (version ${version}) to your environment."
+
+setenv            XSCHEM_ROOT       ${root}
+
+prepend-path      PATH              ${root}/bin
+
+prepend-path      MANPATH           ${root}/share/man

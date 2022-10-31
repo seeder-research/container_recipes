@@ -7,15 +7,15 @@ modfile        /opt
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER_MAJ=8
-export APPVER_MIN=3
-export APPVER_PATCH=315
+export APPVER_MAJ=3
+export APPVER_MIN=1
+export APPVER_PATCH=0
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
-export APPURL="https://github.com/RTimothyEdwards/magic"
-export APPNAME="magic"
+export APPURL="https://github.com/StefanSchippers/xschem"
+export APPNAME="xschem"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
-  mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
+  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
 if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} ]; then
   mv /opt/modfile \
@@ -25,30 +25,20 @@ if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
   echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
   echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
 fi
+module load \
+  bison \
+  flex
 cd /opt && \
-git clone --recursive \
-  ${APPURL} \
+git clone \
+  --recursive ${APPURL} \
   -b ${APPVER} && \
 cd /opt/${APPNAME} && \
 ./configure \
   --prefix=${APPROOT} \
-  --enable-compression \
-  --enable-modular \
-  --enable-locking \
-  --enable-calma \
-  --enable-cif \
-  --enable-plot \
-  --enable-plot \
-  --enable-lef \
-  --enable-readline \
-  --enable-readline \
-  --enable-threads \
-  --enable-route \
-  --enable-rsim && \
-make clean && \
-make database/database.h && \
-make -j$(nproc) && \
+  --CC="/usr/bin/gcc" \
+  --CFLAGS="-fPIC -O3" && \
+make && \
 make install && \
-cd ${HOME_BASE}/modulefiles/${APPNAME} && \
+cd /opt && \
 rm -rf \
   /opt/${APPNAME}
