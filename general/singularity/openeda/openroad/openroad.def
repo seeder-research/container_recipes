@@ -17,6 +17,14 @@ export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
   mkdir ${HOME_BASE}/modulefiles/${APPNAME}
 fi
+if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} ]; then
+  mv /opt/modfile \
+    ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
+  echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
+  echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
+fi
 module load \
   bison \
   flex \
@@ -50,11 +58,6 @@ cmake --build . \
   -j$(nproc) \
   -t install && \
 cd /opt && \
-mv /opt/modfile \
-  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
-cd ${HOME_BASE}/modulefiles/${APPNAME} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
   /opt/${APPNAME} \
   /opt/builddir

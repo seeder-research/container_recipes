@@ -1,0 +1,27 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+prereq cvc
+prereq klayout
+prereq magic
+prereq netgen
+prereq openroad
+prereq qflow
+prereq yosys
+
+set               name              openlane
+set               version           [file tail [info script]]
+set               root              /usr/local/openeda/${name}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds ${name} (version ${version}) path to your environment,"
+}
+
+module-whatis "adds ${name} (version ${version}) to your environment."
+
+setenv              OPENLANE_ROOT     ${root}
+
+prepend-path        PATH              ${root}/venv/bin

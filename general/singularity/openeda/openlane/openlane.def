@@ -7,12 +7,12 @@ modfile        /opt
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER_MAJ=0
-export APPVER_MIN=1
-export APPVER_PATCH=6
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
-export APPURL="https://github.com/rubund/graywolf"
-export APPNAME="graywolf"
+export APPVER_MAJ=2
+export APPVER_MIN=0
+export APPVER_PATCH=0
+export APPVER="latest"
+export APPURL="https://github.com/The-OpenROAD-Project/OpenLane"
+export APPNAME="openlane"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
   mkdir ${HOME_BASE}/modulefiles/${APPNAME}
@@ -25,11 +25,18 @@ if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
   echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
   echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
 fi
+module load \
+  bison \
+  flex \
+  cudd \
+  boost
 if [ ! -d /opt/builddir ]; then
-  mkdir /opt/builddir
+  mkdir -p /opt/builddir
 fi
 cd /opt && \
-git clone --recursive ${APPURL} && \
+git clone --recursive \
+  ${APPURL} \
+  /opt/${APPNAME} && \
 cd /opt/builddir && \
 cmake \
   -G "Unix Makefiles" \
@@ -37,7 +44,16 @@ cmake \
   -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
   -DCMAKE_C_COMPILER="/usr/bin/gcc" \
   -DCMAKE_BUILD_TYPE="Release" \
-  /opt/${APPNAME} && \
+  -DUSE_SYSTEM_BOOST=ON \
+  -DUSE_SYSTEM_OPENSTA=OFF \
+  -DUSE_SYSTEM_ABC=OFF \
+  -DUSE_CUDD=ON \
+  -DCUDD_DIR=${CUDD_ROOT} \
+  -DBUILD_GUI=ON \
+  -DGPU=ON \
+  -DCMAKE_CUDA_ARCHITECTURES="60" \
+  -DCMAKE_PREFIX_PATH="${LIBBOOST_ROOT}/lib/cmake" \
+  /opt/${APPNAME}/. && \
 cmake --build . \
   -j$(nproc) \
   -t install && \

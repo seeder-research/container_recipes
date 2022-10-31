@@ -10,11 +10,19 @@ export APPVER=latest
 export APPURL="https://github.com/donn/padring"
 export APPNAME="padring"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} ]; then
+  mv /opt/modfile \
+    ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
+  echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
+  echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
+fi
 if [ ! -d ${APPROOT} ]; then
   mkdir -p ${APPROOT}
-  if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
-    mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
-  fi
   cd /opt && \
   git clone --recursive \
     ${APPURL} \
@@ -26,11 +34,6 @@ if [ ! -d ${APPROOT} ]; then
   ninja clean && \
   ninja && \
   mv ${APPNAME} ${APPROOT}/bin/. && \
-  cd ${HOME_BASE}/modulefiles/${APPNAME} && \
-  echo "#%Module" > .version && \
-  echo set ModulesVersion "${APPVER}" >> .version && \
-  mv /opt/modfile \
-    ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
   rm -rf \
     /opt/${APPNAME}
 fi

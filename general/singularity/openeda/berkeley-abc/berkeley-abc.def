@@ -11,11 +11,19 @@ export APPNAME="berkeley-abc"
 export APPVER="latest"
 export APPURL="https://github.com/berkeley-abc/abc"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+  mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} ]; then
+  mv /opt/modfile \
+    ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
+  echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
+  echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
+fi
 if [ ! -d ${APPROOT} ]; then
   mkdir -p ${APPROOT}
-  if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
-    mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
-  fi
   cd ${APPROOT} && \
   git clone --recursive ${ABCURL} ./src && \
   mkdir -p ${APPROOT}/bin && \
@@ -27,12 +35,7 @@ if [ ! -d ${APPROOT} ]; then
   mv abc ${APPROOT}/bin/. && \
   mv libabc.so ${APPROOT}/lib/. && \
   mv libabc.a ${APPROOT}/lib/. && \
-  make clean && \
-  cd ${HOME_BASE}/modulefiles/${APPNAME} && \
-  echo "#%Module" > .version && \
-  echo set ModulesVersion "${APPVER}" >> .version && \
-  mv /opt/modfile \
-    ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}
+  make clean
 fi
 
 if [ -f /opt/modfile ]; then

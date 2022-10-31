@@ -6,6 +6,7 @@ modfile    /opt
 
 %post
 . /etc/profile
+export HOME_BASE=/usr/local
 export MODULEPATH="/usr/local/modulefiles:/usr/local/modulefiles/dev"
 module load \
   pbspro \
@@ -14,9 +15,6 @@ module load \
   bison \
   flex \
   adms
-if [ ! -d /usr/local/modulefiles/xyce ]; then
-    mkdir -p /usr/local/modulefiles/xyce
-fi
 export SUITESPARSEVER_MAJ=5
 export SUITESPARSEVER_MIN=13
 export SUITESPARSEVER_PATCH=0
@@ -29,12 +27,14 @@ export TRILINOSVER_PATCH=0
 export TRILINOSVER=${TRILINOSVER_MAJ}.${TRILINOSVER_MIN}.${TRILINOSVER_PATCH}
 export TRILINOS_FILE=trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}.tar.gz
 export TRILINOSSRCDIR=/opt/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}
-export XYCEVER_MAJ=7
-export XYCEVER_MIN=5
-export XYCEVER_PATCH=0
-export XYCEVER=${XYCEVER_MAJ}.${XYCEVER_MIN}.${XYCEVER_PATCH}
-export XYCE_FILE=Release-${XYCEVER_MAJ}.${XYCEVER_MIN}.${XYCEVER_PATCH}.tar.gz
-export XYCESRCDIR=/opt/Xyce-Release-${XYCEVER}
+export APPVER_MAJ=7
+export APPVER_MIN=5
+export APPVER_PATCH=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APP_FILE=Release-${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}.tar.gz
+export APPSRCDIR=/opt/Xyce-Release-${APPVER}
+export APPNAME=xyce
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
 export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
 export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
@@ -42,6 +42,9 @@ export ARCHDIR=/usr/local/trilinos/${TRILINOSVER}_xyce
 export CCFLAGS="-O3"
 export CXXFLAGS="-O3"
 export CMAKE_MODULE_PATH="${MKLROOT}/lib/cmake/mkl;${TBBROOT}/lib/cmake/tbb"
+if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
+    mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
+fi
 cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
 cd /opt && \
 wget --no-check-certificate \
@@ -49,10 +52,10 @@ wget --no-check-certificate \
 wget --no-check-certificate \
   https://github.com/trilinos/Trilinos/archive/refs/tags/${TRILINOS_FILE} && \
 wget --no-check-certificate \
-  https://github.com/Xyce/Xyce/archive/refs/tags/${XYCE_FILE} && \
+  https://github.com/Xyce/Xyce/archive/refs/tags/${APP_FILE} && \
 tar xf /opt/${SUITESPARSE_FILE} && \
 tar xf /opt/${TRILINOS_FILE} && \
-tar xf /opt/${XYCE_FILE} && \
+tar xf /opt/${APP_FILE} && \
 mkdir -p  /opt/SuiteSparse-${SUITESPARSEVER}/builddir && \
 cd /opt/SuiteSparse-${SUITESPARSEVER}/builddir && \
 cmake \
@@ -61,13 +64,13 @@ cmake \
  -DCMAKE_INSTALL_PREFIX=${ARCHDIR} \
  -DCMAKE_C_FLAGS="${CCFLAGS}" \
  -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
- ${XYCESRCDIR}/cmake/trilinos/AMD && \
+ ${APPSRCDIR}/cmake/trilinos/AMD && \
 cmake --build . -t install && \
 mkdir -p /opt/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir && \
 cd /opt/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir && \
 cmake \
  -G "Unix Makefiles" \
- -C ${XYCESRCDIR}/cmake/trilinos/trilinos-config-MPI.cmake \
+ -C ${APPSRCDIR}/cmake/trilinos/trilinos-config-MPI.cmake \
  -DCMAKE_C_COMPILER=mpicc \
  -DCMAKE_CXX_COMPILER=mpic++ \
  -DCMAKE_Fortran_COMPILER=mpif77 \
@@ -156,8 +159,8 @@ cmake \
  -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
 ${TRILINOSSRCDIR} && \
 cmake --build . -j$(nproc) -t install && \
-mkdir -p /opt/Xyce-Release-${XYCEVER}/builddir && \
-cd /opt/Xyce-Release-${XYCEVER}/builddir && \
+mkdir -p /opt/Xyce-Release-${APPVER}/builddir && \
+cd /opt/Xyce-Release-${APPVER}/builddir && \
 cmake \
  -G "Unix Makefiles" \
  -DCMAKE_C_COMPILER=mpicc \
@@ -175,22 +178,22 @@ cmake \
  -DBUILD_SHARED_LIBS=ON \
  -DXyce_PLUGIN_SUPPORT=ON \
  -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
-${XYCESRCDIR} && \
+${APPSRCDIR} && \
 cmake --build . -j$(nproc) -t install && \
 rm -rf * && \
-cd /usr/local/xyce/${XYCEVER} && \
-cd /usr/local/modulefiles/xyce && \
+cd ${APPROOT} && \
+cd ${HOME_BASE}/modulefiles/${APPNAME} && \
 sed -i "s/@libver@/${TRILINOSVER}_xyce/" /opt/modfile && \
 mv /opt/modfile \
-  /usr/local/modulefiles/xyce/${XYCEVER} && \
+  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
 echo "#%Module" > .version && \
-echo set ModulesVersion "${XYCEVER}" >> .version && \
+echo set ModulesVersion "${APPVER}" >> .version && \
 rm -rf \
   /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
   ${SUITESPARSESRCDIR} \
   ${TRILINOSSRCDIR} \
-  ${XYCESRCDIR} \
+  ${APPSRCDIR} \
   /opt/install_xyce_trilinos.sh \
   /opt/${TRILINOS_FILE} \
   /opt/${SUITESPARSE_FILE} \
-  /opt/${XYCE_FILE}
+  /opt/${APP_FILE}
