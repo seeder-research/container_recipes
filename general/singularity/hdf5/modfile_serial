@@ -6,14 +6,14 @@ conflict hdf5
 
 set              name              hdf5
 set              version           [file tail [info script]]
-set              root              /usr/local/$name/$version
+set              root              /usr/local/${name}/${version}/serial
 
 proc ModulesHelp { } {
 
-  puts stderr "\tAdds $name library (version $version) to your environment variables"
+  puts stderr "\tAdds ${name} library (version ${version}, serial) to your environment variables"
 }
 
-module-whatis "adds $name library (version $version) to your environment variables."
+module-whatis "adds ${name} library (version ${version}, serial) to your environment variables."
 
 setenv            LIBHDF5_ROOT      ${root}
 prepend-path      PATH              ${root}/bin

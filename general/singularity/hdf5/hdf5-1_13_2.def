@@ -1,0 +1,129 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile_serial                /opt
+modfile_parallel              /opt
+
+%post
+. /etc/profile
+export HOME_BASE=/usr/local
+export APPVER_MAJ=1
+export APPVER_MIN=13
+export APPVER_REV=2
+export APPVER0=${APPVER_MAJ}_${APPVER_MIN}_${APPVER_REV}
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPURL=https://github.com/HDFGroup/hdf5
+export APPNAME=hdf5
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+module load \
+  pbspro \
+  openmpi/1.10.7
+export MPI_HOME=${MPI_ROOT}
+if [ ! -d ${HOME_BASE}/modulefiles/apps/${APPNAME}/${APPVER} ]; then
+    mkdir -p ${HOME_BASE}/modulefiles/apps/${APPNAME}/${APPVER}
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/apps/${APPNAME}/${APPVER}/serial ]; then
+    if [ -f ${HOME_BASE}/${APPNAME}/modfile_serial ]; then
+        mv ${HOME_BASE}/${APPNAME}/modfile_serial \
+          ${HOME_BASE}/modulefiles/apps/${APPNAME}/${APPVER}/serial
+    fi
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}/parallel ]; then
+    if [ -f ${HOME_BASE}/${APPNAME}/modfile_parallel ]; then
+        mv ${HOME_BASE}/${APPNAME}/modfile_parallel \
+          ${HOME_BASE}/modulefiles/apps/${APPNAME}/${APPVER}/parallel
+    fi
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
+    echo "#%Module" > ${HOME_BASE}/modulefiles/apps/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/apps/${APPNAME}/.version
+fi
+if [ ! -d ${HOME_BASE}/${APPNAME}/build_serial ]; then
+    mkdir -p ${HOME_BASE}/${APPNAME}/build_serial
+else
+    rm -rf ${HOME_BASE}/${APPNAME}/build_serial && \
+    mkdir -p ${HOME_BASE}/${APPNAME}/build_serial
+fi
+if [ ! -d ${HOME_BASE}/${APPNAME}/build_parallel ]; then
+    mkdir -p ${HOME_BASE}/${APPNAME}/build_parallel
+else
+    rm -rf ${HOME_BASE}/${APPNAME}/build_parallel && \
+    mkdir -p ${HOME_BASE}/${APPNAME}/build_parallel
+fi
+if [ ! -d ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} ]; then
+    git clone --recursive \
+      ${APPURL} \
+      -b ${APPNAME}-${APPVER0} \
+      ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER}
+fi
+cd ${HOME_BASE}/${APPNAME}/build_serial && \
+cmake \
+  -C ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER}/config/cmake/cacheinit.cmake \
+  -G "Unix Makefiles" \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT}/serial \
+  -DCMAKE_C_COMPILER=$(which gcc) \
+  -DCMAKE_C_FLAGS="-O3 -fPIC" \
+  -DCMAKE_CXX_COMPILER=$(which g++) \
+  -DCMAKE_CXX_FLAGS="-O3 -fPIC" \
+  -DCMAKE_FC_COMPILER=$(which gfortran) \
+  -DBUILD_TESTING=OFF \
+  -DBUILD_STATIC_EXECS=OFF \
+  -DBUILD_STATIC_LIBS=ON \
+  -DBUILD_SHARED_LIBS=ON \
+  -DHDF5_ENABLE_PARALLEL=OFF \
+  -DHDF5_BUILD_EXAMPLES=OFF \
+  -DHDF5_BUILD_HL_LIB=ON \
+  -DHDF5_BUILD_CPP_LIB=ON \
+  -DHDF5_BUILD_TOOLS=ON \
+  -DHDF5_BUILD_HL_TOOLS=ON \
+  -DHDF5_ENABLE_DIRECT_VFD=ON \
+  -DHDF5_ENABLE_PREADWRITE=ON \
+  -DHDF5_ENABLE_SZIP_SUPPORT=ON \
+  -DHDF5_ENABLE_Z_LIB_SUPPORT=ON \
+  -DUSE_LIBAEC=ON \
+  -DTEST_SHELL_SCRIPTS=OFF \
+  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
+cmake \
+  --build . \
+  -j $(nproc) \
+  -t install && \
+cd ${HOME_BASE}/${APPNAME}/build_parallel && \
+cmake \
+  -C ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER}/config/cmake/cacheinit.cmake \
+  -G "Unix Makefiles" \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT}/parallel \
+  -DCMAKE_C_COMPILER=$(which mpicc) \
+  -DCMAKE_C_FLAGS="-O3 -fPIC" \
+  -DCMAKE_CXX_COMPILER=$(which mpicxx) \
+  -DCMAKE_CXX_FLAGS="-O3 -fPIC" \
+  -DCMAKE_FC_COMPILER=$(which mpifort) \
+  -DBUILD_TESTING=OFF \
+  -DBUILD_STATIC_EXECS=OFF \
+  -DBUILD_STATIC_LIBS=ON \
+  -DBUILD_SHARED_LIBS=ON \
+  -DHDF5_ENABLE_PARALLEL=ON \
+  -DHDF5_BUILD_EXAMPLES=OFF \
+  -DHDF5_BUILD_HL_LIB=ON \
+  -DHDF5_BUILD_CPP_LIB=ON \
+  -DHDF5_BUILD_TOOLS=ON \
+  -DHDF5_BUILD_HL_TOOLS=ON \
+  -DHDF5_ENABLE_DIRECT_VFD=ON \
+  -DHDF5_ENABLE_PREADWRITE=ON \
+  -DHDF5_ENABLE_SZIP_SUPPORT=ON \
+  -DHDF5_ENABLE_Z_LIB_SUPPORT=ON \
+  -DUSE_LIBAEC=ON \
+  -DALLOW_UNSUPPORTED=ON \
+  -DTEST_SHELL_SCRIPTS=OFF \
+  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
+cmake \
+  --build . \
+  -j $(nproc) \
+  -t install && \
+cd ${HOME_BASE} && \
+rm -rf \
+  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} \
+  ${HOME_BASE}/${APPNAME}/build_serial \
+  ${HOME_BASE}/${APPNAME}/build_parallel
