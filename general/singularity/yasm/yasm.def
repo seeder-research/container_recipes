@@ -1,0 +1,41 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export HOME_BASE=/usr/local
+export APPVER_MAJ=1
+export APPVER_MIN=3
+export APPVER_REV=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPNAME=yasm
+export APPURL="https://github.com/${APPNAME}/${APPNAME}"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/dev/${APPNAME} ]; then
+    mkdir -p ${HOME_BASE}/modulefiles/dev/${APPNAME}
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/${APPVER} ]; then
+    if [ -f ${HOME_BASE}/${APPNAME}/modfile ]; then
+        mv ${HOME_BASE}/${APPNAME}/modfile \
+            ${HOME_BASE}/modulefiles/dev/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version ]; then
+    echo "#%Module" > ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version && \
+    echo set ModulesVersion "${NASMVER}" >> ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version
+fi
+cd ${HOME_BASE}/${APPNAME} && \
+git clone --recursive \
+  ${APPURL} \
+  -b v${APPVER} \
+  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
+cd ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
+./autogen.sh && \
+./configure --prefix=${APPROOT} && \
+make && \
+make install && \
+cd ${HOME_BASE}/${APPNAME} && \
+rm -rf \
+  ${HOME_BASE}/${APPNAME}/${APPNAME}-*

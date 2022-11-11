@@ -40,14 +40,14 @@ mkdir -p ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
 cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
 git clone --depth 1 https://code.videolan.org/videolan/x264.git -b stable && \
 cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/x264 && \
-./configure --prefix="${APPROOT}" --enable-static --enable-pic --disable-opencl && \
+./configure --prefix="${APPROOT}" --enable-static --enable-pic --disable-opencl --bashcompletionsdir="${APPROOT}/share/bashcompletions" && \
 make -j$(nproc) && \
 make install && \
 cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
 rm -rf ${HOME_BASE}/${APPNAME}/ffmpeg_src/x264 && \
 git clone --depth 1 https://code.videolan.org/videolan/x264.git -b stable && \
 cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/x264 && \
-./configure --prefix="${APPROOT}" --enable-shared --disable-opencl && \
+./configure --prefix="${APPROOT}" --enable-shared --disable-opencl --bashcompletionsdir="${APPROOT}/share/bashcompletions" && \
 make -j$(nproc) && \
 make install && \
 cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
