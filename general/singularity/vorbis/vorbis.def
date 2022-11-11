@@ -1,0 +1,50 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export HOME_BASE=/usr/local
+export APPVER_MAJ=1
+export APPVER_MIN=3
+export APPVER_REV=7
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPNAME=vorbis
+export APPURL="https://github.com/xiph/${APPNAME}"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export CC=$(which gcc)
+export CFLAGS="-O3 -fPIC"
+if [ ! -d ${HOME_BASE}/modulefiles/dev/${APPNAME} ]; then
+    mkdir -p ${HOME_BASE}/modulefiles/dev/${APPNAME}
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/${APPVER} ]; then
+    if [ -f ${HOME_BASE}/${APPNAME}/modfile ]; then
+        mv ${HOME_BASE}/${APPNAME}/modfile \
+            ${HOME_BASE}/modulefiles/dev/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version ]; then
+    echo "#%Module" > ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version
+fi
+module load ogg && \
+cd ${HOME_BASE}/${APPNAME} && \
+git clone --recursive \
+  ${APPURL} \
+  -b v${APPVER} \
+  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
+mkdir -p ${HOME_BASE}/${APPNAME}/builddir && \
+cd ${HOME_BASE}/${APPNAME}/builddir && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DBUILD_SHARED_LIBS=ON \
+  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
+cmake \
+  --build . \
+  -j$(nproc) \
+  -t install && \
+cd ${HOME_BASE}/${APPNAME} && \
+rm -rf \
+  ${HOME_BASE}/${APPNAME}/${APPNAME}-*

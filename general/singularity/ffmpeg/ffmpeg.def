@@ -37,6 +37,7 @@ module load \
   nasm \
   yasm \
   libass \
+  vorbis \
   ffmpeg &&\
 mkdir -p ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
 cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \

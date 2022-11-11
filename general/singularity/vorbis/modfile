@@ -2,10 +2,7 @@
 ##
 ## modulefile
 ##
-prereq libass
-prereq vorbis
-
-set              name              ffmpeg
+set              name              vorbis
 set              version           [file tail [info script]]
 set              root              /usr/local/${name}/${version}
 
@@ -15,8 +12,6 @@ proc ModulesHelp { } {
 }
 
 module-whatis "adds $name (version $version) to your environment variables."
-
-setenv            FFMPEG_ROOT       ${root}
 
 prepend-path      PATH              ${root}/bin
 
