@@ -2,7 +2,7 @@
 ##
 ## modulefile
 ##
-set              name              yasm
+set              name              fribidi
 set              version           [file tail [info script]]
 set              root              /usr/local/${name}/${version}
 
@@ -21,3 +21,7 @@ prepend-path      INCLUDE_PATH      ${root}/include
 prepend-path      LD_LIBRARY_PATH   ${root}/lib
 prepend-path      LIBRARY_PATH      ${root}/lib
 prepend-path      LD_RUN_PATH       ${root}/lib
+
+prepend-path      MANPATH           ${root}/share/man
+
+prepend-path      PKG_CONFIG_PATH   ${root}/lib/pkgconfig

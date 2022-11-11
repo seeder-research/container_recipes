@@ -35,6 +35,7 @@ cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnv
 module load \
   openmpi \
   nasm \
+  yasm \
   ffmpeg &&\
 mkdir -p ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
 cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
