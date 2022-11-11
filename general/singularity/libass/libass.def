@@ -6,12 +6,12 @@ modfile    /opt
 
 %post
 export HOME_BASE=/usr/local
-export APPVER_MAJ=2
-export APPVER_MIN=15
-export APPVER_REV=05
+export APPVER_MAJ=0
+export APPVER_MIN=16
+export APPVER_REV=0
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
-export APPNAME=nasm
-export APPURL=https://www.nasm.us/pub/nasm/releasebuilds/${APPVER}/${APPNAME}-${APPVER}.tar.bz2
+export APPNAME=libass
+export APPURL="https://github.com/${APPNAME}/${APPNAME}"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 if [ ! -d ${HOME_BASE}/modulefiles/dev/${APPNAME} ]; then
     mkdir -p ${HOME_BASE}/modulefiles/dev/${APPNAME}
@@ -26,14 +26,23 @@ if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version ]; then
     echo "#%Module" > ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version && \
     echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version
 fi
+module load \
+  fribidi \
+  harfbuzz \
+  nasm \
+  yasm && \
 cd ${HOME_BASE}/${APPNAME} && \
-wget --no-check-certificate \
-  ${APPURL} && \
-tar xjvf ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER}.tar.bz2 && \
+git clone --recursive \
+  ${APPURL} \
+  -b ${APPVER} \
+  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
 cd ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
 ./autogen.sh && \
-./configure --prefix=${APPROOT} && \
-make && \
+./configure \
+  --prefix=${APPROOT} \
+  --enable-static \
+  --enable-shared && \
+make -j$(nproc) && \
 make install && \
 cd ${HOME_BASE}/${APPNAME} && \
 rm -rf \

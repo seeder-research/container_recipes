@@ -36,6 +36,7 @@ module load \
   openmpi \
   nasm \
   yasm \
+  libass \
   ffmpeg &&\
 mkdir -p ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
 cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \

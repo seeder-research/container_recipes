@@ -24,7 +24,7 @@ if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/${APPVER} ]; then
 fi
 if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version ]; then
     echo "#%Module" > ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version && \
-    echo set ModulesVersion "${NASMVER}" >> ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version
+    echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version
 fi
 cd ${HOME_BASE}/${APPNAME} && \
 git clone --recursive \
