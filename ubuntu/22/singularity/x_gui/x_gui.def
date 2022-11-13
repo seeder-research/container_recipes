@@ -33,6 +33,8 @@ apt-get install -y --no-install-recommends \
   libinput10 \
   libmd4c0 \
   libmtdev1 \
+  libosmesa6 \
+  libosmesa6-dev \
   libsqlite3-0 \
   libsqlite3-dev \
   libwacom-common \
@@ -78,6 +80,9 @@ apt-get install -y --no-install-recommends \
   libxss-dev \
   libxtst-dev \
   libxt-dev \
-  mesa-common-dev && \
+  mesa-common-dev \
+  wayland-protocols \
+  wayland-scanner++ \
+  waylandpp-dev && \
 rm -rf \
   /var/lib/apt/lists/*

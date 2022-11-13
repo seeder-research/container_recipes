@@ -70,6 +70,8 @@ apt-get install -y --no-install-recommends \
   libnetcdff7 \
   libpciaccess-dev \
   libpciaccess0 \
+  libxslt1-dev \
+  libxslt1.1 \
   libssl-dev \
   libssl3 \
   libtool \
@@ -102,6 +104,8 @@ apt-get install -y --no-install-recommends \
   tk-dev \
   xdot \
   unzip \
+  xmlto \
+  xsltproc \
   zlib1g \
   zlib1g-dev && \
 locale-gen en_US.UTF-8 && \
