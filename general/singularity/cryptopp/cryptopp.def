@@ -2,25 +2,22 @@ BootStrap: localimage
 From: pre.sif
 
 %files
-modfile     /opt
+modfile    /opt
 
 %post
+. /etc/profile
 export HOME_BASE=/usr/local
 export APPSDIR=${HOME_BASE}/utils
-export APPVER_MAJ=2
-export APPVER_MIN=6
-export APPVER_REV=4
+export APPVER_MAJ=8
+export APPVER_MIN=7
+export APPVER_REV=0
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
-export APPNAME=flex
-export APPURL="https://github.com/westes/${APPNAME}/files/981163/${APPNAME}-${APPVER}.tar.gz"
+export APPURL="https://github.com/weidai11/cryptopp"
+export APPNAME=cryptopp
 export APPROOT=${APPSDIR}/${APPNAME}/${APPVER}
 export MOD_DIR=/opt
 export MOD_BASE=${HOME_BASE}/modulefiles/utils
-export CC=$(which gcc)
-export CFLAGS="-O3 -fPIC"
-export CXX=$(which g++)
-export CXXFLAGS="-O3 -fPIC"
-if [ ! -d ${HOME_BASE}/modulefiles/utils/${APPNAME} ]; then
+if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
     mkdir -p ${MOD_BASE}/${APPNAME}
 fi
 if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
@@ -36,20 +33,25 @@ fi
 if [ -f ${MOD_DIR}/modfile ]; then
   rm -f ${MOD_DIR}/modfile
 fi
-module load \
-  bison && \
 cd ${APPSDIR}/${APPNAME} && \
-wget --no-check-certificate \
-  ${APPURL} && \
-tar xf ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}.tar.gz && \
+git clone --recursive \
+  ${APPURL} \
+  -b CRYPTOPP_${APPVER_MAJ}_${APPVER_MIN}_${APPVER_REV} \
+  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
 cd ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
-./autogen.sh && \
-sed -i "/math.h/a #include <malloc.h>" src/flexdef.h && \
-./configure \
-  --prefix=${APPROOT} \
-  --enable-static \
-  --enable-shared && \
-make all install && \
+make \
+  -j$(nproc) \
+  libcryptopp.a && \
+make \
+  -j$(nproc) \
+  libcryptopp.so && \
+make \
+  -j$(nproc) \
+  install \
+  PREFIX=${APPROOT} \
+  CC=$(which gcc) \
+  CXX=$(which g++) && \
+mkdir -p ${APPROOT}/lib && \
+cd ${APPSDIR}/${APPNAME} && \
 rm -rf \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}.tar.gz
+  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}

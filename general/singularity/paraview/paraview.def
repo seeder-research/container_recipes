@@ -5,64 +5,91 @@ From: pre.sif
 modfile    /opt
 
 %post
-. /etc/profile.d/modules.sh
-export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+. /etc/profile
+export HOME_BASE=/usr/local
+export APPVER_MAJ=5
+export APPVER_MIN=10
+export APPVER_REV=2
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPNAME=paraview
+export APPURL="https://gitlab.kitware.com/${APPNAME}/${APPNAME}.git"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+if [ ! -d ${HOME_BASE}/modulefiles/app/${APPNAME} ]; then
+    mkdir -p ${HOME_BASE}/modulefiles/app/${APPNAME}
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/app/${APPNAME}/${APPVER} ]; then
+    if [ -f ${HOME_BASE}/${APPNAME}/modfile ]; then
+        mv ${HOME_BASE}/${APPNAME}/modfile \
+            ${HOME_BASE}/modulefiles/app/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${HOME_BASE}/modulefiles/app/${APPNAME}/.version ]; then
+    echo "#%Module" > ${HOME_BASE}/modulefiles/app/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/app/${APPNAME}/.version
+fi
+if [ ! -d ${HOME_BASE}/${APPNAME}/builddir ]; then
+    mkdir -p ${HOME_BASE}/${APPNAME}/builddir
+else
+    rm -rf ${HOME_BASE}/${APPNAME}/builddir && \
+    mkdir -p ${HOME_BASE}/${APPNAME}/builddir
+fi
 module load \
   boost \
-  ffmpeg \
-  openmpi \
+  ffmpeg/4.4.3 \
+  openmpi/1.10.7 \
   hdf5 \
   qt
-export PARAVIEW_VER=5.9.1
-export PYVER=3.8
-export QTVER=5.15.2
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
 export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
 export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
 cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
-git clone https://gitlab.kitware.com/paraview/paraview.git -b v${PARAVIEW_VER} && \
-cd /opt/paraview && \
-git submodule \
-  update --init \
-  --recursive && \
-mkdir /opt/paraview/builddir && \
-cd /opt/paraview/builddir && \
+git clone --recursive \
+  ${APPURL}
+  -b v${PARAVIEW_VER} \
+  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
+cd ${HOME_BASE}/${APPNAME}/builddir && \
 cmake \
-  -DCMAKE_INSTALL_PREFIX=/usr/local/paraview/${PARAVIEW_VER} \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DINSTALL_CMAKE_PACKAGE_MODULE=ON \
-  -DINSTALL_PKG_CONFIG_MODULE=ON \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX="/usr/local/paraview/${PARAVIEW_VER}" \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DCMAKE_C_COMPILER=$(which gcc) \
+  -DCMAKE_CXX_COMPILER=$(which g++) \
+  -DCMAKE_FC_COMPILER=$(which gfortran) \
   -DPARAVIEW_BUILD_SHARED_LIBS=ON \
+  -DPARAVIEW_USE_FORTRAN=ON \
   -DPARAVIEW_USE_MPI=ON \
-  -DPARAVIEW_ENABLE_PYTHON=ON \
-  -DPython3_EXECUTABLE=/opt/conda/bin/python \
-  -DQt5_DIR=${QT_DIR}/lib/cmake/Qt5 \
-  -DPARAVIEW_BUILD_QT_GUI=ON \
-  -DPARAVIEW_QT_VERSION=${QTVER} \
+  -DPARAVIEW_USE_PYTHON=ON \
+  -DPARAVIEW_USE_QT=ON \
+  -DPARAVIEW_BUILD_EDITION="CANONICAL" \
+  -DVTK_SMP_IMPLEMENTATION_TYPE="OpenMP" \
+  -DPARAVIEW_ENABLE_CATALYST=ON \
+  -DPARAVIEW_ENABLE_WEB=ON \
+  -DPARAVIEW_INSTALL_DEVELOPMENT_FILES=ON \
+  -DPARAVIEW_BUILD_DEVELOPER_DOCUMENTATION=OFF \
+  -DPARAVIEW_ENABLE_EXAMPLES=OFF \
+  -DPARAVIEW_BUILD_TESTING=OFF \
+  -DPARAVIEW_BUILD_ALL_MODULES=OFF \
+  -DPARAVIEW_ENABLE_VISITBRIDGE=ON \
+  -DPARAVIEW_ENABLE_GDAL=ON \
+  -DPARAVIEW_ENABLE_LAS=ON \
+  -DPARAVIEW_ENABLE_OPENTURNS=ON \
+  -DPARAVIEW_ENABLE_PDAL=ON \
+  -DPARAVIEW_ENABLE_MOTIONFX=ON \
+  -DPARAVIEW_ENABLE_MOMENTINVARIANTS=ON \
+  -DPARAVIEW_ENABLE_COSMOTOOLS=ON \
+  -DPARAVIEW_ENABLE_CGNS_READER=ON \
+  -DPARAVIEW_ENABLE_CGNS_WRITER=ON \
+  -DPARAVIEW_ENABLE_LOOKINGGLASS=OFF \
   -DPARAVIEW_ENABLE_XDMF2=ON \
   -DPARAVIEW_ENABLE_XDMF3=ON \
   -DPARAVIEW_ENABLE_FFMPEG=ON \
-  -DPARAVIEW_ENABLE_WEB=ON \
-  -DVTKm_ENABLE_MPI=ON \
-  -DBoost_INCLUDE_DIR=${LIBBOOST_ROOT}/include \
-  -DFFMPEG_ROOT=${FFMPEG_ROOT} \
-  /opt/paraview && \
-make -j$(nproc) && \
-make install && \
-mkdir /usr/local/modulefiles/paraview && \
-cd /usr/local/modulefiles/paraview && \
-mv /opt/modfile \
-  /usr/local/modulefiles/paraview/${PARAVIEW_VER} && \
-echo "#%Module" > /usr/local/modulefiles/paraview/.version && \
-echo set ModulesVersion "${PARAVIEW_VER}" >> /usr/local/modulefiles/paraview/.version && \
-echo ". /etc/profile.d/modules.sh" >> /.singularity.d/env/90-environment.sh && \
-echo "export MODULEPATH=/usr/local/modulefiles:"'$'"MODULEPATH" >> /.singularity.d/env/90-environment.sh && \
-echo "module load \\" >> /.singularity.d/env/90-environment.sh && \
-echo "  openmpi \\" >> /.singularity.d/env/90-environment.sh && \
-echo "  ffmpeg \\" >> /.singularity.d/env/90-environment.sh && \
-echo "  qt \\" >> /.singularity.d/env/90-environment.sh && \
-echo "  paraview" >> /.singularity.d/env/90-environment.sh && \
+  -DPARAVIEW_RELOCATABLE_INSTALL=ON \
+  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
+cmake \
+  --build . \
+  -j$(nproc) \
+  -t install && \
 rm -rf \
   /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/paraview
+  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} \
+  ${HOME_BASE}/${APPNAME}/builddir

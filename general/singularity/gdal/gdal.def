@@ -1,0 +1,66 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+export HOME_BASE=/usr/local
+export APPSDIR=${HOME_BASE}/utils
+export APPVER_MAJ=3
+export APPVER_MIN=6
+export APPVER_REV=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPURL="https://github.com/OSGeo/GDAL"
+export APPNAME=gdal
+export APPROOT=${APPSDIR}/${APPNAME}/${APPVER}
+export MOD_DIR=/opt
+export MOD_BASE=${HOME_BASE}/modulefiles/utils
+if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
+    mkdir -p ${MOD_BASE}/${APPNAME}
+fi
+if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${MOD_DIR}/modfile ]; then
+        mv ${MOD_DIR}/modfile \
+            ${MOD_BASE}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+fi
+if [ ! -d ${APPSDIR}/${APPNAME}/builddir ]; then
+    mkdir -p ${APPSDIR}/${APPNAME}/builddir
+else
+    rm -rf ${APPSDIR}/${APPNAME}/builddir && \
+    mkdir -p ${APPSDIR}/${APPNAME}/builddir
+fi
+if [ -f ${MOD_DIR}/modfile ]; then
+  rm -f ${MOD_DIR}/modfile
+fi
+module load \
+  cryptopp && \
+cd ${APPSDIR}/${APPNAME} && \
+git clone --recursive \
+  ${APPURL} \
+  -b v${APPVER} \
+  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
+cd ${APPSDIR}/${APPNAME}/builddir && \
+cmake \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_APPS=ON \
+  -DBUILD_SHARED_LIBS=ON \
+  -DCRYPTOPP_INCLUDE_DIR=${CRYPTOPP_ROOT}/include \
+  -DCRYPTOPP_LIBRARY=${CRYPTOPP_ROOT}/lib/libcruptopp.a \
+  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
+cmake \
+  --build . \
+  -j$(nproc) \
+  -t install && \
+cd ${APPSDIR}/${APPNAME} && \
+rm -rf \
+  ${APPSDIR}/${APPNAME}/builddir \
+  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}
