@@ -13,6 +13,8 @@ proc ModulesHelp { } {
 
 module-whatis "adds $name (version $version) to your environment variables."
 
+setenv            SQLITE3_ROOT      ${root}
+
 prepend-path      PATH              ${root}/bin
 
 prepend-path      CPATH             ${root}/include
