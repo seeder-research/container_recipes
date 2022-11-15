@@ -8,12 +8,12 @@ modfile    /opt
 . /etc/profile
 export HOME_BASE=/usr/local
 export APPSDIR=${HOME_BASE}/libraries
-export APPVER_MAJ=3
-export APPVER_MIN=6
-export APPVER_REV=0
+export APPVER_MAJ=2
+export APPVER_MIN=4
+export APPVER_REV=3
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
-export APPURL="https://github.com/OSGeo/GDAL"
-export APPNAME=gdal
+export APPURL="https://github.com/PDAL/PDAL"
+export APPNAME=pdal
 export APPROOT=${APPSDIR}/${APPNAME}/${APPVER}
 export MOD_DIR=/opt
 export MOD_BASE=${HOME_BASE}/modulefiles/dev
@@ -40,36 +40,24 @@ if [ -f ${MOD_DIR}/modfile ]; then
   rm -f ${MOD_DIR}/modfile
 fi
 module load \
-  proj && \
+  libgeotiff \
+  gdal && \
 cd ${APPSDIR}/${APPNAME} && \
 git clone --recursive \
   ${APPURL} \
-  -b v${APPVER} \
+  -b ${APPVER} \
   ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
 cd ${APPSDIR}/${APPNAME}/builddir && \
 cmake \
   -G "Unix Makefiles" \
   -DCMAKE_INSTALL_PREFIX=${APPROOT} \
   -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_APPS=OFF \
-  -DBUILD_SHARED_LIBS=ON \
-  -DSQLITE3_INCLUDE_DIR=${SQLITE3_ROOT}/include \
-  -DSQLITE3_LIBRARY=${SQLITE3_ROOT}/lib/libsqlite3.la \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
-cmake \
-  --build . \
-  -j$(nproc) \
-  -t install && \
-rm -rf \
-  ${APPSDIR}/${APPNAME}/builddir/* && \
-cmake \
-  -G "Unix Makefiles" \
-  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_APPS=ON \
-  -DBUILD_SHARED_LIBS=ON \
-  -DSQLITE3_INCLUDE_DIR=${SQLITE3_ROOT}/include \
-  -DSQLITE3_LIBRARY=${SQLITE3_ROOT}/lib/libsqlite3.la \
+  -DCMAKE_C_COMPILER=$(which gcc) \
+  -DCMAKE_CXX_COMPILER=$(which g++) \
+  -DGDAL_INCLUDE_DIR=${GDAL_ROOT}/include \
+  -DGDAL_LIBRARY=${GDAL_ROOT}/lib/libgdal.so \
+  -DGEOTIFF_INCLUDE_DIR=${LIBGEOTIFF_ROOT}/include \
+  -DGEOTIFF_LIBRARY=${LIBGEOTIFF_ROOT}/lib/libgeotiff.so \
   ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
 cmake \
   --build . \

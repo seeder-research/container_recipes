@@ -1,0 +1,55 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+export HOME_BASE=/usr/local
+export APPSDIR=${HOME_BASE}/libraries
+export APPVER_MAJ=1
+export APPVER_MIN=7
+export APPVER_REV=1
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPURL="https://github.com/OSGeo/libgeotiff"
+export APPNAME=libgeotiff
+export APPROOT=${APPSDIR}/${APPNAME}/${APPVER}
+export MOD_DIR=/opt
+export MOD_BASE=${HOME_BASE}/modulefiles/dev
+export CC=$(which gcc)
+export CXX=$(which g++)
+if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
+    mkdir -p ${MOD_BASE}/${APPNAME}
+fi
+if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${MOD_DIR}/modfile ]; then
+        mv ${MOD_DIR}/modfile \
+            ${MOD_BASE}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+fi
+if [ -f ${MOD_DIR}/modfile ]; then
+  rm -f ${MOD_DIR}/modfile
+fi
+module load \
+  proj && \
+cd ${APPSDIR}/${APPNAME} && \
+git clone --recursive \
+  ${APPURL} \
+  -b ${APPVER} \
+  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
+cd ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}/${APPNAME} && \
+./autogen.sh && \
+./configure \
+  --prefix=${APPROOT} && \
+make \
+  -j$(nproc) && \
+make \
+  install && \
+cd ${APPSDIR}/${APPNAME} && \
+rm -rf \
+  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}

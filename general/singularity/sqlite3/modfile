@@ -2,10 +2,7 @@
 ##
 ## modulefile
 ##
-
-prereq cryptopp
-
-set              name              gdal
+set              name              sqlite3
 set              version           [file tail [info script]]
 set              root              /usr/local/libraries/${name}/${version}
 
@@ -15,8 +12,6 @@ proc ModulesHelp { } {
 }
 
 module-whatis "adds $name (version $version) to your environment variables."
-
-setenv            GDAL_ROOT         ${root}
 
 prepend-path      PATH              ${root}/bin
 
@@ -28,3 +23,5 @@ prepend-path      LIBRARY_PATH      ${root}/lib
 prepend-path      LD_RUN_PATH       ${root}/lib
 
 prepend-path      MANPATH           ${root}/share/man
+
+prepend-path      PKG_CONFIG_PATH   ${root}/lib/pkgconfig

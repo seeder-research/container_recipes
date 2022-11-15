@@ -3,9 +3,10 @@
 ## modulefile
 ##
 
-prereq cryptopp
+prereq libgeotiff
+prereq gdal
 
-set              name              gdal
+set              name              pdal
 set              version           [file tail [info script]]
 set              root              /usr/local/libraries/${name}/${version}
 
@@ -16,7 +17,7 @@ proc ModulesHelp { } {
 
 module-whatis "adds $name (version $version) to your environment variables."
 
-setenv            GDAL_ROOT         ${root}
+setenv            PDAL_ROOT         ${root}
 
 prepend-path      PATH              ${root}/bin
 
@@ -27,4 +28,6 @@ prepend-path      LD_LIBRARY_PATH   ${root}/lib
 prepend-path      LIBRARY_PATH      ${root}/lib
 prepend-path      LD_RUN_PATH       ${root}/lib
 
-prepend-path      MANPATH           ${root}/share/man
+prepend-path      PKG_CONFIG_PATH   ${root}/lib/pkgconfig
+
+prepend-path -d ";"    CMAKE_MODULE_PATH    ${root}/lib/cmake
