@@ -51,10 +51,10 @@ cmake \
   -G "Unix Makefiles" \
   -DCMAKE_INSTALL_PREFIX=${APPROOT} \
   -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_APPS=OFF \
-  -DBUILD_SHARED_LIBS=ON \
+  -DBUILD_APPS=ON \
+  -DBUILD_SHARED_LIBS=OFF \
   -DSQLITE3_INCLUDE_DIR=${SQLITE3_ROOT}/include \
-  -DSQLITE3_LIBRARY=${SQLITE3_ROOT}/lib/libsqlite3.la \
+  -DSQLITE3_LIBRARY=${SQLITE3_ROOT}/lib/libsqlite3.so \
   ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
 cmake \
   --build . \
@@ -69,7 +69,7 @@ cmake \
   -DBUILD_APPS=ON \
   -DBUILD_SHARED_LIBS=ON \
   -DSQLITE3_INCLUDE_DIR=${SQLITE3_ROOT}/include \
-  -DSQLITE3_LIBRARY=${SQLITE3_ROOT}/lib/libsqlite3.la \
+  -DSQLITE3_LIBRARY=${SQLITE3_ROOT}/lib/libsqlite3.so \
   ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
 cmake \
   --build . \

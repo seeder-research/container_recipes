@@ -19,6 +19,7 @@ export MOD_DIR=/opt
 export MOD_BASE=${HOME_BASE}/modulefiles/dev
 export CPPFLAGS="-DSQLITE_ENABLE_FTS3=1            \
                  -DSQLITE_ENABLE_FTS4=1            \
+                 -DSQLITE_ENABLE_RTREE=1           \
                  -DSQLITE_ENABLE_COLUMN_METADATA=1 \
                  -DSQLITE_ENABLE_UNLOCK_NOTIFY=1   \
                  -DSQLITE_ENABLE_DBSTAT_VTAB=1     \
