@@ -48,6 +48,8 @@ yum install -y \
   python3-devel \
   python3 \
   rpm-build \
+  runc \
+  shadow-utils \
   swig \
   tcl-devel \
   tcl \
