@@ -34,6 +34,7 @@ yum install -y \
   libXft \
   libX11-devel \
   libXt-devel \
+  lsof \
   make \
   most \
   nano \
@@ -54,4 +55,5 @@ yum install -y \
   tk \
   tkcvs \
   wget \
-  which
+  which \
+  vim-filesystem

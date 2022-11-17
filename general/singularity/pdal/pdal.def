@@ -54,6 +54,7 @@ cmake \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_C_COMPILER=$(which gcc) \
   -DCMAKE_CXX_COMPILER=$(which g++) \
+  -DCMAKE_EXE_LINKER_FLAGS="-L${SQLITE3_ROOT}/lib -lsqlite3" \
   -DGDAL_INCLUDE_DIR=${GDAL_ROOT}/include \
   -DGDAL_LIBRARY=${GDAL_ROOT}/lib/libgdal.so \
   -DGEOTIFF_INCLUDE_DIR=${LIBGEOTIFF_ROOT}/include \

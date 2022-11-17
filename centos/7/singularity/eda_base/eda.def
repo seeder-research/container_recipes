@@ -65,6 +65,9 @@ yum install -y \
   devtoolset-6 \
   devtoolset-7 \
   devtoolset-8 \
+  devtoolset-9 \
+  devtoolset-10 \
+  devtoolset-11 \
   nano \
   which \
   environment-modules \
@@ -91,3 +94,33 @@ yum install -y \
   xz-compat-libs.i686 \
   xz-devel.i686 \
   xz-libs.i686
+yum install -y \
+  libXaw.x86_64 \
+  libXaw.i686 \
+  libXaw-devel.x86_64 \
+  libXaw-devel.i686 \
+  libGLEW.x86_64 \
+  libGLEWmx.x86_64 \
+  libXdmcp.x86_64 \
+  mesa-libGL.x86_64 \
+  mesa-libGL-devel.x86_64 \
+  mesa-libGLES.x86_64 \
+  mesa-libGLES-devel.x86_64 \
+  mesa-libGLU.x86_64 \
+  mesa-libGLU-devel.x86_64 \
+  mesa-libGLw.x86_64 \
+  mesa-libGLw-devel.x86_64 \
+  mesa-libglapi.x86_64 \
+  libGLEW.i686 \
+  libGLEWmx.i686 \
+  libXdmcp.i686 \
+  mesa-libGL.i686 \
+  mesa-libGL-devel.i686 \
+  mesa-libGLES.i686 \
+  mesa-libGLES-devel.i686 \
+  mesa-libGLU.i686 \
+  mesa-libGLU-devel.i686 \
+  mesa-libGLw.i686 \
+  mesa-libGLw-devel.i686 \
+  mesa-libglapi.i686 \
+  xterm
