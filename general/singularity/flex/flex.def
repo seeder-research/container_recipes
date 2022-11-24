@@ -20,7 +20,7 @@ export CC=$(which gcc)
 export CFLAGS="-O3 -fPIC"
 export CXX=$(which g++)
 export CXXFLAGS="-O3 -fPIC"
-if [ ! -d ${HOME_BASE}/modulefiles/utils/${APPNAME} ]; then
+if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
     mkdir -p ${MOD_BASE}/${APPNAME}
 fi
 if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
