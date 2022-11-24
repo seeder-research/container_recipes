@@ -16,20 +16,31 @@ yum install -y \
   autoconf \
   automake \
   centos-release-scl \
+  curl \
+  dnf \
   environment-modules \
   expat-devel \
   expat \
   g++ \
   gcc \
+  gettext-devel \
+  gettext \
   gfortran \
   git \
+  help2man \
   hwloc-devel \
+  hwloc \
   libedit-devel \
   libedit \
   libical-devel \
+  libical \
   libpciaccess-devel \
   libpciaccess \
   libtool \
+  libuv-devel \
+  libuv \
+  libarchive-devel \
+  libarchive \
   libXext \
   libXft \
   libX11-devel \
@@ -39,7 +50,9 @@ yum install -y \
   most \
   nano \
   ncurses-devel \
+  ncurses \
   openssl-devel \
+  openssl \
   perl \
   postgresql-contrib \
   postgresql-devel \
@@ -53,6 +66,7 @@ yum install -y \
   swig \
   tcl-devel \
   tcl \
+  texinfo \
   tk-devel \
   tk \
   tkcvs \

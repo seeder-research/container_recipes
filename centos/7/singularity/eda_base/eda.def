@@ -20,6 +20,8 @@ yum install -y \
   expat \
   g++ \
   gcc \
+  gettext \
+  gettext-devel \
   gfortran \
   git \
   hwloc-devel \
@@ -123,4 +125,8 @@ yum install -y \
   mesa-libGLw.i686 \
   mesa-libGLw-devel.i686 \
   mesa-libglapi.i686 \
+  mesa-libOSMesa.x86_64 \
+  mesa-libOSMesa.i686 \
+  mesa-libOSMesa-devel.x86_64 \
+  mesa-libOSMesa-devel.i686 \
   xterm
