@@ -5,25 +5,45 @@ From: pre.sif
 modfile    /opt
 
 %post
-export PBSPROVER=19.1.2
-cd /opt && \
-wget --no-check-certificate \
-  https://github.com/PBSPro/pbspro/archive/v${PBSPROVER}.tar.gz && \
-tar xf /opt/v${PBSPROVER}.tar.gz && \
-cd /opt/openpbs-19.1.2 && \
+export HOME_BASE=/usr/local
+export MODDIR=/usr/local
+export APPNAME=pbspro
+export APPVER_MAJ=22
+export APPVER_MIN=05
+export APPVER_REV=11
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPDIR=/opt
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export APPURL="https://github.com/openpbs/openpbs"
+if [ ! -d ${MODDIR}/modulefiles/dev/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/modulefiles/dev/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/modulefiles/dev/${APPNAME}/${APPVER} ]; then
+    if [ -f ${APPDIR}/modfile ]; then
+        mv ${APPDIR}/modfile \
+            ${MODDIR}/modulefiles/dev/${APPNAME}/${APPVER}
+    fi
+fi
+if [ -f ${APPDIR}/modfile ]; then
+    rm -f ${APPDIR}/modfile
+fi
+if [ ! -f ${MODDIR}/modulefiles/dev/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/modulefiles/dev/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/modulefiles/dev/${APPNAME}/.version
+fi
+cd ${APPDIR} && \
+git clone \
+  --recursive \
+  ${APPURL} \
+  -b v${APPVER} \
+  ${APPDIR}/${APPNAME}-${APPVER} && \
+cd ${APPDIR}/${APPNAME}-${APPVER} && \
 ./autogen.sh && \
 ./configure \
-  --prefix=/opt/pbspro/v${PBSPROVER} \
-  --with-pbs-server-home=/opt/pbspro/v${PBSPROVER}/spool && \
+  --prefix=${APPROOT} \
+  --with-pbs-server-home=/opt/pbspro/v${APPVER}/spool && \
 make -j$(nproc) && \
 make install && \
-mkdir -p /usr/local/modulefiles/dev/pbspro && \
-cd /usr/local/modulefiles/dev/pbspro && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${PBSPROVER}" >> .version && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/pbspro/${PBSPROVER} && \
-cd /opt && \
+cd ${APPDIR} && \
 rm -rf \
-  /opt/openpbs-${PBSPROVER} \
-  /opt/v${PBSPROVER}.tar.gz
+  ${APPDIR}/${APPNAME}-${APPVER}

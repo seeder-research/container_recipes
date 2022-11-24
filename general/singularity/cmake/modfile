@@ -1,0 +1,20 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+set              name              cmake
+set              version           [file tail [info script]]
+set              root              /usr/local/utils/${name}/${version}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $name (version $version) to your environment variables"
+}
+
+module-whatis "adds $name (version $version) to your environment variables."
+
+prepend-path      PATH              ${root}/bin
+
+prepend-path      ACLOCAL_PATH      ${root}/share/aclocal
+
+prepend-path -d ";" CMAKE_MODULE_PATH ${root}/share/${name}-${version}/Modules
