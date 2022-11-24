@@ -7,46 +7,56 @@ modfile        /opt
 %post
 . /etc/profile
 export HOME_BASE=/usr/local
+export APPSDIR=${HOME_BASE}/utils
 export APPVER_MAJ=15
 export APPVER_MIN=0
 export APPVER_PATCH=2
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
-export APPURL="https://github.com/llvm/llvm-project"
 export APPNAME="llvm"
+export APPURL="https://github.com/llvm/llvm-project"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-if [ ! -d /usr/local/modulefiles/dev/${APPNAME} ]; then
-    mkdir -p /usr/local/modulefiles/dev/${APPNAME}
+export MOD_DIR=/opt
+export MOD_BASE=${HOME_BASE}/modulefiles/utils
+if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
+    mkdir -p ${MOD_BASE}/${APPNAME}
 fi
-cd /opt && \
+if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${MOD_DIR}/modfile ]; then
+        mv ${MOD_DIR}/modfile \
+            ${MOD_BASE}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+fi
+if [ -f ${MOD_DIR}/modfile ]; then
+  rm -f ${MOD_DIR}/modfile
+fi
+cd ${APPSDIR}/${APPNAME} && \
 git clone --recursive \
-  -j 8 \
   ${APPURL} \
   -b llvmorg-${APPVER} \
-  /opt/${APPNAME} && \
+  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
 mkdir -p \
-  /opt/builddir && \
-cmake -S /opt/${APPNAME}/${APPNAME} \
-  -B /opt/builddir \
+  ${APPSDIR}/${APPNAME}/builddir && \
+cmake -S ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} \
+  -B ${APPSDIR}/${APPNAME}/builddir \
   -G "Unix Makefiles" \
   -DCMAKE_INSTALL_PREFIX=${APPROOT} \
   -DCMAKE_BUILD_TYPE="Release" \
-  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
-  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
+  -DCMAKE_CXX_COMPILER=$(which g++) \
+  -DCMAKE_C_COMPILER=$(which gcc) \
   -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;flang;libclc;lld;lldb;mlir;openmp;polly;pstl" \
   -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind;compiler-rt" \
   -DLLVM_ENABLE_RTTI=ON \
   -DLLVM_BUILD_LLVM_DYLIB=ON && \
-cd /opt/builddir && \
+cd ${APPSDIR}/${APPNAME} && \
 cmake \
-  --build . \
+  --build ${APPSDIR}/${APPNAME}/builddir \
   -j$(nproc) \
   -t install && \
-cd /opt && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/${APPNAME}/${APPVER} && \
-cd /usr/local/modulefiles/dev/${APPNAME} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${APPVER}" >> .version && \
+cd ${APPSDIR}/${APPNAME} && \
 rm -rf \
-  /opt/${APPNAME} \
-  /opt/builddir
+  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} \
+  ${APPSDIR}/${APPNAME}/builddir

@@ -13,11 +13,14 @@ yum groupinstall -y \
   "Hardware Support" \
   "Scientific Support"
 yum install -y \
+  asciidoc-doc \
+  asciidoc \
   autoconf \
   automake \
   centos-release-scl \
   curl \
   dnf \
+  docbook2X \
   environment-modules \
   expat-devel \
   expat \
@@ -30,8 +33,12 @@ yum install -y \
   help2man \
   hwloc-devel \
   hwloc \
+  libarchive-devel \
+  libarchive \
   libedit-devel \
   libedit \
+  libffi-devel \
+  libffi \
   libical-devel \
   libical \
   libpciaccess-devel \
@@ -39,12 +46,12 @@ yum install -y \
   libtool \
   libuv-devel \
   libuv \
-  libarchive-devel \
-  libarchive \
   libXext \
   libXft \
   libX11-devel \
   libXt-devel \
+  libxml2-devel \
+  libxml2 \
   lsof \
   make \
   most \
@@ -61,6 +68,7 @@ yum install -y \
   python3-devel \
   python3 \
   rpm-build \
+  ruby \
   runc \
   shadow-utils \
   swig \
@@ -72,4 +80,6 @@ yum install -y \
   tkcvs \
   wget \
   which \
-  vim-filesystem
+  vim-filesystem \
+  xmlto && \
+ln -s /usr/bin/db2x_docbook2texi /usr/bin/docbook2x-texi

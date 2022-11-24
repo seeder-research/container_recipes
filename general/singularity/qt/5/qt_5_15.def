@@ -5,43 +5,44 @@ From: pre.sif
 modfile    /opt
 
 %post
-. /etc/profile.d/modules.sh
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPSDIR=${HOME_BASE}/libraries
+export APPVER_MAJ=5
+export APPVER_MIN=15
+export APPVER_REV=6
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPNAME="qt"
+export APPURL="https://code.qt.io/qt/qt5.git"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MOD_DIR=/opt
+export MOD_BASE=${HOME_BASE}/modulefiles/dev
+export OPENSSL_LIB="-L/usr/lib/x86_64-linux-gnu -lssl -lcrypto"
+if [ ! -d ${MOD_BASE}/${APPNAME}]; then
+    mkdir -p ${MOD_BASE}/${APPNAME}
+fi
+if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
+    mv ${MOD_DIR}/modfile \
+      ${MOD_BASE}/${APPNAME}/${APPVER}
+fi
+if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+fi
 module load \
   bison \
   flex \
   llvm \
   ruby
-export HOME_BASE="/usr/local"
-export APPVER_MAJ=5
-export APPVER_MIN=15
-export APPVER_REV=6
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
-export APPURL="https://code.qt.io/qt/qt5.git"
-export APPNAME="qt"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-export OPENSSL_LIB="-L/usr/lib/x86_64-linux-gnu -lssl -lcrypto"
-export CC="$(which clang)"
-export CXX="$(which clang++)"
-if [ ! -d /usr/local/modulefiles/dev/${APPNAME}]; then
-    mkdir -p /usr/local/modulefiles/dev/${APPNAME}
-fi
-if [ ! -f /usr/local/modulefiles/dev/${APPNAME}/${APPVER} ]; then
-    mv /opt/modfile \
-      /usr/local/modulefiles/dev/${APPNAME}/${APPVER}
-fi
-if [ ! -f /usr/local/modulefiles/dev/${APPNAME}/.version ]; then
-    echo "#%Module" > /usr/local/modulefiles/dev/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> /usr/local/modulefiles/dev/${APPNAME}/.version
-fi
-cd /opt && \
+cd ${APPSDIR}/${APPNAME} && \
 git clone --recursive \
   -j 8 \
   ${APPURL} \
   -b v${APPVER} \
-  /opt/qt-src && \
-mkdir /opt/qt-build && \
-cd /opt/qt-build && \
-/opt/qt-src/configure \
+  ${APPSDIR}/${APPNAME}/git-src && \
+mkdir ${APPSDIR}/${APPNAME}/builddir && \
+cd ${APPSDIR}/${APPNAME}/builddir && \
+${APPSDIR}/${APPNAME}/git-src/configure \
   -prefix ${APPROOT} \
   -platform "linux-clang" \
   -linker "lld" \
@@ -66,6 +67,7 @@ cd /opt/qt-build && \
   -skip qtwinextras && \
 gmake && \
 gmake install && \
-cd /opt && \
+cd ${APPSDIR}/${APPNAME} && \
 rm -rfv \
-  /opt/qt*
+  ${APPSDIR}/${APPNAME}/git-src \
+  ${APPSDIR}/${APPNAME}/builddir
