@@ -6,35 +6,41 @@ modfile    /opt
 
 %post
 . /etc/profile
-. /.singularity.d/env/90-environment.sh
-export HOME_BASE="/usr/local"
-export APPVER=37
-export APPURL="http://git.code.sf.net/p/ngspice/ngspice"
-export APPNAME="ngspice"
+export HOME_BASE=/usr/local
+export MODDIR=/usr/local
+export APPNAME=ngspice
+export APPVER=38
+export APPDIR=/opt
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
-    mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
+export APPURL="http://git.code.sf.net/p/ngspice/ngspice"
+if [ ! -d ${MODDIR}/modulefiles/openeda/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/modulefiles/openeda/${APPNAME}
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} ]; then
-  mv /opt/modfile \
-    ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/modulefiles/openeda/${APPNAME}/${APPVER} ]; then
+    if [ -f ${APPDIR}/modfile ]; then
+        mv ${APPDIR}/modfile \
+            ${MODDIR}/modulefiles/openeda/${APPNAME}/${APPVER}
+    fi
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
-  echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
-  echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
+if [ -f ${APPDIR}/modfile ]; then
+    rm -f ${APPDIR}/modfile
+fi
+if [ ! -f ${MODDIR}/modulefiles/openeda/${APPNAME}/.version ]; then
+  echo "#%Module" > ${MODDIR}/modulefiles/openeda/${APPNAME}/.version && \
+  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/modulefiles/openeda/${APPNAME}/.version
 fi
 module load \
   bison \
   flex \
   adms \
   intel/mkl && \
-cd /opt && \
+cd ${APPDIR} && \
 git clone \
   --recursive \
   ${APPURL} \
   -b ${APPNAME}-${APPVER} \
-  ${APPNAME} && \
-cd /opt/${APPNAME} && \
+  ${APPNAME}-${APPVER} && \
+cd ${APPDIR}/${APPNAME}-${APPVER} && \
 ./autogen.sh --adms && \
 ./configure \
   --prefix=${APPROOT} \
@@ -54,7 +60,6 @@ cd /opt/${APPNAME} && \
   LDFLAGS="-m64 -s -L${MKLROOT}/lib/intel64 -L/usr/lib/x86_64-linux-gnu -Wl,--no-as-needed -lmkl_cdft_core -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -Wl,--as-needed -lpthread -lm -ldl" && \
 make clean && \
 make -j$(nproc) install && \
-cd /opt && \
+cd ${APPDIR} && \
 rm -rf \
-  /opt/${APPNAME} \
-  /opt/${APPVER}
+  ${APPDIR}/${APPNAME}-${APPVER}
