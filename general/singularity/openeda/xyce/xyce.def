@@ -7,7 +7,33 @@ modfile    /opt
 %post
 . /etc/profile
 export HOME_BASE=/usr/local
-export MODULEPATH="/usr/local/modulefiles:/usr/local/modulefiles/dev"
+export APPSDIR=${HOME_BASE}/openeda
+export SUITESPARSEVER_MAJ=6
+export SUITESPARSEVER_MIN=0
+export SUITESPARSEVER_PATCH=1
+export SUITESPARSEVER=${SUITESPARSEVER_MAJ}.${SUITESPARSEVER_MIN}.${SUITESPARSEVER_PATCH}
+export SUITESPARSE_FILE=v${SUITESPARSEVER}.tar.gz
+export TRILINOSVER_MAJ=13
+export TRILINOSVER_MIN=4
+export TRILINOSVER_PATCH=1
+export TRILINOSVER=${TRILINOSVER_MAJ}.${TRILINOSVER_MIN}.${TRILINOSVER_PATCH}
+export TRILINOS_FILE=trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}.tar.gz
+export APPVER_MAJ=7
+export APPVER_MIN=6
+export APPVER_PATCH=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APP_FILE=Release-${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}.tar.gz
+export APPNAME=xyce
+export APPROOT=${APPSDIR}/${APPNAME}/${APPVER}
+export MOD_DIR=/opt
+export MOD_BASE=${HOME_BASE}/modulefiles/openeda
+export SUITESPARSESRCDIR=${MOD_DIR}/SuiteSparse-${SUITESPARSEVER}
+export TRILINOSSRCDIR=${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}
+export APPSRCDIR=${MOD_DIR}/Xyce-Release-${APPVER}
+export ARCHDIR=${HOME_BASE}/libraries/trilinos/${TRILINOSVER}_xyce
+export CCFLAGS="-O3"
+export CXXFLAGS="-O3"
+export CMAKE_MODULE_PATH="${MKLROOT}/lib/cmake/mkl;${TBBROOT}/lib/cmake/tbb"
 module load \
   pbspro \
   openmpi \
@@ -15,60 +41,49 @@ module load \
   bison \
   flex \
   adms
-export SUITESPARSEVER_MAJ=5
-export SUITESPARSEVER_MIN=13
-export SUITESPARSEVER_PATCH=0
-export SUITESPARSEVER=${SUITESPARSEVER_MAJ}.${SUITESPARSEVER_MIN}.${SUITESPARSEVER_PATCH}
-export SUITESPARSE_FILE=v${SUITESPARSEVER}.tar.gz
-export SUITESPARSESRCDIR=/opt/SuiteSparse-${SUITESPARSEVER}
-export TRILINOSVER_MAJ=13
-export TRILINOSVER_MIN=4
-export TRILINOSVER_PATCH=0
-export TRILINOSVER=${TRILINOSVER_MAJ}.${TRILINOSVER_MIN}.${TRILINOSVER_PATCH}
-export TRILINOS_FILE=trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}.tar.gz
-export TRILINOSSRCDIR=/opt/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}
-export APPVER_MAJ=7
-export APPVER_MIN=5
-export APPVER_PATCH=0
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
-export APP_FILE=Release-${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}.tar.gz
-export APPSRCDIR=/opt/Xyce-Release-${APPVER}
-export APPNAME=xyce
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-export ARCHDIR=/usr/local/trilinos/${TRILINOSVER}_xyce
-export CCFLAGS="-O3"
-export CXXFLAGS="-O3"
-export CMAKE_MODULE_PATH="${MKLROOT}/lib/cmake/mkl;${TBBROOT}/lib/cmake/tbb"
-if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
-    mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
+if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
+    mkdir -p ${MOD_BASE}/${APPNAME}
 fi
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
+if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${MOD_DIR}/modfile ]; then
+        mv ${MOD_DIR}/modfile \
+            ${MOD_BASE}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+fi
+if [ -f ${MOD_DIR}/modfile ]; then
+  rm -f ${MOD_DIR}/modfile
+fi
+cd ${MOD_DIR} && \
 wget --no-check-certificate \
   https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/${SUITESPARSE_FILE} && \
 wget --no-check-certificate \
   https://github.com/trilinos/Trilinos/archive/refs/tags/${TRILINOS_FILE} && \
 wget --no-check-certificate \
   https://github.com/Xyce/Xyce/archive/refs/tags/${APP_FILE} && \
-tar xf /opt/${SUITESPARSE_FILE} && \
-tar xf /opt/${TRILINOS_FILE} && \
-tar xf /opt/${APP_FILE} && \
-mkdir -p  /opt/SuiteSparse-${SUITESPARSEVER}/builddir && \
-cd /opt/SuiteSparse-${SUITESPARSEVER}/builddir && \
+tar xf ${MOD_DIR}/${SUITESPARSE_FILE} && \
+tar xf ${MOD_DIR}/${TRILINOS_FILE} && \
+tar xf ${MOD_DIR}/${APP_FILE} && \
+mkdir -p  ${MOD_DIR}/SuiteSparse-${SUITESPARSEVER}/builddir && \
+cd ${MOD_DIR}/SuiteSparse-${SUITESPARSEVER}/builddir && \
 cmake \
+ -B ${MOD_DIR}/SuiteSparse-${SUITESPARSEVER}/builddir \
  -G "Unix Makefiles" \
  -DSuiteSparsePath=${SUITESPARSESRCDIR} \
  -DCMAKE_INSTALL_PREFIX=${ARCHDIR} \
  -DCMAKE_C_FLAGS="${CCFLAGS}" \
  -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
- ${APPSRCDIR}/cmake/trilinos/AMD && \
-cmake --build . -t install && \
-mkdir -p /opt/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir && \
-cd /opt/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir && \
+ -S ${APPSRCDIR}/cmake/trilinos/AMD && \
 cmake \
+  --build ${MOD_DIR}/SuiteSparse-${SUITESPARSEVER}/builddir \
+  --target install && \
+mkdir -p ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir && \
+cd ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir && \
+cmake \
+ -B ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir \
  -G "Unix Makefiles" \
  -C ${APPSRCDIR}/cmake/trilinos/trilinos-config-MPI.cmake \
  -DCMAKE_C_COMPILER=mpicc \
@@ -157,11 +172,15 @@ cmake \
  -DBUILD_SHARED_LIBS=ON \
  -DTrilinos_ENABLE_EXPLICIT_INSTANTIATION=ON \
  -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
-${TRILINOSSRCDIR} && \
-cmake --build . -j$(nproc) -t install && \
-mkdir -p /opt/Xyce-Release-${APPVER}/builddir && \
-cd /opt/Xyce-Release-${APPVER}/builddir && \
+ -S ${TRILINOSSRCDIR} && \
 cmake \
+  --build ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir \
+  -j$(nproc) \
+  --target install && \
+mkdir -p ${MOD_DIR}/Xyce-Release-${APPVER}/builddir && \
+cd ${MOD_DIR}/Xyce-Release-${APPVER}/builddir && \
+cmake \
+ -B ${MOD_DIR}/Xyce-Release-${APPVER}/builddir \
  -G "Unix Makefiles" \
  -DCMAKE_C_COMPILER=mpicc \
  -DCMAKE_CXX_COMPILER=mpic++ \
@@ -173,27 +192,27 @@ cmake \
  -DCMAKE_BUILD_TYPE="Release" \
  -DCMAKE_INCLUDE_PATH="${FLEX_ROOT}/include;${BISON_ROOT}/include" \
  -DCMAKE_LIBRARY_PATH="${FLEX_ROOT}/lib;${BISON_ROOT}/lib" \
- -DCMAKE_INSTALL_PREFIX=/usr/local/xyce/${XYCEVER} \
+ -DCMAKE_INSTALL_PREFIX=${APPROOT} \
  -DTrilinos_ROOT=${ARCHDIR} \
  -DBUILD_SHARED_LIBS=ON \
  -DXyce_PLUGIN_SUPPORT=ON \
  -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
-${APPSRCDIR} && \
-cmake --build . -j$(nproc) -t install && \
-rm -rf * && \
+ -S ${APPSRCDIR} && \
+cmake \
+  --build ${MOD_DIR}/Xyce-Release-${APPVER}/builddir \
+   -j$(nproc) \
+  --target install && \
 cd ${APPROOT} && \
-cd ${HOME_BASE}/modulefiles/${APPNAME} && \
-sed -i "s/@libver@/${TRILINOSVER}_xyce/" /opt/modfile && \
-mv /opt/modfile \
-  ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${APPVER}" >> .version && \
+sed -i "s/@libver@/${TRILINOSVER}_xyce/" \
+  ${MOD_BASE}/${APPNAME}/${APPVER} && \
 rm -rf \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
   ${SUITESPARSESRCDIR} \
   ${TRILINOSSRCDIR} \
   ${APPSRCDIR} \
-  /opt/install_xyce_trilinos.sh \
-  /opt/${TRILINOS_FILE} \
-  /opt/${SUITESPARSE_FILE} \
-  /opt/${APP_FILE}
+  ${MOD_DIR}/install_xyce_trilinos.sh \
+  ${MOD_DIR}/${TRILINOS_FILE} \
+  ${MOD_DIR}/${SUITESPARSE_FILE} \
+  ${MOD_DIR}/${APP_FILE} \
+  ${MOD_DIR}/SuiteSparse-${SUITESPARSEVER}/builddir \
+  ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir \
+  ${MOD_DIR}/Xyce-Release-${APPVER}/builddir
