@@ -13,12 +13,15 @@ yum groupinstall -y \
   "Hardware Support" \
   "Scientific Support"
 yum install -y \
+  alsa-lib-devel \
+  alsa-lib \
   asciidoc-doc \
   asciidoc \
   autoconf \
   automake \
   centos-release-scl \
   curl \
+  cvs \
   dnf \
   docbook2X \
   environment-modules \
@@ -30,6 +33,8 @@ yum install -y \
   gettext \
   gfortran \
   git \
+  gstreamer1-devel \
+  gstreamer1-plugins-base-devel \
   help2man \
   hwloc-devel \
   hwloc \
@@ -41,6 +46,7 @@ yum install -y \
   libffi \
   libical-devel \
   libical \
+  libicu-devel \
   libpciaccess-devel \
   libpciaccess \
   libtool \
@@ -56,19 +62,25 @@ yum install -y \
   libxkbcommon-x11-devel \
   libxml2-devel \
   libxml2 \
+  libxslt-devel \
   lsof \
   lzma \
   make \
+  mercurial \
+  mod_dav_svn \
   most \
   nano \
   ncurses-devel \
   ncurses \
+  ninja-build \
   openssl-devel \
   openssl \
   perl \
   postgresql-contrib \
   postgresql-devel \
   postgresql-server \
+  pulseaudio-libs-devel \
+  pulseaudio-libs \
   python-devel \
   python3-devel \
   python3 \
@@ -76,6 +88,7 @@ yum install -y \
   ruby \
   runc \
   shadow-utils \
+  subversion \
   swig3 \
   tcl-devel \
   tcl \
@@ -83,6 +96,7 @@ yum install -y \
   tk-devel \
   tk \
   tkcvs \
+  wayland-devel \
   wget \
   which \
   vim-filesystem \
