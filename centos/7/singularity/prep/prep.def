@@ -50,9 +50,14 @@ yum install -y \
   libXft \
   libX11-devel \
   libXt-devel \
+  libxcb-devel \
+  libxcb \
+  libxkbcommon-devel \
+  libxkbcommon-x11-devel \
   libxml2-devel \
   libxml2 \
   lsof \
+  lzma \
   make \
   most \
   nano \
@@ -71,7 +76,7 @@ yum install -y \
   ruby \
   runc \
   shadow-utils \
-  swig \
+  swig3 \
   tcl-devel \
   tcl \
   texinfo \
@@ -81,5 +86,11 @@ yum install -y \
   wget \
   which \
   vim-filesystem \
-  xmlto && \
-ln -s /usr/bin/db2x_docbook2texi /usr/bin/docbook2x-texi
+  xcb-util-devel \
+  xcb-util \
+  xmlto \
+  xz-devel \
+  xz-lzma-compat \
+  xz \
+  zlib && \
+ln -sfv /usr/bin/db2x_docbook2texi /usr/bin/docbook2x-texi
