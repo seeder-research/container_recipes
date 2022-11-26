@@ -4,16 +4,17 @@
 ##
 set              name              pnetcdf
 set              version           [file tail [info script]]
-set              root              /usr/local/$name/$version
+set              root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
-  puts stderr "\tAdds $name library (version $version) to your environment variables"
+  puts stderr "\tAdds ${name} library (version ${version}) to your environment variables"
 }
 
-module-whatis "adds $name library (version $version) to your environment variables."
+module-whatis "adds ${name} library (version ${version}) to your environment variables."
 
-setenv            LIBPNETCDF_ROOT  ${root}
+setenv            LIBPNETCDF_ROOT   ${root}
+
 prepend-path      PATH              ${root}/bin
 
 prepend-path      LD_LIBRARY_PATH   ${root}/lib

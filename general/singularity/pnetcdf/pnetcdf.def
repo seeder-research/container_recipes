@@ -6,42 +6,57 @@ modfile    /opt
 
 %post
 . /etc/profile
-export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
-export PNETCDFVER=1.12.1
-module load \
-  openmpi \
-  hdf5
+export HOME_BASE=/usr/local
+export APPSDIR=${HOME_BASE}/libraries
+export APPVER_MAJ=1
+export APPVER_MIN=12
+export APPVER_REV=3
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPNAME=pnetcdf
+export APPURL="https://github.com/Parallel-NetCDF/PnetCDF.git"
+export APPROOT=${APPSDIR}/${APPNAME}/${APPVER}
+export MOD_DIR=/opt
+export MOD_BASE=${HOME_BASE}/modulefiles/dev
 export MPICC=mpicc
 export MPICXX=mpic++
 export MPIFC=mpifort
 export MPIF77=mpifort
 export MPIF90=mpifort
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
-wget --no-check-certificate \
-  https://github.com/Parallel-NetCDF/PnetCDF/archive/checkpoint.${PNETCDFVER}.tar.gz && \
-tar xf /opt/checkpoint.${PNETCDFVER}.tar.gz && \
-cd /opt/PnetCDF-checkpoint.${PNETCDFVER} && \
-autoreconf -i && \
+if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
+    mkdir -p ${MOD_BASE}/${APPNAME}
+fi
+if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${MOD_DIR}/modfile ]; then
+        mv ${MOD_DIR}/modfile \
+            ${MOD_BASE}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+fi
+if [ -f ${MOD_DIR}/modfile ]; then
+  rm -f ${MOD_DIR}/modfile
+fi
+module load \
+  openmpi \
+  hdf5
+cd ${MOD_DIR} && \
+git clone \
+  --recursive \
+  ${APPURL} \
+  -b checkpoint.${APPVER} \
+  ${MOD_DIR}/${APPNAME}-${APPVER} && \
+cd ${MOD_DIR}/${APPNAME}-${APPVER} && \
+autoreconf -fvi && \
 ./configure \
-  --prefix=/usr/local/pnetcdf/${PNETCDFVER} \
+  --prefix=${APPROOT} \
   --enable-fortran=yes \
   --enable-cxx=yes \
   --enable-static=yes \
   --enable-shared=yes && \
 make -j$(nproc) && \
 make install && \
-mkdir /usr/local/modulefiles/dev/pnetcdf && \
-cd /usr/local/modulefiles/dev/pnetcdf && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/pnetcdf/${PNETCDFVER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${PNETCDFVER}" >> .version && \
-cd /opt && \
+cd ${MOD_DIR} && \
 rm -rf \
-  /opt/PnetCDF-checkpoint.${PNETCDFVER} \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/checkpoint.${PNETCDFVER}.tar.gz
+  ${MOD_DIR}/${APPNAME}-${APPVER}

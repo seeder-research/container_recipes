@@ -6,27 +6,50 @@ modfile    /opt
 
 %post
 . /etc/profile
-. /.singularity.d/env/90-environment.sh
-export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
-export TOPVER=4
-export NETCDFCVER=4.7.4
-export NETCDFCXXVER=4.3.1
-export NETCDFFORTVER=4.5.2
+export HOME_BASE=/usr/local
+export APPSDIR=${HOME_BASE}/libraries
+export APPVER_MAJ=4
+export APPVERC_MIN=9
+export APPVERC_REV=0
+export APPVERCXX_MIN=3
+export APPVERCXX_REV=1
+export APPVERFORT_MIN=6
+export APPVERFORT_REV=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPNAME=netcdf
+export APPCURL="https://github.com/Unidata/${APPNAME}-c/archive/refs/tags/v${APPCVER}.tar.gz"
+export APPCXXURL="https://github.com/Unidata/${APPNAME}-cxx4/archive/refs/tags/v${APPCXXVER}.tar.gz"
+export APPFORTURL="https://github.com/Unidata/${APPNAME}-fortran/archive/refs/tags/v${APPFORTVER}.tar.gz"
+export APPROOT=${APPSDIR}/${APPNAME}/${APPVER_MAJ}
+export MOD_DIR=/opt
+export MOD_BASE=${HOME_BASE}/modulefiles/dev
+if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
+    mkdir -p ${MOD_BASE}/${APPNAME}
+fi
+if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${MOD_DIR}/modfile ]; then
+        mv ${MOD_DIR}/modfile \
+            ${MOD_BASE}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+fi
+if [ -f ${MOD_DIR}/modfile ]; then
+  rm -f ${MOD_DIR}/modfile
+fi
 module load \
   openmpi \
   hdf5 \
   pnetcdf
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
+cd ${MOD_DIR} && \
 wget --no-check-certificate \
-  https://github.com/Unidata/netcdf-c/archive/v${NETCDFCVER}.tar.gz && \
-tar xf /opt/v${NETCDFCVER}.tar.gz && \
-cd /opt/netcdf-c-${NETCDFCVER} && \
+  ${APPCURL} && \
+tar xf ${MOD_DIR}/v${APPCVER}.tar.gz && \
+cd ${MOD_DIR}/${APPNAME}-c-${APPCVER} && \
 ./configure \
-  --prefix=/usr/local/netcdf/${TOPVER} \
+  --prefix=${APPROOT} \
   --enable-hdf5=yes \
   --enable-dynamic-loading=yes \
   --enable-static=yes \
@@ -35,40 +58,33 @@ cd /opt/netcdf-c-${NETCDFCVER} && \
 make -j$(nproc) && \
 make install && \
 rm -rf \
-  /opt/v${NETCDFCVER}.tar.gz \
-  /opt/netcdf-* && \
-cd /opt && \
+  ${MOD_DIR}/v${APPCVER}.tar.gz \
+  ${MOD_DIR}/${APPNAME}-* && \
+cd ${MOD_DIR} && \
 wget --no-check-certificate \
-  https://github.com/Unidata/netcdf-cxx4/archive/v${NETCDFCXXVER}.tar.gz && \
-tar xf /opt/v${NETCDFCXXVER}.tar.gz && \
-cd /opt/netcdf-cxx4-${NETCDFCXXVER} && \
+  ${APPCXXURL} && \
+tar xf ${MOD_DIR}/v${APPCXXVER}.tar.gz && \
+cd ${MOD_DIR}/${APPNAME}-cxx4-${APPCXXVER} && \
 ./configure \
-  --prefix=/usr/local/netcdf/${TOPVER} \
+  --prefix=${APPROOT} \
   --enable-static=yes \
   --enable-shared=yes && \
 make -j$(nproc) && \
 make install && \
 rm -rf \
-  /opt/v${NETCDFCXXVER}.tar.gz \
-  /opt/netcdf-* && \
-cd /opt && \
+  ${MOD_DIR}/v${APPCXXVER}.tar.gz \
+  ${MOD_DIR}/${APPNAME}-* && \
+cd ${MOD_DIR} && \
 wget --no-check-certificate \
-  https://github.com/Unidata/netcdf-fortran/archive/v${NETCDFFORTVER}.tar.gz && \
-tar xf /opt/v${NETCDFFORTVER}.tar.gz && \
-cd /opt/netcdf-fortran-${NETCDFFORTVER} && \
+  ${APPFORTURL} && \
+tar xf ${MOD_DIR}/v${APPFORTVER}.tar.gz && \
+cd ${MOD_DIR}/${APPNAME}-fortran-${APPFORTVER} && \
 ./configure \
-  --prefix=/usr/local/netcdf/${TOPVER} \
+  --prefix=${APPROOT} \
   --enable-static=yes \
   --enable-shared=yes && \
 make && \
 make install && \
 rm -rf \
-  /opt/v${NETCDFFORTVER}.tar.gz \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/netcdf-* && \
-mkdir -p /usr/local/modulefiles/dev/netcdf && \
-cd /usr/local/modulefiles/dev/netcdf && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/netcdf/${TOPVER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${TOPVER}" >> .version
+  ${MOD_DIR}/v${APPFORTVER}.tar.gz \
+  ${MOD_DIR}/${APPNAME}-*
