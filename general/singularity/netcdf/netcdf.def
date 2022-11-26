@@ -9,13 +9,16 @@ modfile    /opt
 export HOME_BASE=/usr/local
 export APPSDIR=${HOME_BASE}/libraries
 export APPVER_MAJ=4
-export APPVERC_MIN=9
-export APPVERC_REV=0
-export APPVERCXX_MIN=3
-export APPVERCXX_REV=1
-export APPVERFORT_MIN=6
-export APPVERFORT_REV=0
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPCVER_MIN=9
+export APPCVER_REV=0
+export APPCXXVER_MIN=3
+export APPCXXVER_REV=1
+export APPFORTVER_MIN=6
+export APPFORTVER_REV=0
+export APPVER=${APPVER_MAJ}
+export APPCVER=${APPVER_MAJ}.${APPCVER_MIN}.${APPCVER_REV}
+export APPCXXVER=${APPVER_MAJ}.${APPCXXVER_MIN}.${APPCXXVER_REV}
+export APPFORTVER=${APPVER_MAJ}.${APPFORTVER_MIN}.${APPFORTVER_REV}
 export APPNAME=netcdf
 export APPCURL="https://github.com/Unidata/${APPNAME}-c/archive/refs/tags/v${APPCVER}.tar.gz"
 export APPCXXURL="https://github.com/Unidata/${APPNAME}-cxx4/archive/refs/tags/v${APPCXXVER}.tar.gz"
@@ -42,7 +45,8 @@ fi
 module load \
   openmpi \
   hdf5 \
-  pnetcdf
+  pnetcdf \
+  netcdf
 cd ${MOD_DIR} && \
 wget --no-check-certificate \
   ${APPCURL} && \

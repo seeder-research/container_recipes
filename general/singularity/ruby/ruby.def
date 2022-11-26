@@ -6,40 +6,42 @@ modfile        /opt
 
 %post
 . /etc/profile
-export CC=/usr/bin/gcc-12
-export CXX=/usr/bin/g++-12
 export HOME_BASE="/usr/local"
-export MODFILE_BASE="${HOME_BASE}/modulefiles/dev"
+export APPSDIR=${HOME_BASE}/utils
 export APPVER_MAJ=3
 export APPVER_MIN=1
 export APPVER_REV=2
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
 export APPNAME=ruby
 export APPURL="https://cache.ruby-lang.org/pub/${APPNAME}/${APPVER_MAJ}.${APPVER_MIN}/${APPNAME}-${APPVER}.tar.gz"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-if [ ! -d ${MODFILE_BASE}/${APPNAME} ]; then
-    mkdir -pv ${MODFILE_BASE}/${APPNAME}
+export APPROOT=${APPSDIR}/${APPNAME}/${APPVER}
+export MOD_DIR=/opt
+export MOD_BASE=${HOME_BASE}/modulefiles/utils
+export CC=/usr/bin/gcc-12
+export CXX=/usr/bin/g++-12
+if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
+    mkdir -pv ${MOD_BASE}/${APPNAME}
 fi
-if [ ! -f ${MODFILE_BASE}/${APPNAME}/${APPVER} ]; then
-    mv /opt/modfile \
-      ${MODFILE_BASE}/${APPNAME}/${APPVER}
+if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
+    mv ${MOD_DIR}/modfile \
+      ${MOD_BASE}/${APPNAME}/${APPVER}
 fi
-if [ ! -f ${MODFILE_BASE}/${APPNAME}/.version ]; then
-    echo "#%Module" > ${MODFILE_BASE}/${APPNAME}/.version && \
-    echo set ModulesVersion \"${APPVER}\" >> ${MODFILE_BASE}/${APPNAME}/.version && \
+if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MOD_BASE}/${APPNAME}/.version
 fi
-cd /opt && \
+cd ${MOD_DIR} && \
 wget --no-check-certificate \
   ${APPURL} && \
-tar xf /opt/${APPNAME}-${APPVER}.tar.gz && \
-cd /opt/${APPNAME}-${APPVER} && \
+tar xf ${MOD_DIR}/${APPNAME}-${APPVER}.tar.gz && \
+cd ${MOD_DIR}/${APPNAME}-${APPVER} && \
 ./configure \
   --prefix=${APPROOT} \
   --enable-shared && \
 make -j$(nproc) && \
 make install && \
-cd /opt && \
+cd ${MOD_DIR} && \
 rm -rfv \
-  /opt/${APPNAME}-${APPVER}.tar.gz \
-  /opt/${APPNAME}-${APPVER}
+  ${MOD_DIR}/${APPNAME}-${APPVER}.tar.gz \
+  ${MOD_DIR}/${APPNAME}-${APPVER}
 
