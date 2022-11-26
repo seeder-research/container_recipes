@@ -10,10 +10,10 @@ set              root              ${base}/${name}/${version}
 
 proc ModulesHelp { } {
 
-  puts stderr "\tAdds Intel(R) OneAPI ${name} (version $version) to your environment variables"
+  puts stderr "\tAdds Intel(R) OneAPI ${name} (version ${version}) to your environment variables"
 }
 
-module-whatis "adds Intel(R) OneAPI ${name} (version $version) to your environment variables."
+module-whatis "adds Intel(R) OneAPI ${name} (version ${version}) to your environment variables."
 
 if {[ is-loaded intel/mkl ]} {module unload intel/mkl}
 

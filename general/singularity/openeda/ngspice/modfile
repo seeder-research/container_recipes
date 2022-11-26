@@ -3,7 +3,11 @@
 ## modulefile
 ##
 
-set              name              ngspice
+prereq           bison
+prereq           flex
+prereq           adms
+
+set              name              [file tail [file dirname [info script]]]
 set              version           [file tail [info script]]
 set              root              /usr/local/${name}/${version}
 
@@ -13,10 +17,6 @@ proc ModulesHelp { } {
 }
 
 module-whatis "adds ${name} (version ${version}) to your environment variables."
-
-prereq           bison
-prereq           flex
-prereq           adms
 
 prepend-path      PATH              ${root}/bin
 

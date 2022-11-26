@@ -11,10 +11,10 @@ set              root              ${base}/${comp_name}
 
 proc ModulesHelp { } {
 
-  puts stderr "\tAdds Intel(R) Math Kernel Library (version $version) to your environment variables"
+  puts stderr "\tAdds Intel(R) Math Kernel Library (version ${version}) to your environment variables"
 }
 
-module-whatis "adds Intel(R) Math Kernel Library (version $version) to your environment variables."
+module-whatis "adds Intel(R) Math Kernel Library (version ${version}) to your environment variables."
 
 if {[ is-loaded intel/mkl_2019 ]} {module unload intel/mkl_2019}
 

@@ -3,9 +3,9 @@
 ## modulefile
 ##
 
-set              name              ComputeCpp-CE
+set              name              [file tail [file dirname [info script]]]
 set              suffix            CentOS-x86_64
-set              version           @pver@
+set              version           [file tail [info script]]
 set              root              /opt/${name}-${version}-${suffix}
 
 proc ModulesHelp { } {

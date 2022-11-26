@@ -11,10 +11,10 @@ set              root              ${base}/${comp_name}
 
 proc ModulesHelp { } {
 
-  puts stderr "\tAdds Intel(R) Data Analytics Acceleration Library (version $version) to your environment variables"
+  puts stderr "\tAdds Intel(R) Data Analytics Acceleration Library (version ${version}) to your environment variables"
 }
 
-module-whatis "adds Intel(R) Data Analytics Acceleration Library (version $version) to your environment variables."
+module-whatis "adds Intel(R) Data Analytics Acceleration Library (version ${version}) to your environment variables."
 
 if {![is-loaded intel/mkl_ilp64_2019]} {prereq intel/mkl_2019}
 if {![is-loaded intel/mkl_2019]} {prereq intel/mkl_ilp64_2019}

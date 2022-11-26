@@ -11,10 +11,10 @@ set              root              ${base}/${comp_name}
 
 proc ModulesHelp { } {
 
-  puts stderr "\tAdds Intel(R) Python 2 (version $version) to your environment variables"
+  puts stderr "\tAdds Intel(R) Python 2 (version ${version}) to your environment variables"
 }
 
-module-whatis "adds Intel(R) Python 2 (version $version) to your environment variables."
+module-whatis "adds Intel(R) Python 2 (version ${version}) to your environment variables."
 
 if {![is-loaded intel/mkl_ilp64]} {prereq intel/mkl}
 if {![is-loaded intel/mkl]} {prereq intel/mkl_ilp64}

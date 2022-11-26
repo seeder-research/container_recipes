@@ -2,9 +2,9 @@
 ##
 ## modulefile
 ##
-set               name              texmaker
+set               name              [file tail [file dirname [info script]]]
 set               version           [file tail [info script]]
-set               root              /usr/local/$name/$version
+set               root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
@@ -15,4 +15,4 @@ module-whatis "adds ${name} ${version} to your environment."
 
 prereq            qt/5.15.2
 
-prepend-path	  PATH		    $root/bin
+prepend-path	  PATH		    ${root}/bin

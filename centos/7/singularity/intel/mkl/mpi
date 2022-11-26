@@ -11,10 +11,10 @@ set              root              ${base}/${comp_name}
 
 proc ModulesHelp { } {
 
-  puts stderr "\tAdds Intel(R) MPI (version $version) to your environment variables"
+  puts stderr "\tAdds Intel(R) MPI (version ${version}) to your environment variables"
 }
 
-module-whatis "adds Intel(R) MPI (version $version) to your environment variables."
+module-whatis "adds Intel(R) MPI (version ${version}) to your environment variables."
 
 set               i_mpi_root        ${root}
 setenv            I_MPI_ROOT        ${i_mpi_root}

@@ -17,11 +17,10 @@ apt-get update && \
 apt-get upgrade -y && \
 apt-get install -y \
   hipsycl-full-nightly && \
-mkdir -p /usr/local/modulefiles/dev/hipsycl && \
-sed -i "s/@pver@/${HIPSYCL_VER}/g" /opt/modfile && \
+mkdir -p /usr/local/modulefiles/dev/hipSYCL && \
 mv /opt/modfile \
-  /usr/local/modulefiles/dev/hipsycl/${HIPSYCL_VER} && \
-cd /usr/local/modulefiles/dev/hipsycl && \
+  /usr/local/modulefiles/dev/hipSYCL/${HIPSYCL_VER} && \
+cd /usr/local/modulefiles/dev/hipSYCL && \
 echo "#%Module" > .version && \
 echo set ModulesVersion "${HIPSYCL_VER}" >> .version && \
 cd /opt/hipSYCL && \

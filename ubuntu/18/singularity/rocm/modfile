@@ -3,8 +3,8 @@
 ## modulefile
 ##
 
-set              name              rocm
-set              version           @pver@
+set              name              [file tail [file dirname [info script]]]
+set              version           [file tail [info script]]
 
 proc ModulesHelp { } {
 

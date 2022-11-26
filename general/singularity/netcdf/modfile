@@ -6,16 +6,16 @@
 prereq            hdf5
 prereq            pnetcdf
 
-set              name              netcdf
+set              name              [file tail [file dirname [info script]]]
 set              version           [file tail [info script]]
-set              root              /usr/local/$name/$version
+set              root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
-  puts stderr "\tAdds $name (version $version) to your environment variables"
+  puts stderr "\tAdds ${name} (version ${version}) to your environment variables"
 }
 
-module-whatis "adds $name (version $version) to your environment variables."
+module-whatis "adds ${name} (version ${version}) to your environment variables."
 
 setenv            NETCDF_ROOT       ${root}
 

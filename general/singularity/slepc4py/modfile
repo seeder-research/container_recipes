@@ -2,17 +2,17 @@
 ##
 ## modulefile
 ##
-set              name              slepc4py
+set              name              [file tail [file dirname [info script]]]
 set              version           [file tail [info script]]
 set              pyver             @pyver@
-set              root              /usr/local/$name/$version
+set              root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
-  puts stderr "\tAdds $name library (version $version) to your environment variables"
+  puts stderr "\tAdds ${name} library (version ${version}) to your environment variables"
 }
 
-module-whatis "adds $name library (version $version) to your environment variables."
+module-whatis "adds ${name} library (version ${version}) to your environment variables."
 
 prereq        slepc
 

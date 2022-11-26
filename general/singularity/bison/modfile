@@ -2,9 +2,9 @@
 ##
 ## modulefile
 ##
-set               name              bison
+set               name              [file tail [file dirname [info script]]]
 set               version           [file tail [info script]]
-set               root              /usr/local/utils/$name/$version
+set               root              /usr/local/utils/${name}/${version}
 
 proc ModulesHelp { } {
 
