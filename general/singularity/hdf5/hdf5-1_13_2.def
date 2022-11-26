@@ -8,58 +8,61 @@ modfile_parallel              /opt
 %post
 . /etc/profile
 export HOME_BASE=/usr/local
+export APPSDIR=${HOME_BASE}/libraries
 export APPVER_MAJ=1
 export APPVER_MIN=13
 export APPVER_REV=2
 export APPVER0=${APPVER_MAJ}_${APPVER_MIN}_${APPVER_REV}
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
-export APPURL=https://github.com/HDFGroup/hdf5
+export APPURL="https://github.com/HDFGroup/hdf5"
 export APPNAME=hdf5
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR=/opt
+export MOD_BASE=${HOME_BASE}/modulefiles/dev
 module load \
   pbspro \
   openmpi/1.10.7
 export MPI_HOME=${MPI_ROOT}
-if [ ! -d ${HOME_BASE}/modulefiles/apps/${APPNAME}/${APPVER} ]; then
-    mkdir -p ${HOME_BASE}/modulefiles/apps/${APPNAME}/${APPVER}
+if [ ! -d ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
+    mkdir -p ${MOD_BASE}/${APPNAME}/${APPVER}
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/apps/${APPNAME}/${APPVER}/serial ]; then
-    if [ -f ${HOME_BASE}/${APPNAME}/modfile_serial ]; then
-        mv ${HOME_BASE}/${APPNAME}/modfile_serial \
-          ${HOME_BASE}/modulefiles/apps/${APPNAME}/${APPVER}/serial
+if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER}/serial ]; then
+    if [ -f ${MODDIR}/modfile_serial ]; then
+        mv ${MODDIR}/modfile_serial \
+          ${MOD_BASE}/${APPNAME}/${APPVER}/serial
     fi
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}/parallel ]; then
-    if [ -f ${HOME_BASE}/${APPNAME}/modfile_parallel ]; then
-        mv ${HOME_BASE}/${APPNAME}/modfile_parallel \
-          ${HOME_BASE}/modulefiles/apps/${APPNAME}/${APPVER}/parallel
+if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER}/parallel ]; then
+    if [ -f ${MODDIR}/modfile_parallel ]; then
+        mv ${MODDIR}/modfile_parallel \
+          ${MOD_BASE}/${APPNAME}/${APPVER}/parallel
     fi
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
-    echo "#%Module" > ${HOME_BASE}/modulefiles/apps/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/apps/${APPNAME}/.version
+if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER}/.version ]; then
+    echo "#%Module" > ${MOD_BASE}/${APPNAME}/${APPVER}/.version && \
+    echo set ModulesVersion \"serial\" >> ${HOME_BASE}/${APPNAME}/${APPVER}/.version
 fi
-if [ ! -d ${HOME_BASE}/${APPNAME}/build_serial ]; then
-    mkdir -p ${HOME_BASE}/${APPNAME}/build_serial
+if [ ! -d ${APPSDIR}/${APPNAME}/build_serial ]; then
+    mkdir -p ${APPSDIR}/${APPNAME}/build_serial
 else
-    rm -rf ${HOME_BASE}/${APPNAME}/build_serial && \
-    mkdir -p ${HOME_BASE}/${APPNAME}/build_serial
+    rm -rf ${APPSDIR}/${APPNAME}/build_serial && \
+    mkdir -p ${APPSDIR}/${APPNAME}/build_serial
 fi
-if [ ! -d ${HOME_BASE}/${APPNAME}/build_parallel ]; then
-    mkdir -p ${HOME_BASE}/${APPNAME}/build_parallel
+if [ ! -d ${APPSDIR}/${APPNAME}/build_parallel ]; then
+    mkdir -p ${APPSDIR}/${APPNAME}/build_parallel
 else
-    rm -rf ${HOME_BASE}/${APPNAME}/build_parallel && \
-    mkdir -p ${HOME_BASE}/${APPNAME}/build_parallel
+    rm -rf ${APPSDIR}/${APPNAME}/build_parallel && \
+    mkdir -p ${APPSDIR}/${APPNAME}/build_parallel
 fi
-if [ ! -d ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} ]; then
+if [ ! -d ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} ]; then
     git clone --recursive \
       ${APPURL} \
       -b ${APPNAME}-${APPVER0} \
-      ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER}
+      ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}
 fi
-cd ${HOME_BASE}/${APPNAME}/build_serial && \
+cd ${APPSDIR}/${APPNAME}/build_serial && \
 cmake \
-  -C ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER}/config/cmake/cacheinit.cmake \
+  -C ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}/config/cmake/cacheinit.cmake \
   -G "Unix Makefiles" \
   -DCMAKE_BUILD_TYPE="Release" \
   -DCMAKE_INSTALL_PREFIX=${APPROOT}/serial \
@@ -84,14 +87,14 @@ cmake \
   -DHDF5_ENABLE_Z_LIB_SUPPORT=ON \
   -DUSE_LIBAEC=ON \
   -DTEST_SHELL_SCRIPTS=OFF \
-  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
+  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
 cmake \
   --build . \
   -j $(nproc) \
   -t install && \
-cd ${HOME_BASE}/${APPNAME}/build_parallel && \
+cd ${APPSDIR}/${APPNAME}/build_parallel && \
 cmake \
-  -C ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER}/config/cmake/cacheinit.cmake \
+  -C ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}/config/cmake/cacheinit.cmake \
   -G "Unix Makefiles" \
   -DCMAKE_BUILD_TYPE="Release" \
   -DCMAKE_INSTALL_PREFIX=${APPROOT}/parallel \
@@ -117,13 +120,13 @@ cmake \
   -DUSE_LIBAEC=ON \
   -DALLOW_UNSUPPORTED=ON \
   -DTEST_SHELL_SCRIPTS=OFF \
-  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
+  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
 cmake \
   --build . \
   -j $(nproc) \
   -t install && \
-cd ${HOME_BASE} && \
+cd ${APPSDIR} && \
 rm -rf \
-  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} \
-  ${HOME_BASE}/${APPNAME}/build_serial \
-  ${HOME_BASE}/${APPNAME}/build_parallel
+  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} \
+  ${APPSDIR}/${APPNAME}/build_serial \
+  ${APPSDIR}/${APPNAME}/build_parallel
