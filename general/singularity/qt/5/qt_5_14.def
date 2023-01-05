@@ -47,6 +47,8 @@ sed -i "/qmutex_linux/d" /opt/qt-src/qtbase/src/corelib/thread/thread.pri && \
   -qt-libpng \
   -qt-pcre && \
 cd /opt/qt-build && \
+make module-qtbase && \
+make module-qttools && \
 make module-qtscript && \
 make && \
 make install && \

@@ -2,28 +2,27 @@ BootStrap: localimage
 From: pre.sif
 
 %files
-modfile    /opt
+modfile                /opt
 
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER_MAJ=3
-export APPVER_MIN=0
-export APPVER_PATCH=0
+export APPVER_MAJ=1
+export APPVER_MIN=3
+export APPVER_PATCH=1
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
-export APPURL="https://www.davidkebo.com/source/cudd_versions/cudd-${APPVER}.tar.gz"
-export APPNAME="cudd"
+export APPNAME="lemon"
+export APPFILE="${APPNAME}-${APPVER}.tar.gz"
+export APPURL="http://lemon.cs.elte.hu/pub/sources/${APPFILE}"
 export SRCDIR=/opt
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 export MODDIR="/usr/local/modulefiles"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
-  mkdir ${MODDIR}/${APPNAME}
+  mkdir -p ${MODDIR}/${APPNAME}
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
-  if [ -f ${SRCDIR}/modfile ]; then
-    mv ${SRCDIR}/modfile \
-      ${MODDIR}/${APPNAME}/${APPVER}
-  fi
+  mv ${SRCDIR}/modfile \
+    ${MODDIR}/${APPNAME}/${APPVER}
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
   echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
@@ -32,14 +31,22 @@ fi
 cd ${SRCDIR} && \
 wget --no-check-certificate \
   ${APPURL} && \
-tar xf \
-  ${SRCDIR}/${APPNAME}-${APPVER}.tar.gz && \
+tar xf ${SRCDIR}/${APPFILE} && \
 cd ${SRCDIR}/${APPNAME}-${APPVER} && \
-./configure \
-  --prefix=${APPROOT} && \
-make -j$(nproc) && \
-make install && \
+cmake \
+  -B ${SRCDIR}/builddir \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
+cmake \
+  --build ${SRCDIR}/builddir \
+  -j$(nproc) \
+  --target install && \
 cd ${SRCDIR} && \
 rm -rf \
+  ${SRCDIR}/builddir \
   ${SRCDIR}/${APPNAME}-${APPVER} \
-  ${SRCDIR}/${APPNAME}-${APPVER}.tar.gz
+  ${SRCDIR}/${APPFILE}
+
+if [ -e ${SRCDIR}/modfile ]; then
+  rm -rf ${SRCDIR}/modfile
+fi

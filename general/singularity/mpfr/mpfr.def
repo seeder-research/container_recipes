@@ -6,17 +6,21 @@ modfile        /opt
 
 %post
 . /etc/profile
-export HOME_BASE="/usr/local/libraries"
-export APPVER_MAJ=5
-export APPVER_MIN=2
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=4
+export APPVER_MIN=1
 export APPVER_PATCH=1
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
-export APPNAME="metis"
-export APPURL="https://github.com/KarypisLab/METIS"
+export APPNAME="mpfr"
+export APPFILE="${APPNAME}-${APPVER}.tar.xz"
+export APPURL="https://www.mpfr.org/${APPNAME}-current/${APPFILE}"
+export MPREALURL="https://github.com/advanpix/mpreal"
+export MPREALVER="3.6.9"
 export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles"
 export CC=$(which gcc)
+export CXX=$(which g++)
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
   mkdir -p ${MODDIR}/${APPNAME}
 fi
@@ -28,35 +32,29 @@ if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
   echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
   echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
-module load \
-  gklib && \
 cd ${SRCDIR} && \
-git clone --recursive \
-  ${APPURL} \
-  -b v${APPVER} \
-  ${SRCDIR}/src && \
-cd ${SRCDIR}/src && \
-make config \
-  cc=${CC} \
-  prefix=${APPROOT} \
-  gklib_path=${GKLIB_ROOT} \
-  i64=1 \
-  r64=1 && \
-make && \
-make install && \
-make distclean && \
-make config \
-  cc=${CC} \
-  prefix=${APPROOT} \
-  gklib_path=${GKLIB_ROOT} \
-  i64=1 \
-  r64=1 \
-  shared=1 && \
-make && \
+wget --no-check-certificate \
+  ${APPURL} && \
+tar xf ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
+./configure \
+  --prefix=${APPROOT} \
+  --enable-thread-safe && \
+make -j$(nproc) && \
 make install && \
 cd ${SRCDIR} && \
+git clone \
+  --recursive \
+  ${MPREALURL} \
+  -b "mpfrc++-${MPREALVER}" \
+  ${SRCDIR}/mpreal && \
+cp \
+  ${SRCDIR}/mpreal/mpreal.h \
+  ${APPROOT}/include/mpreal.h && \
 rm -rf \
-  ${SRCDIR}/src
+  ${SRCDIR}/${APPNAME}-${APPVER} \
+  ${SRCDIR}/${APPFILE} \
+  ${SRCDIR}/mpreal
 
 if [ -e ${SRCDIR}/modfile ]; then
   rm -rf ${SRCDIR}/modfile

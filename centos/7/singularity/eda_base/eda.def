@@ -82,12 +82,31 @@ yum install -y \
   ksh \
   zsh \
   glibc.i686 \
+  gmp.i686 \
+  gmp.x86_64 \
+  gmp-devel.i686 \
+  gmp-devel.x86_64 \
+  gperf \
+  gsl.i686 \
+  gsl.x86_64 \
+  gsl-devel.i686 \
+  gsl-devel.x86_64 \
   elfutils-libelf.i686 \
+  readline-devel.i686 \
+  readline-devel.x86_64 \
   redhat-lsb.i686 \
   redhat-lsb.x86_64 \
   mesa-libGL.i686 \
   mesa-libGLU.i686 \
   motif.i686 \
+  mpfr.i686 \
+  mpfr.x86_64 \
+  mpfr-devel.i686 \
+  mpfr-devel.x86_64 \
+  libmpc.i686 \
+  libmpc.x86_64 \
+  libmpc-devel.i686 \
+  libmpc-devel.x86_64 \
   libXp.i686 \
   libpng.i686 \
   libjpeg-turbo.i686 \

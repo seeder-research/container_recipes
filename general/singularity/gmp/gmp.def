@@ -2,21 +2,20 @@ BootStrap: localimage
 From: pre.sif
 
 %files
-modfile        /opt
+modfile                /opt
 
 %post
 . /etc/profile
-export HOME_BASE="/usr/local/libraries"
-export APPVER_MAJ=5
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=6
 export APPVER_MIN=2
 export APPVER_PATCH=1
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
-export APPNAME="metis"
-export APPURL="https://github.com/KarypisLab/METIS"
-export SRCDIR="/opt"
-export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export APPNAME="gmp"
+export APPURL="https://gmplib.org/download/${APPNAME}/${APPNAME}-${APPVER}.tar.xz"
+export SRCDIR=/opt
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 export MODDIR="/usr/local/modulefiles"
-export CC=$(which gcc)
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
   mkdir -p ${MODDIR}/${APPNAME}
 fi
@@ -28,35 +27,20 @@ if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
   echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
   echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
-module load \
-  gklib && \
 cd ${SRCDIR} && \
-git clone --recursive \
-  ${APPURL} \
-  -b v${APPVER} \
-  ${SRCDIR}/src && \
-cd ${SRCDIR}/src && \
-make config \
-  cc=${CC} \
-  prefix=${APPROOT} \
-  gklib_path=${GKLIB_ROOT} \
-  i64=1 \
-  r64=1 && \
-make && \
-make install && \
-make distclean && \
-make config \
-  cc=${CC} \
-  prefix=${APPROOT} \
-  gklib_path=${GKLIB_ROOT} \
-  i64=1 \
-  r64=1 \
-  shared=1 && \
-make && \
+wget --no-check-certificate \
+  ${APPURL} && \
+tar xf ${SRCDIR}/${APPNAME}-${APPVER}.tar.xz && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
+./configure \
+  --prefix=${APPROOT} \
+  --enable-cxx && \
+make -j$(nproc) && \
 make install && \
 cd ${SRCDIR} && \
 rm -rf \
-  ${SRCDIR}/src
+  ${SRCDIR}/${APPNAME}-${APPVER} \
+  ${SRCDIR}/${APPNAME}-${APPVER}.tar.xz
 
 if [ -e ${SRCDIR}/modfile ]; then
   rm -rf ${SRCDIR}/modfile

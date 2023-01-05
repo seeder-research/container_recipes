@@ -65,6 +65,9 @@ ${APPSDIR}/${APPNAME}/git-src/configure \
   -skip qtsensors \
   -skip qtwebengine \
   -skip qtwinextras && \
+gmake module-qtbase && \
+gmake module-qttools && \
+gmake module-qtscript && \
 gmake && \
 gmake install && \
 cd ${APPSDIR}/${APPNAME} && \

@@ -46,6 +46,8 @@ cd /opt/qt-build && \
   -qt-pcre \
   -qt-xcb && \
 cd /opt/qt-build && \
+make module-qtbase && \
+make module-qttools && \
 make && \
 make install && \
 mkdir -p /usr/local/modulefiles/dev/qt && \

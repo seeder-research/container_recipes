@@ -17,11 +17,15 @@ yum install -y \
   alsa-lib \
   asciidoc-doc \
   asciidoc \
+  at-spi2-atk-devel \
+  at-spi2-core-devel \
+  at-spi2-core \
   autoconf \
   automake \
   centos-release-scl \
   curl \
   cvs \
+  dbus-devel \
   dnf \
   docbook2X \
   environment-modules \
@@ -33,6 +37,8 @@ yum install -y \
   gettext \
   gfortran \
   git \
+  glib2-devel \
+  glib2 \
   gstreamer1-devel \
   gstreamer1-plugins-base-devel \
   help2man \
@@ -46,9 +52,13 @@ yum install -y \
   libffi \
   libical-devel \
   libical \
+  libice-devel \
+  libice \
   libicu-devel \
   libpciaccess-devel \
   libpciaccess \
+  libsm-devel \
+  libsm \
   libtool \
   libuv-devel \
   libuv \
@@ -101,10 +111,18 @@ yum install -y \
   which \
   vim-filesystem \
   xcb-util-devel \
+  xcb-util-image-devel \
+  xcb-util-keysyms-devel \
+  xcb-util-renderutil-devel \
+  xcb-util-image \
+  xcb-util-keysyms \
+  xcb-util-renderutil \
+  xcb-util-wm \
   xcb-util \
   xmlto \
   xz-devel \
   xz-lzma-compat \
   xz \
+  zlib-devel \
   zlib && \
 ln -sfv /usr/bin/db2x_docbook2texi /usr/bin/docbook2x-texi

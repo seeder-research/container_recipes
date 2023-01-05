@@ -2,70 +2,82 @@ BootStrap: localimage
 From: pre.sif
 
 %files
-modfile    /opt
+modfile        /opt
 
 %post
 . /etc/profile
-. /.singularity.d/env/90-environment.sh
-export CUDART_LIB0="/usr/local/cuda/lib64/libcudart.so"
-export CUBLAS_LIB0="/usr/lib/x86_64-linux-gnu/libcublas.so"
-if [ -e /usr/local/cuda/lib64/libcublas.so ]; then
-  export CUBLAS_LIB0="/usr/local/cuda/lib64/libcublas.so"
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=6
+export APPVER_MIN=0
+export APPVER_PATCH=3
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPURL="https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/v${APPVER}.tar.gz"
+export APPNAME="suitesparse"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+  mkdir -p ${MODDIR}/${APPNAME}
 fi
-export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
-module load intel/mkl
-module load intel/tbb_gcc47
-module load metis/5.1.0
-export SUITESPARSEVER=5.9.0
-export METISVER=5.1.0
-cd /opt && \
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+  if [ -f ${SRCDIR}/modfile ]; then
+    mv ${SRCDIR}/modfile \
+      ${MODDIR}/${APPNAME}/${APPVER}
+  fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+module load \
+  intel/mkl \
+  intel/tbb
+export CUDART_LIB0="${CUDAROOT}/lib64/libcudart.so"
+export CUBLAS_LIB0="/usr/lib/x86_64-linux-gnu/libcublas.so"
+if [ -e ${CUDAROOT}/lib64/libcublas.so ]; then
+  export CUBLAS_LIB0="${CUDAROOT}/lib64/libcublas.so"
+fi
+export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=${APPROOT}"
+export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_BUILD_TYPE=Release"
+export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DENABLE_CUDA=ON"
+export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DALLOW_64BIT_BLAS=ON"
+export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DSUITESPARSE_CUDA_ARCHITECTURES=\"60;61\""
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/v${SUITESPARSEVER}.tar.gz && \
-tar xf /opt/v${SUITESPARSEVER}.tar.gz && \
-cd /opt/SuiteSparse-${SUITESPARSEVER} && \
-make config \
-  CC=gcc \
-  CXX=g++ \
-  BLAS="-L/opt/intel/compilers_and_libraries/linux/mkl -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
-  LAPACK="-L/opt/intel/compilers_and_libraries/linux/mkl -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
-  INSTALL=/usr/local/suitesparse/${SUITESPARSEVER} \
-  NVCC=/usr/local/cuda/bin/nvcc \
-  CUDA_PATH=/usr/local/cuda \
-  CUDART_LIB=${CUDART_LIB0} \
-  CUBLAS_LIB=${CUBLAS_LIB0} \
-  MY_METIS_INC=/usr/local/metis/${METISVER}/include \
-  MY_METIS_LIB="-L/usr/local/metis/${METISVER}/lib -lmetis" && \
+  ${APPURL} && \
+tar xf ${SRCDIR}/v${APPVER}.tar.gz && \
+cd ${SRCDIR}/SuiteSparse-${APPVER} && \
 make library \
   CC=gcc \
   CXX=g++ \
-  BLAS="-L/opt/intel/compilers_and_libraries/linux/mkl -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
-  LAPACK="-L/opt/intel/compilers_and_libraries/linux/mkl -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
-  INSTALL=/usr/local/suitesparse/${SUITESPARSEVER} \
-  NVCC=/usr/local/cuda/bin/nvcc \
-  CUDA_PATH=/usr/local/cuda \
+  BLAS="-L/opt/intel/oneapi/mkl/latest/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
+  LAPACK="-L/opt/intel/oneapi/mkl/latest/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
+  INSTALL=${APPROOT} \
+  NVCC=$(which nvcc) \
+  CUDA_PATH=${CUDAROOT} \
   CUDART_LIB=${CUDART_LIB0} \
-  CUBLAS_LIB=${CUBLAS_LIB0} \
-  MY_METIS_INC=/usr/local/metis/${METISVER}/include \
-  MY_METIS_LIB="-L/usr/local/metis/${METISVER}/lib -lmetis" && \
+  CUBLAS_LIB=${CUBLAS_LIB0} && \
 make install \
   CC=gcc \
   CXX=g++ \
-  BLAS="-L/opt/intel/compilers_and_libraries/linux/mkl -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
-  LAPACK="-L/opt/intel/compilers_and_libraries/linux/mkl -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
-  INSTALL=/usr/local/suitesparse/${SUITESPARSEVER} \
-  NVCC=/usr/local/cuda/bin/nvcc \
-  CUDA_PATH=/usr/local/cuda \
+  BLAS="-L/opt/intel/oneapi/mkl/latest/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
+  LAPACK="-L/opt/intel/oneapi/mkl/latest/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
+  INSTALL=${APPROOT} \
+  NVCC=$(which nvcc) \
+  CUDA_PATH=${CUDAROOT} \
   CUDART_LIB=${CUDART_LIB0} \
-  CUBLAS_LIB=${CUBLAS_LIB0} \
-  MY_METIS_INC=/usr/local/metis/${METISVER}/include \
-  MY_METIS_LIB="-L/usr/local/metis/${METISVER}/lib -lmetis" && \
-mkdir /usr/local/modulefiles/dev/suitesparse && \
-cd /usr/local/modulefiles/dev/suitesparse && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/suitesparse/${SUITESPARSEVER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${SUITESPARSEVER}" >> .version && \
-cd /opt && \
+  CUBLAS_LIB=${CUBLAS_LIB0} && \
+cd ${SRCDIR} && \
 rm -rf \
-  /opt/v${SUITESPARSEVER}.tar.gz \
-  /opt/SuiteSparse-${SUITESPARSEVER}
+  ${SRCDIR}/v${APPVER}.tar.gz \
+  ${SRCDIR}/SuiteSparse-${APPVER}
+
+if [ ! -d ${APPROOT}/lib ]; then
+  if [ -d ${APPROOT}/lib64 ]; then
+    cd ${APPROOT} && \
+    ln -s ./lib64 lib
+  fi
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+  rm -rf ${SRCDIR}/modfile
+fi
