@@ -6,42 +6,43 @@ modfile        /opt
 
 %post
 . /etc/profile
-export HOME_BASE="/usr/local"
-export APPSDIR=${HOME_BASE}/utils
+export HOME_BASE="/usr/local/utils"
 export APPVER_MAJ=3
 export APPVER_MIN=1
 export APPVER_REV=2
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
-export APPNAME=ruby
-export APPURL="https://cache.ruby-lang.org/pub/${APPNAME}/${APPVER_MAJ}.${APPVER_MIN}/${APPNAME}-${APPVER}.tar.gz"
-export APPROOT=${APPSDIR}/${APPNAME}/${APPVER}
-export MOD_DIR=/opt
-export MOD_BASE=${HOME_BASE}/modulefiles/utils
-export CC=/usr/bin/gcc-12
-export CXX=/usr/bin/g++-12
-if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
-    mkdir -pv ${MOD_BASE}/${APPNAME}
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="ruby"
+export APPFILE="${APPNAME}-${APPVER}.tar.gz"
+export APPURL="https://cache.ruby-lang.org/pub/${APPNAME}/${APPVER_MAJ}.${APPVER_MIN}/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/utils"
+export CC="$(which gcc-12)"
+export CXX="$(which g++-12)"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -pv ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
-    mv ${MOD_DIR}/modfile \
-      ${MOD_BASE}/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+          ${MODDIR}/${APPNAME}/${APPVER}
+    fi
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
-    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
-    echo set ModulesVersion \"${APPVER}\" >> ${MOD_BASE}/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
 fi
-cd ${MOD_DIR} && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
   ${APPURL} && \
-tar xf ${MOD_DIR}/${APPNAME}-${APPVER}.tar.gz && \
-cd ${MOD_DIR}/${APPNAME}-${APPVER} && \
+tar xf ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
 ./configure \
   --prefix=${APPROOT} \
   --enable-shared && \
 make -j$(nproc) && \
 make install && \
-cd ${MOD_DIR} && \
+cd ${SRCDIR} && \
 rm -rfv \
-  ${MOD_DIR}/${APPNAME}-${APPVER}.tar.gz \
-  ${MOD_DIR}/${APPNAME}-${APPVER}
-
+  ${SRCDIR}/${APPFILE} \
+  ${SRCDIR}/${APPNAME}-${APPVER}
