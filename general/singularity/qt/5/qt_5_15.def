@@ -7,45 +7,44 @@ modfile    /opt
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPSDIR=${HOME_BASE}/libraries
 export APPVER_MAJ=5
 export APPVER_MIN=15
-export APPVER_REV=6
+export APPVER_REV=8
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
 export APPNAME="qt"
 export APPURL="https://code.qt.io/qt/qt5.git"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-export MOD_DIR=/opt
-export MOD_BASE=${HOME_BASE}/modulefiles/dev
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
 export OPENSSL_LIB="-L/usr/lib/x86_64-linux-gnu -lssl -lcrypto"
-if [ ! -d ${MOD_BASE}/${APPNAME}]; then
-    mkdir -p ${MOD_BASE}/${APPNAME}
+if [ ! -d ${MODDIR}/${APPNAME}]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
-    mv ${MOD_DIR}/modfile \
-      ${MOD_BASE}/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+  if [ -f ${MODDIR}/modfile ]; then
+    mv ${MODDIR}/modfile \
+      ${MODDIR}/${APPNAME}/${APPVER}
+  fi
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
-    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
 module load \
   bison \
   flex \
   llvm \
   ruby
-cd ${APPSDIR}/${APPNAME} && \
+cd ${SRCDIR}/${APPNAME} && \
 git clone --recursive \
   -j 8 \
   ${APPURL} \
   -b v${APPVER} \
-  ${APPSDIR}/${APPNAME}/git-src && \
-mkdir ${APPSDIR}/${APPNAME}/builddir && \
-cd ${APPSDIR}/${APPNAME}/builddir && \
-${APPSDIR}/${APPNAME}/git-src/configure \
+  ${SRCDIR}/${APPNAME}/git-src && \
+mkdir ${SRCDIR}/${APPNAME}/builddir && \
+cd ${SRCDIR}/${APPNAME}/builddir && \
+${SRCDIR}/${APPNAME}/git-src/configure \
   -prefix ${APPROOT} \
-  -platform "linux-clang" \
-  -linker "lld" \
   -confirm-license \
   -opensource \
   -release \
@@ -54,6 +53,8 @@ ${APPSDIR}/${APPNAME}/git-src/configure \
   -nomake tests \
   -no-rpath \
   -syslog \
+  -xcb \
+  -xcb-xlib \
   -bundled-xcb-xinput \
   -xkbcommon \
   -skip qtandroidextras \
@@ -65,12 +66,11 @@ ${APPSDIR}/${APPNAME}/git-src/configure \
   -skip qtsensors \
   -skip qtwebengine \
   -skip qtwinextras && \
-gmake module-qtbase && \
-gmake module-qttools && \
-gmake module-qtscript && \
+gmake \
+  module-qtbase && \
 gmake && \
 gmake install && \
-cd ${APPSDIR}/${APPNAME} && \
+cd ${SRCDIR}/${APPNAME} && \
 rm -rfv \
-  ${APPSDIR}/${APPNAME}/git-src \
-  ${APPSDIR}/${APPNAME}/builddir
+  ${SRCDIR}/${APPNAME}/git-src \
+  ${SRCDIR}/${APPNAME}/builddir

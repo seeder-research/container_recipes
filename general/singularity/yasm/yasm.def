@@ -5,34 +5,39 @@ From: pre.sif
 modfile    /opt
 
 %post
-export HOME_BASE=/usr/local
+export HOME_BASE="/usr/local"
 export APPVER_MAJ=1
 export APPVER_MIN=3
 export APPVER_REV=0
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
-export APPNAME=yasm
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="yasm"
 export APPURL="https://github.com/${APPNAME}/${APPNAME}"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-if [ ! -d ${HOME_BASE}/modulefiles/dev/${APPNAME} ]; then
-    mkdir -p ${HOME_BASE}/modulefiles/dev/${APPNAME}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/${APPVER} ]; then
-    if [ -f ${HOME_BASE}/${APPNAME}/modfile ]; then
-        mv ${HOME_BASE}/${APPNAME}/modfile \
-            ${HOME_BASE}/modulefiles/dev/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version ]; then
-    echo "#%Module" > ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
-cd ${HOME_BASE}/${APPNAME} && \
+if [ -d ${SRCDIR}/builddir ]; then
+    rm -rf ${SRCDIR}/builddir
+fi
+cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
   -b v${APPVER} \
-  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
-mkdir ${HOME_BASE}/${APPNAME}/builddir && \
-cd ${HOME_BASE}/${APPNAME}/builddir && \
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
+mkdir ${SRCDIR}/builddir && \
+cd ${SRCDIR}/builddir && \
 cmake \
   -DCMAKE_INSTALL_PREFIX="${APPROOT}" \
   -DCMAKE_BUILD_TYPE="Release" \
@@ -42,11 +47,12 @@ cmake \
   -DYASM_BUILD_TESTS=OFF \
   -DENABLE_NLS=OFF \
   -DBUILD_SHARED_LIBS=ON \
-  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
 cmake \
   --build . \
   -j$(nproc) \
   -t install && \
-cd ${HOME_BASE}/${APPNAME} && \
+cd ${SRCDIR} && \
 rm -rf \
-  ${HOME_BASE}/${APPNAME}/${APPNAME}-*
+  ${SRCDIR}/builddir \
+  ${SRCDIR}/${APPNAME}-*

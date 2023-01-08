@@ -13,13 +13,15 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment variables."
 
-prepend-path      CPATH             ${root}/include
-prepend-path      INCLUDE_PATH      ${root}/include
+prepend-path        CPATH             ${root}/include
+prepend-path        INCLUDE_PATH      ${root}/include
 
-prepend-path      LD_LIBRARY_PATH   ${root}/lib
-prepend-path      LIBRARY_PATH      ${root}/lib
-prepend-path      LD_RUN_PATH       ${root}/lib
+prepend-path        LD_LIBRARY_PATH   ${root}/lib
+prepend-path        LIBRARY_PATH      ${root}/lib
+prepend-path        LD_RUN_PATH       ${root}/lib
 
-prepend-path      MANPATH           ${root}/share/man
+prepend-path        PKG_CONFIG_PATH   ${root}/lib/pkgconfig
 
-prepend-path      PKG_CONFIG_PATH   ${root}/lib/pkgconfig
+prepend-path -d ";" CMAKE_MODULE_PATH ${root}/lib/cmake/Ogg
+
+prepend-path -d ";" CMAKE_PREFIX_PATH ${root}

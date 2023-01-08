@@ -5,36 +5,39 @@ From: pre.sif
 modfile    /opt
 
 %post
-export HOME_BASE=/usr/local
+export HOME_BASE="/usr/local"
 export APPVER_MAJ=2
 export APPVER_MIN=15
 export APPVER_REV=05
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
-export APPNAME=nasm
-export APPURL=https://www.nasm.us/pub/nasm/releasebuilds/${APPVER}/${APPNAME}-${APPVER}.tar.bz2
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-if [ ! -d ${HOME_BASE}/modulefiles/dev/${APPNAME} ]; then
-    mkdir -p ${HOME_BASE}/modulefiles/dev/${APPNAME}
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="nasm"
+export APPFILE="${APPNAME}-${APPVER}.tar.bz2"
+export APPURL="https://www.nasm.us/pub/nasm/releasebuilds/${APPVER}/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/${APPVER} ]; then
-    if [ -f ${HOME_BASE}/${APPNAME}/modfile ]; then
-        mv ${HOME_BASE}/${APPNAME}/modfile \
-            ${HOME_BASE}/modulefiles/dev/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version ]; then
-    echo "#%Module" > ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
-cd ${HOME_BASE}/${APPNAME} && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
   ${APPURL} && \
-tar xjvf ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER}.tar.bz2 && \
-cd ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
+tar xjvf ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
 ./autogen.sh && \
 ./configure --prefix=${APPROOT} && \
 make && \
 make install && \
-cd ${HOME_BASE}/${APPNAME} && \
+cd ${SRCDIR} && \
 rm -rf \
-  ${HOME_BASE}/${APPNAME}/${APPNAME}-*
+  ${SRCDIR}/${APPNAME}-*

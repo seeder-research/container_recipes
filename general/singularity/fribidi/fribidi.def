@@ -5,40 +5,42 @@ From: pre.sif
 modfile    /opt
 
 %post
-export HOME_BASE=/usr/local
+export HOME_BASE="/usr/local"
 export APPVER_MAJ=1
 export APPVER_MIN=0
 export APPVER_REV=12
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
-export APPNAME=fribidi
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="fribidi"
 export APPURL="https://github.com/${APPNAME}/${APPNAME}"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-export CC=$(which gcc)
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
+export CC="$(which gcc)"
 export CFLAGS="-O3 -fPIC"
-if [ ! -d ${HOME_BASE}/modulefiles/dev/${APPNAME} ]; then
-    mkdir -p ${HOME_BASE}/modulefiles/dev/${APPNAME}
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/${APPVER} ]; then
-    if [ -f ${HOME_BASE}/${APPNAME}/modfile ]; then
-        mv ${HOME_BASE}/${APPNAME}/modfile \
-            ${HOME_BASE}/modulefiles/dev/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version ]; then
-    echo "#%Module" > ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
-cd ${HOME_BASE}/${APPNAME} && \
+cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
   -b v${APPVER} \
-  ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
-cd ${HOME_BASE}/${APPNAME}/${APPNAME}-${APPVER} && \
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
 ./autogen.sh && \
 ./configure \
   --prefix=${APPROOT} && \
 make && \
 make install && \
-cd ${HOME_BASE}/${APPNAME} && \
+cd ${SRCDIR} && \
 rm -rf \
-  ${HOME_BASE}/${APPNAME}/${APPNAME}-*
+  ${SRCDIR}/${APPNAME}-*

@@ -1,0 +1,61 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=1
+export APPVER_MIN=4
+export APPVER_PATCH=98
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}
+export APPURL="https://github.com/RTimothyEdwards/qflow"
+export APPNAME="vlog2Verilog"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/openeda"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+  mkdir ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+  if [ -f ${SRCDIR}/modfile ]; then
+    mv ${SRCDIR}/modfile \
+      ${MODDIR}/${APPNAME}/${APPVER}
+  fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+module load \
+  bison \
+  flex \
+  cudd \
+  yosys \
+  opensta \
+  magic \
+  netgen \
+  graywolf \
+  qrouter \
+  opentimer \
+  replace
+cd ${SRCDIR} && \
+git clone --recursive \
+  ${APPURL} \
+  ${SRCDIR}/${APPNAME} && \
+cd ${SRCDIR}/${APPNAME} && \
+./configure \
+  --prefix=${APPROOT} \
+  --with-magic=${MAGIC_ROOT}/bin/magic \
+  --with-replace=${REPLACE_ROOT}/bin/RePlAce && \
+cd ${SRCDIR}/${APPNAME}/src && \
+make vlog2Verilog && \
+mkdir -p \
+  ${HOME_BASE}/vlog2Verilog/${APPVER}/bin && \
+cp ${SRCDIR}/${APPNAME}/src/vlog2Verilog \
+  ${HOME_BASE}/vlog2Verilog/${APPVER}/bin/vlog2Verilog && \
+cd ${SRCDIR} && \
+rm -rf \
+  ${SRCDIR}/${APPNAME}

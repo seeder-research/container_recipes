@@ -8,51 +8,55 @@ modfile        /opt
 . /etc/profile
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=0
-export APPVER_MIN=27
-export APPVER_PATCH=11
+export APPVER_MIN=28
+export APPVER_PATCH=2
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
 export APPURL="https://github.com/klayout/klayout"
 export APPNAME="klayout"
+export SRCDIR="/opt"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles/openeda"
 if [ ! -d ${APPROOT} ]; then
   mkdir -p ${APPROOT}
 fi
-if [ ! -d /opt/builddir ]; then
-  mkdir /opt/builddir
+if [ ! -d ${SRCDIR}/builddir ]; then
+  mkdir ${SRCDIR}/builddir
 fi
 rm -rf \
-  /opt/builddir/*
-if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
-  mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
+  ${SRCDIR}/builddir/*
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+  mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} ]; then
-    mv /opt/modfile \
-      ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+  if [ -f ${SRCDIR}/modfile ]; then
+    mv ${SRCDIR}/modfile \
+      ${MODDIR}/${APPNAME}/${APPVER}
+  fi
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
-    echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
-cd /opt && \
+cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
   -b v${APPVER} \
-  /opt/${APPNAME} && \
-cd /opt/${APPNAME} && \
+  ${SRCDIR}/${APPNAME} && \
+cd ${SRCDIR}/${APPNAME} && \
 ./build.sh \
   -qmake "$(which qmake) -spec linux-g++" \
   -ruby "$(which ruby)" \
   -release \
   -prefix "${APPROOT}/bin" \
-  -build "/opt/builddir" && \
+  -build "${SRCDIR}/builddir" && \
 cd ${APPROOT} && \
 mkdir -p ${APPROOT}/lib && \
-mv ${APPROOT}/pymod \
+mv ${APPROOT}/bin/pymod \
   ${APPROOT}/lib/python && \
 mv ${APPROOT}/bin/lib* \
   ${APPROOT}/lib/. && \
 mv ${APPROOT}/bin/*_plugins \
   ${APPROOT}/lib/. && \
 rm -rfv \
-  /opt/${APPNAME} \
-  /opt/builddir
+  ${SRCDIR}/${APPNAME} \
+  ${SRCDIR}/builddir

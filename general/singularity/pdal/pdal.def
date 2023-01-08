@@ -6,48 +6,47 @@ modfile    /opt
 
 %post
 . /etc/profile
-export HOME_BASE=/usr/local
-export APPSDIR=${HOME_BASE}/libraries
+export HOME_BASE="/usr/local"
 export APPVER_MAJ=2
 export APPVER_MIN=4
 export APPVER_REV=3
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPURL="https://github.com/PDAL/PDAL"
-export APPNAME=pdal
-export APPROOT=${APPSDIR}/${APPNAME}/${APPVER}
-export MOD_DIR=/opt
-export MOD_BASE=${HOME_BASE}/modulefiles/dev
-if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
-    mkdir -p ${MOD_BASE}/${APPNAME}
+export APPNAME="pdal"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
-    if [ -f ${MOD_DIR}/modfile ]; then
-        mv ${MOD_DIR}/modfile \
-            ${MOD_BASE}/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
-    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
-if [ ! -d ${APPSDIR}/${APPNAME}/builddir ]; then
-    mkdir -p ${APPSDIR}/${APPNAME}/builddir
+if [ ! -d ${SRCDIR}/builddir ]; then
+    mkdir -p ${SRCDIR}/builddir
 else
-    rm -rf ${APPSDIR}/${APPNAME}/builddir && \
-    mkdir -p ${APPSDIR}/${APPNAME}/builddir
+    rm -rf ${SRCDIR}/builddir && \
+    mkdir -p ${SRCDIR}/builddir
 fi
-if [ -f ${MOD_DIR}/modfile ]; then
-  rm -f ${MOD_DIR}/modfile
+if [ -f ${SRCDIR}/modfile ]; then
+  rm -f ${SRCDIR}/modfile
 fi
 module load \
   libgeotiff \
   gdal && \
-cd ${APPSDIR}/${APPNAME} && \
+cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
   -b ${APPVER} \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
-cd ${APPSDIR}/${APPNAME}/builddir && \
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
+cd ${SRCDIR}/builddir && \
 cmake \
   -G "Unix Makefiles" \
   -DCMAKE_INSTALL_PREFIX=${APPROOT} \
@@ -59,12 +58,12 @@ cmake \
   -DGDAL_LIBRARY=${GDAL_ROOT}/lib/libgdal.so \
   -DGEOTIFF_INCLUDE_DIR=${LIBGEOTIFF_ROOT}/include \
   -DGEOTIFF_LIBRARY=${LIBGEOTIFF_ROOT}/lib/libgeotiff.so \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
 cmake \
   --build . \
   -j$(nproc) \
   -t install && \
-cd ${APPSDIR}/${APPNAME} && \
+cd ${SRCDIR} && \
 rm -rf \
-  ${APPSDIR}/${APPNAME}/builddir \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}
+  ${SRCDIR}/builddir \
+  ${SRCDIR}/${APPNAME}-${APPVER}

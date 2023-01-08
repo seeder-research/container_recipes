@@ -2,7 +2,9 @@ BootStrap: localimage
 From: pre.sif
 
 %files
-modfile        /opt
+modfile                 /opt
+simple_update.py        /opt
+update_install_dir.py   /opt
 
 %post
 . /etc/profile
@@ -13,51 +15,77 @@ export APPVER_PATCH=0
 export APPVER="latest"
 export APPURL="https://github.com/The-OpenROAD-Project/OpenLane"
 export APPNAME="openlane"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
-  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/openeda"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+  mkdir ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} ]; then
-  mv /opt/modfile \
-    ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+  if [ -f ${SRCDIR}/modfile ]; then
+  mv ${SRCDIR}/modfile \
+    ${MODDIR}/${APPNAME}/${APPVER}
+  fi
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
-  echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
-  echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
-module load \
-  bison \
-  flex \
-  cudd \
-  boost
-if [ ! -d /opt/builddir ]; then
-  mkdir -p /opt/builddir
-fi
-cd /opt && \
+cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
-  /opt/${APPNAME} && \
-cd /opt/builddir && \
-cmake \
-  -G "Unix Makefiles" \
-  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
-  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
-  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
-  -DCMAKE_BUILD_TYPE="Release" \
-  -DUSE_SYSTEM_BOOST=ON \
-  -DUSE_SYSTEM_OPENSTA=OFF \
-  -DUSE_SYSTEM_ABC=OFF \
-  -DUSE_CUDD=ON \
-  -DCUDD_DIR=${CUDD_ROOT} \
-  -DBUILD_GUI=ON \
-  -DGPU=ON \
-  -DCMAKE_CUDA_ARCHITECTURES="60" \
-  -DCMAKE_PREFIX_PATH="${LIBBOOST_ROOT}/lib/cmake" \
-  /opt/${APPNAME}/. && \
-cmake --build . \
-  -j$(nproc) \
-  -t install && \
-cd /opt && \
+  ${SRCDIR}/${APPNAME} && \
+cd ${SRCDIR}/${APPNAME} && \
+mv ${SRCDIR}/simple_update.py \
+  ${SRCDIR}/${APPNAME} && \
+mv ${SRCDIR}/update_install_dir.py \
+  ${SRCDIR}/${APPNAME}/dependencies && \
+python3 simple_update.py && \
+mkdir -pv \
+  ${APPROOT} && \
+cp -r \
+  ${SRCDIR}/${APPNAME}/configuration \
+  ${APPROOT}/. && \
+cp -r \
+  ${SRCDIR}/${APPNAME}/dependencies \
+  ${APPROOT}/. && \
+cp -r \
+  ${SRCDIR}/${APPNAME}/designs \
+  ${APPROOT}/. && \
+cp -r \
+  ${SRCDIR}/${APPNAME}/install \
+  ${APPROOT}/. && \
+cp -r \
+  ${SRCDIR}/${APPNAME}/regression_results \
+  ${APPROOT}/. && \
+cp -r \
+  ${SRCDIR}/${APPNAME}/scripts \
+  ${APPROOT}/. && \
+cp -r \
+  ${SRCDIR}/${APPNAME}/AUTHORS.md \
+  ${APPROOT}/. && \
+cp -r \
+  ${SRCDIR}/${APPNAME}/env.py \
+  ${APPROOT}/. && \
+cp -r \
+  ${SRCDIR}/${APPNAME}/flow.tcl \
+  ${APPROOT}/. && \
+cp -r \
+  ${SRCDIR}/${APPNAME}/LICENSE \
+  ${APPROOT}/. && \
+cp -r \
+  ${SRCDIR}/${APPNAME}/run_designs.py \
+  ${APPROOT}/. && \
+find \
+  ${APPROOT} \
+  -type d \
+  -name runs \
+  -exec rm -rf {} + && \
 rm -rf \
-  /opt/${APPNAME} \
-  /opt/builddir
+  ${SRCDIR}/${APPNAME} \
+  ${SRCDIR}/${APPNAME}
+
+if [ -f ${SRCDIR}/modfile ]; then
+  rm -rf \
+    ${SRCDIR}/modfile
+fi

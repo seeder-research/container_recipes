@@ -5,16 +5,21 @@ From: pre.sif
 modfile    /opt
 
 %post
-export HOME_BASE="/usr/local"
-export APPVER_MAJ=5
-export APPVER_MIN=3
-export APPVER_REV=1
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
-export APPNAME="harfbuzz"
-export APPURL="https://github.com/${APPNAME}/${APPNAME}"
-export SRCDIR="/opt"
+. /etc/profile
+export HOME_BASE=/usr/local
+export APPSDIR=${HOME_BASE}/libraries
+export APPVER_MAJ=4
+export APPVER_MIN=5
+export APPVER_REV=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPNAME="tiff"
+export APPFILE="${APPNAME}-${APPVER}.tar.xz"
+export APPURL="http://download.osgeo.org/lib${APPNAME}/${APPFILE}"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export SRCDIR="/opt"
 export MODDIR="/usr/local/modulefiles/dev"
+export CC=$(which gcc)
+export CXX=$(which g++)
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
     mkdir -p ${MODDIR}/${APPNAME}
 fi
@@ -28,19 +33,24 @@ if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
     echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
     echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
+if [ -f ${SRCDIR}/modfile ]; then
+  rm -f ${SRCDIR}/modfile
+fi
+module load \
+  proj && \
 cd ${SRCDIR} && \
-git clone --recursive \
-  ${APPURL} \
-  -b ${APPVER} \
-  ${SRCDIR}/${APPNAME}-${APPVER} && \
+wget --no-check-certificate \
+  ${APPURL} && \
+tar xf ${APPFILE} && \
 cd ${SRCDIR}/${APPNAME}-${APPVER} && \
 ./autogen.sh && \
 ./configure \
-  --prefix=${APPROOT} \
-  --enable-shared \
-  --enable-static && \
-make -j$(nproc) && \
-make install && \
+  --prefix=${APPROOT} && \
+make \
+  -j$(nproc) && \
+make \
+  install && \
 cd ${SRCDIR} && \
 rm -rf \
-  ${SRCDIR}/${APPNAME}-*
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
+  ${SRCDIR}/${APPFILE}
