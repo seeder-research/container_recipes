@@ -62,3 +62,10 @@ cd ${SRCDIR} && \
 rm -rf \
   ${SRCDIR}/builddir \
   ${SRCDIR}/${APPNAME}-${APPVER}
+
+if [ -d ${APPROOT}/lib64 ]; then
+  if [ ! -e ${APPROOT}/lib ]; then
+    cd ${APPROOT} && \
+    ln -s ./lib64 lib
+  fi
+fi

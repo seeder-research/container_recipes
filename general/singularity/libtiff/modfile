@@ -4,7 +4,7 @@
 ##
 set              name              [file tail [file dirname [info script]]]
 set              version           [file tail [info script]]
-set              root              /usr/local/libraries/${name}/${version}
+set              root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
@@ -13,7 +13,7 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment variables."
 
-setenv            LIBGEOTIFF_ROOT   ${root}
+setenv            LIBTIFF_ROOT      ${root}
 
 prepend-path      PATH              ${root}/bin
 
@@ -25,3 +25,5 @@ prepend-path      LIBRARY_PATH      ${root}/lib
 prepend-path      LD_RUN_PATH       ${root}/lib
 
 prepend-path      MANPATH           ${root}/share/man
+
+prepend-path      PKG_CONFIG_PATH   ${root}/lib/pkgconfig

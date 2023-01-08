@@ -6,43 +6,42 @@ modfile    /opt
 
 %post
 . /etc/profile
-export HOME_BASE=/usr/local
-export APPSDIR=${HOME_BASE}/libraries
+export HOME_BASE="/usr/local"
 export APPVER_MAJ=1
 export APPVER_MIN=7
 export APPVER_REV=1
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPURL="https://github.com/OSGeo/libgeotiff"
-export APPNAME=libgeotiff
-export APPROOT=${APPSDIR}/${APPNAME}/${APPVER}
-export MOD_DIR=/opt
-export MOD_BASE=${HOME_BASE}/modulefiles/dev
-export CC=$(which gcc)
-export CXX=$(which g++)
-if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
-    mkdir -p ${MOD_BASE}/${APPNAME}
+export APPNAME="libgeotiff"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
+export CC="$(which gcc)"
+export CXX="$(which g++)"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
-    if [ -f ${MOD_DIR}/modfile ]; then
-        mv ${MOD_DIR}/modfile \
-            ${MOD_BASE}/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
-    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
-if [ -f ${MOD_DIR}/modfile ]; then
-  rm -f ${MOD_DIR}/modfile
+if [ -f ${SRCDIR}/modfile ]; then
+  rm -f ${SRCDIR}/modfile
 fi
 module load \
   proj && \
-cd ${APPSDIR}/${APPNAME} && \
+cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
   -b ${APPVER} \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
-cd ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}/${APPNAME} && \
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER}/${APPNAME} && \
 ./autogen.sh && \
 ./configure \
   --prefix=${APPROOT} && \
@@ -50,6 +49,6 @@ make \
   -j$(nproc) && \
 make \
   install && \
-cd ${APPSDIR}/${APPNAME} && \
+cd ${SRCDIR} && \
 rm -rf \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}
+  ${SRCDIR}/${APPNAME}-${APPVER}

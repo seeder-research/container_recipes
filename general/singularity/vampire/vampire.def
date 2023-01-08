@@ -6,35 +6,78 @@ modfile    /opt
 
 %post
 . /etc/profile
-. /.singularity.d/env/90-environment.sh
-export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=6
+export APPVER_MIN=0
+export APPVER_REV=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}"
+export APPNAME="vampire"
+export APPFILE="v${APPVER}.tar.gz"
+export APPURL="https://github.com/richard-evans/${APPNAME}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/umag"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ ! -d ${APPROOT}/bin ]; then
+    mkdir -pv \
+      ${APPROOT}/bin
+else
+    rm -rfv \
+      ${APPROOT}/bin && \
+    mkdir -pv \
+      ${APPROOT}/bin
+fi
+if [ ! -d ${APPROOT}/examples ]; then
+    mkdir -pv \
+      ${APPROOT}/examples
+else
+    rm -rfv \
+      ${APPROOT}/examples && \
+    mkdir -pv \
+      ${APPROOT}/examples
+fi
+if [ ! -d ${APPROOT}/etc/path.d ]; then
+    mkdir -pv \
+      ${APPROOT}/etc/path.d
+fi
+if [ -f ${APPROOT}/etc/path.d/vampire_path ]; then
+    rm -rf ${APPROOT}/etc/path.d/vampire_path
+fi
 module load \
   openmpi \
   intel/mkl
-export VAMPIRE_VER=5.0.1
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  https://github.com/richard-evans/vampire/archive/${VAMPIRE_VER}.tar.gz && \
-mkdir -p /usr/local/vampire && \
-mkdir -p /usr/local/modulefiles/vampire && \
-mv /opt/modfile \
-  /usr/local/modulefiles/vampire/${VAMPIRE_VER} && \
-echo "#%Module" > /usr/local/modulefiles/vampire/.version && \
-echo set ModulesVersion "${VAMPIRE_VER}" >> /usr/local/modulefiles/vampire/.version && \
-cd /opt && \
-tar xf ${VAMPIRE_VER}.tar.gz && \
-cd /opt/vampire-${VAMPIRE_VER} && \
+  https://github.com/richard-evans/${APPNAME}/archive/refs/tags/${APPFILE} && \
+tar xf ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
 sed -i "s/sudo //g" makefile && \
 make -j$(nproc) all && \
-mkdir -p /etc/paths.d && \
-make install && \
-mv /opt/vampire /usr/local/vampire/${VAMPIRE_VER} && \
+cp -a \
+  ${SRCDIR}/${APPNAME}-${APPVER}/${APPNAME}-* \
+  ${APPROOT}/bin/. && \
+cp -a \
+  ${SRCDIR}/${APPNAME}-${APPVER}/util/vdc/vdc \
+  ${APPROOT}/bin/. && \
+cp -a \
+  ${SRCDIR}/${APPNAME}-${APPVER}/input \
+  ${APPROOT}/examples/. && \
+cp -a \
+  ${SRCDIR}/${APPNAME}-${APPVER}/Co.mat \
+  ${APPROOT}/examples/. && \
+echo ${APPROOT} > ${APPROOT}/etc/path.d/vampire_path && \
 rm -rf \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /etc/paths.d \
-  /opt/vampire-${VAMPIRE_VER} \
-  /opt/${VAMPIRE_VER}.tar.gz
+  ${SRCDIR}/${APPNAME}-${APPVER} \
+  ${SRCDIR}/${APPFILE}

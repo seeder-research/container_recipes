@@ -13,8 +13,8 @@ export APPVER_REV=0
 export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPURL="https://github.com/OSGeo/GDAL"
 export APPNAME="gdal"
-export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles/dev"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
     mkdir -p ${MODDIR}/${APPNAME}
@@ -39,6 +39,7 @@ if [ -f ${SRCDIR}/modfile ]; then
   rm -f ${SRCDIR}/modfile
 fi
 module load \
+  cryptopp \
   proj && \
 cd ${SRCDIR} && \
 git clone --recursive \
