@@ -4,61 +4,6 @@ From: pre.sif
 %post
 export TERM=xterm
 yum upgrade -y
-yum groupinstall -y \
-  "Minimal Install" \
-  "Compute Node" \
-  "Development and Creative Workstation" \
-  "Development Tools" \
-  "Compatibility Libraries" \
-  "Hardware Support" \
-  "Scientific Support"
-yum install -y \
-  autoconf \
-  automake \
-  centos-release-scl \
-  dejagnu \
-  expat-devel \
-  expat \
-  g++ \
-  gcc \
-  gettext \
-  gettext-devel \
-  gfortran \
-  git \
-  hwloc-devel \
-  libedit-devel \
-  libedit \
-  libical-devel \
-  libtool \
-  libXext \
-  libXft \
-  libX11-devel \
-  libXt-devel \
-  make \
-  most \
-  nano \
-  ncurses-devel \
-  openssl-devel \
-  perl \
-  pkgconfig \
-  postgresql-contrib \
-  postgresql-devel \
-  postgresql-server \
-  python-devel \
-  python-sphinx \
-  python \
-  python3-devel \
-  python3-sphinx \
-  python3 \
-  rpm-build \
-  swig \
-  tcl-devel \
-  tcl \
-  tk-devel \
-  tk \
-  tkcvs \
-  wget \
-  which
 yum install -y \
   authconfig \
   sudo
@@ -75,9 +20,6 @@ yum install -y \
   devtoolset-9 \
   devtoolset-10 \
   devtoolset-11 \
-  nano \
-  which \
-  environment-modules \
   epel-release 
 yum install -y \
   initscripts \
