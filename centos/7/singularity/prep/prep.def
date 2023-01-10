@@ -26,6 +26,7 @@ yum install -y \
   curl \
   cvs \
   dbus-devel \
+  dejagnu \
   dnf \
   docbook2X \
   environment-modules \
@@ -39,6 +40,7 @@ yum install -y \
   git \
   glib2-devel \
   glib2 \
+  grep \
   gstreamer1-devel \
   gstreamer1-plugins-base-devel \
   help2man \
@@ -86,20 +88,24 @@ yum install -y \
   openssl-devel \
   openssl \
   perl \
+  pkgconfig \
   postgresql-contrib \
   postgresql-devel \
   postgresql-server \
   pulseaudio-libs-devel \
   pulseaudio-libs \
   python-devel \
+  python-sphinx \
+  python \
   python3-devel \
+  python3-sphinx \
   python3 \
   rpm-build \
   ruby \
   runc \
+  sed \
   shadow-utils \
   subversion \
-  swig3 \
   tcl-devel \
   tcl \
   texinfo \
@@ -125,4 +131,8 @@ yum install -y \
   xz \
   zlib-devel \
   zlib && \
+yum erase -y \
+  swig && \
+yum install -y \
+  swig3 && \
 ln -sfv /usr/bin/db2x_docbook2texi /usr/bin/docbook2x-texi
