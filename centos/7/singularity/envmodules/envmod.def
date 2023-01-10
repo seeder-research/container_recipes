@@ -1,0 +1,20 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+environment-modules-5.0.1-1.el7.x86_64.rpm    /opt
+
+%post
+yum upgrade -y && \
+yum install -y \
+  vim-filesystem && \
+yum erase -y \
+  environment-modules && \
+rpm -i \
+  /opt/environment-modules-5.0.1-1.el7.x86_64.rpm && \
+sed -i "s@module use@#module use@" /etc/environment-modules/initrc && \
+sed -i "s@/usr@#/usr@g" /etc/environment-modules/modulespath && \
+sed -i "s@/etc@#/etc@g" /etc/environment-modules/modulespath && \
+echo /opt/modulefiles >> /etc/environment-modules/modulespath && \
+rm -rf \
+  /opt/environment-modules-5.0.1-1.el7.x86_64.rpm

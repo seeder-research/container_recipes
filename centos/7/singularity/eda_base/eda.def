@@ -16,6 +16,7 @@ yum install -y \
   autoconf \
   automake \
   centos-release-scl \
+  dejagnu \
   expat-devel \
   expat \
   g++ \
@@ -39,11 +40,15 @@ yum install -y \
   ncurses-devel \
   openssl-devel \
   perl \
+  pkgconfig \
   postgresql-contrib \
   postgresql-devel \
   postgresql-server \
   python-devel \
+  python-sphinx \
+  python \
   python3-devel \
+  python3-sphinx \
   python3 \
   rpm-build \
   swig \
