@@ -6,39 +6,39 @@ modfile     /opt
 
 %post
 . /etc/profile
-export HOME_BASE=/usr/local
-export APPSDIR=${HOME_BASE}/utils
-export APPNAME=adms
+export HOME_BASE="/usr/local"
 export APPVER_MAJ=2
 export APPVER_MIN=3
 export APPVER_REV=7
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPNAME="adms"
 export APPURL="https://github.com/QUCS/ADMS.git"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-export MOD_DIR=/opt
-export MOD_BASE=${HOME_BASE}/modulefiles/openeda
-if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
-    mkdir -p ${MOD_BASE}/${APPNAME}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/openeda"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
-    if [ -f ${MOD_DIR}/modfile ]; then
-        mv ${MOD_DIR}/modfile \
-            ${MOD_BASE}/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ -f ${MOD_DIR}/modfile ]; then
-    rm -f ${MOD_DIR}/modfile
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
-    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
 module load \
   bison \
   flex
 cd ${APPSDIR} && \
 git clone \
-  https://github.com/Qucs/ADMS.git \
+  --recursive \
+  ${APPURL} \
   -b develop \
   ${APPSDIR}/${APPNAME}-${APPVER} && \
 cd ${APPSDIR}/${APPNAME}-${APPVER} && \
