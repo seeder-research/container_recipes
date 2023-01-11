@@ -5,21 +5,37 @@ From: pre.sif
 modfile    /opt
 
 %post
-export LIBBEEFVER=0.1.2
-cd /opt && \
-git clone https://github.com/vossjo/libbeef.git && \
-cd /opt/libbeef && \
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=0
+export APPVER_MIN=1
+export APPVER_PATCH=2
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPNAME="libbeef"
+export APPURL="https://github.com/vossjo/${APPNAME}.git"
+export SRCDIR="/opt"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+  mkdir ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+  mv ${SRCDIR}/modfile \
+    ${MODDIR}/${APPNAME}/${APPVER}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+cd ${SRCDIR} && \
+git clone --recursive \
+  ${APPURL} && \
+cd ${SRCDIR}/${APPNAME} && \
 ./configure \
-  --prefix=/usr/local/libbeef/${LIBBEEFVER} \
+  --prefix=${APPNAME} \
   --enable-portable-binary \
-  CC=gcc && \
+  CC=$(which gcc) && \
 make && \
 make install && \
-mkdir -p /usr/local/modulefiles/dev/libbeef && \
-cd /usr/local/modulefiles/dev/libbeef && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/libbeef/${LIBBEEFVER} && \
-echo "#%Module" > /usr/local/modulefiles/dev/libbeef/.version && \
-echo set ModulesVersion "${LIBBEEFVER}" >> /usr/local/modulefiles/dev/libbeef/.version
 rm -rf \
-  /opt/libbeef
+  ${SRCDIR}/${APPNAME}
