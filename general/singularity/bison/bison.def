@@ -21,21 +21,21 @@ export CC="$(which gcc)"
 export CFLAGS="-O3 -fPIC"
 export CXX="$(which g++)"
 export CXXFLAGS="-O3 -fPIC"
-if [ ! -d ${MODDDIR}/${APPNAME} ]; then
-    mkdir -p ${MODDDIR}/${APPNAME}
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${MODDDIR}/${APPNAME}/${APPVER} ]; then
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
     if [ -f ${SRCDIR}/modfile ]; then
         mv ${SRCDIR}/modfile \
-            ${MODDDIR}/${APPNAME}/${APPVER}
+            ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ ! -f ${MODDDIR}/${APPNAME}/.version ]; then
-    echo "#%Module" > ${MODDDIR}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MODDDIR}/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
 if [ -f ${SRCDIR}/modfile ]; then
-  rm -f ${SRCDIR}/modfile
+    rm -f ${SRCDIR}/modfile
 fi
 cd ${SRCDIR} && \
 wget --no-check-certificate \

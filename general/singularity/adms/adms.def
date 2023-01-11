@@ -25,12 +25,12 @@ if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
             ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ -f ${SRCDIR}/modfile ]; then
-    rm -f ${SRCDIR}/modfile
-fi
 if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
     echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
     echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 module load \
   bison \
