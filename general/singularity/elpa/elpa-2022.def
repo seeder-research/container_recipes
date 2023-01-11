@@ -14,7 +14,7 @@ export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
 export APPNAME="elpa"
 export APPFILE="${APPNAME}-ELPA_${APPVER}.tar.bz2"
 export APPURL="https://gitlab.mpcdf.mpg.de/${APPNAME}/${APPNAME}/-/archive/ELPA_${APPVER}/${APPFILE}"
-export SRCDIR="${SRCDIR}"
+export SRCDIR="/opt"
 export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
 export MODDIR="/usr/local/modulefiles"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then

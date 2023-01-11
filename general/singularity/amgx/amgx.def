@@ -6,20 +6,38 @@ modfile    /opt
 
 %post
 . /etc/profile
-. /.singularity.d/env/90-environment.sh
-. /etc/profile.d/modules.sh
-export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
-export AMGX_VER=2.1.0
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=2
+export APPVER_MIN=1
+export APPVER_PATCH=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPNAME="amgx"
+export APPFILE="v${APPVER}.tar.gz"
+export APPURL="https://github.com/NVIDIA/AMGX/archive/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+  mkdir ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+  mv ${SRCDIR}/modfile \
+    ${MODDIR}/${APPNAME}/${APPVER}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
 module load \
   intel/mkl
-cd /opt && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  https://github.com/NVIDIA/AMGX/archive/v${AMGX_VER}.tar.gz && \
-tar xf /opt/v${AMGX_VER}.tar.gz && \
-mkdir /opt/AMGX-${AMGX_VER}/builddir && \
-cd /opt/AMGX-${AMGX_VER}/builddir && \
+  ${APPURL} && \
+tar xf ${SRCDIR}/${APPFILE} && \
+mkdir ${SRCDIR}/AMGX-${AMGX_VER}/builddir && \
+cd ${SRCDIR}/AMGX-${AMGX_VER}/builddir && \
 cmake \
-  -DCMAKE_INSTALL_PREFIX=/usr/local/amgx/${AMGX_VER} \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_NO_MPI=ON \
   -DMKL_ROOT_DIR=${MKLROOT} \
@@ -27,12 +45,6 @@ cmake \
   .. && \
 make -j$(nproc) && \
 make install && \
-mkdir /usr/local/modulefiles/dev/amgx && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/amgx/${AMGX_VER} && \
-cd /usr/local/modulefiles/dev/amgx && \
-echo "#%Module" > /usr/local/modulefiles/dev/amgx/.version && \
-echo set ModulesVersion "${GOVER}" >> /usr/local/modulefiles/dev/amgx/.version && \
 rm -rf \
-  /opt/v${AMGX_VER}.tar.gz \
-  /opt/AMGX-${AMGX_VER}
+  ${SRCDIR}/v${AMGX_VER}.tar.gz \
+  ${SRCDIR}/AMGX-${AMGX_VER}
