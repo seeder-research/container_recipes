@@ -6,52 +6,64 @@ modfile    /opt
 
 %post
 . /etc/profile
-. /etc/profile.d/modules.sh
-. /.singularity.d/env/90-environment.sh
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=2016
+export APPVER_MIN=05
+export APPVER_PATCH=004
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPNAME="elpa"
+export APPFILE="${APPNAME}-ELPA_${APPVER}.tar.bz2"
+export APPURL="https://gitlab.mpcdf.mpg.de/${APPNAME}/${APPNAME}/-/archive/ELPA_${APPVER}/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 module load \
   openmpi \
-  intel/mkl && \
-export ELPAVER=2016.05.004
+  intel/mkl
 export SCALAPACK_LDFLAGS="-L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64 -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -Wl,--as-needed -lpthread -lm -Wl,-rpath,${MKLROOT}/lib/intel64"
 export SCALAPACK_FCFLAGS="-L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64 -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -Wl,--as-needed -lpthread -lm -I${MKLROOT}/include/intel64/lp64"
-export CC=mpicc
-export FC=mpifort
+export CC="$(which mpicc)"
+export FC="$(which mpifort)"
 export FCFLAGS="-O2 -mavx"
 export CFLAGS="-O2 -mavx"
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/ELPA_${ELPAVER}/elpa-ELPA_${ELPAVER}.tar.bz2 && \
-tar xf /opt/elpa-ELPA_${ELPAVER}.tar.bz2 && \
-cd /opt/elpa-ELPA_${ELPAVER} && \
+  ${APPURL} && \
+tar xf ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-ELPA_${APPVER} && \
 ./autogen.sh && \
 ./configure \
-  --prefix=/usr/local/elpa/${ELPAVER} \
+  --prefix=${APPROOT} \
   --enable-openmp=no && \
 make -j$(nproc) && \
 make install && \
-cd /opt && \
-rm -rf /opt/elpa-ELPA_${ELPAVER} && \
-tar xf /opt/elpa-ELPA_${ELPAVER}.tar.bz2 && \
-cd /opt/elpa-ELPA_${ELPAVER} && \
+cd ${SRCDIR} && \
+rm -rf ${SRCDIR}/${APPNAME}-ELPA_${APPVER} && \
+tar xf ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-ELPA_${APPVER} && \
 ./autogen.sh && \
 ./configure \
-  --prefix=/usr/local/elpa/${ELPAVER} \
+  --prefix=${APPROOT} \
   --enable-openmp=yes && \
 make -j$(nproc) && \
 make install && \
-cd /opt && \
-mkdir /usr/local/modulefiles/dev/elpa && \
-cd /usr/local/modulefiles/dev/elpa && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/elpa/${ELPAVER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${ELPAVER}" >> .version && \
-cd /opt && \
+cd ${SRCDIR} && \
 rm -rf \
-  /opt/elpa-ELPA_${ELPAVER} \
-  /opt/elpa-ELPA_${ELPAVER}.tar.bz2 \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1
+  ${SRCDIR}/${APPNAME}-ELPA_${APPVER} \
+  ${SRCDIR}/${APPFILE}

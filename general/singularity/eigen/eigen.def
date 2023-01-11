@@ -9,25 +9,28 @@ export HOME_BASE="/usr/local"
 export APPVER_MAJ=3
 export APPVER_MIN=4
 export APPVER_PATCH=0
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}"
 export APPNAME="eigen"
 export APPFILE="${APPNAME}-${APPVER}.tar.bz2"
 export APPURL="https://gitlab.com/libeigen/${APPNAME}/-/archive/${EIGEN_VER}/${APPFILE}"
-export SRCDIR=/opt
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
-  mkdir -p ${MODDIR}/${APPNAME}
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
-  if [ -f ${SRCDIR}/modfile ]; then
-    mv ${SRCDIR}/modfile \
-      ${MODDIR}/${APPNAME}/${APPVER}
-  fi
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
-  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
-  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 module load \
   openmpi \

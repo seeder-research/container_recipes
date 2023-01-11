@@ -15,26 +15,31 @@ export APPNAME="elpa"
 export APPFILE="${APPNAME}-ELPA_${APPVER}.tar.bz2"
 export APPURL="https://gitlab.mpcdf.mpg.de/${APPNAME}/${APPNAME}/-/archive/ELPA_${APPVER}/${APPFILE}"
 export SRCDIR="/opt"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
-  mkdir ${MODDIR}/${APPNAME}
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
-  mv ${SRCDIR}/modfile \
-    ${MODDIR}/${APPNAME}/${APPVER}
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
-  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
-  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 module load \
   openmpi \
   intel/mkl
 export SCALAPACK_LDFLAGS="-L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64 -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -Wl,--as-needed -lpthread -lm -Wl,-rpath,${MKLROOT}/lib/intel64"
 export SCALAPACK_FCFLAGS="-L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64 -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -Wl,--as-needed -lpthread -lm -I${MKLROOT}/include/intel64/lp64"
-export CC=mpicc
-export FC=mpifort
+export CC="$(which mpicc)"
+export FC="$(which mpifort)"
 export FCFLAGS="-O2 -mavx"
 export CFLAGS="-O2 -mavx"
 cd ${SRCDIR} && \

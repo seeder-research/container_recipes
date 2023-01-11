@@ -5,18 +5,40 @@ From: pre.sif
 modfile    /opt
 
 %post
-export CUBVER=1.8.0
-cd /opt && \
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=1
+export APPVER_MIN=8
+export APPVER_PATCH=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPNAME="cub"
+export APPFILE="v${APPVER}.tar.gz"
+export APPURL="https://github.com/NVlabs/cub/archive/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  https://github.com/NVlabs/cub/archive/v${CUBVER}.tar.gz && \
-mkdir -p /usr/local/cub && \
-cd /usr/local/cub && \
-tar xf /opt/v${CUBVER}.tar.gz
-mv cub-${CUBVER} \
-  /usr/local/cub/${CUBVER} && \
-mkdir -p /usr/local/modulefiles/dev/cub && \
-mv /opt/modfile /usr/local/modulefiles/dev/cub/${CUBVER} && \
-echo "#%Module" > /usr/local/modulefiles/dev/cub/.version && \
-echo set ModulesVersion "${CUBVER}" >> /usr/local/modulefiles/dev/cub/.version && \
+  ${APPURL} && \
+mkdir -p ${HOME_BASE}/${APPNAME} && \
+cd ${HOME_BASE}/${APPNAME} && \
+tar xf ${SRCDIR}/${APPFILE} && \
+mv ${APPNAME}-${APPVER} \
+  ${APPROOT} && \
 rm -rf \
-  /opt/v${CUBVER}.tar.gz
+  ${SRCDIR}/${APPFILE}
