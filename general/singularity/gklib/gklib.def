@@ -1,0 +1,50 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER="latest"
+export APPNAME="gklib"
+export APPURL="https://github.com/KarypisLab/GKLib"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+export CONFIG_FLAGS="-DCMAKE_INSTALL_PREFIX=${APPROOT}"
+export CONFIG_FLAGS="${CONFIG_FLAGS} -DCMAKE_BUILD_TYPE=Release"
+export CONFIG_FLAGS="${CONFIG_FLAGS} -DCMAKE_C_COMPILER=$(which gcc)"
+export CONFIG_FLAGS="${CONFIG_FLAGS} -DCMAKE_C_FLAGS=-D_POSIX_C_SOURCE=199309L"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+  mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+  if [ -f ${SRCDIR}/modfile ]; then
+    mv ${SRCDIR}/modfile \
+      ${MODDIR}/${APPNAME}/${APPVER}
+  fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+git clone \
+  --recursive \
+  ${APPURL} \
+  ${SRCDIR}/src && \
+cd ${SRCDIR}/src && \
+make config \
+  cc=$(which gcc) \
+  prefix=${APPROOT} \
+  openmp=set  && \
+make && \
+make install && \
+cd ${SRCDIR} && \
+rm -rf \
+  ${SRCDIR}/src
+
+if [ -e ${SRCDIR}/modfile ]; then
+  rm -rf ${SRCDIR}/modfile
+fi

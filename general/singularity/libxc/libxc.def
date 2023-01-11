@@ -1,0 +1,43 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=6
+export APPVER_MIN=1
+export APPVER_PATCH=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPNAME="libxc"
+export APPURL="https://gitlab.com/${APPNAME}/${APPNAME}.git"
+export SRCDIR="/opt"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+  mkdir ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+  mv ${SRCDIR}/modfile \
+    ${MODDIR}/${APPNAME}/${APPVER}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+cd ${SRCDIR} && \
+git clone --recursive \
+  ${APPURL} \
+  -b ${APPVER} \
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
+autoreconf -i && \
+./configure \
+  --prefix=${APPROOT} \
+  --enable-static \
+  --enable-shared && \
+make -j$(nproc) && \
+make install && \
+rm -rf \
+  ${SRCDIR}/${APPNAME}-${APPVER}

@@ -7,9 +7,9 @@ modfile    /opt
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER_MAJ=2019
+export APPVER_MAJ=2022
 export APPVER_MIN=05
-export APPVER_PATCH=002
+export APPVER_PATCH=001
 export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
 export APPNAME="elpa"
 export APPFILE="${APPNAME}-ELPA_${APPVER}.tar.bz2"
@@ -46,7 +46,8 @@ cd ${SRCDIR}/${APPNAME}-ELPA_${APPVER} && \
 ./configure \
   --prefix=${APPROOT} \
   --enable-openmp=no \
-  --disable-avx2 && \
+  --disable-avx2 \
+  --disable-avx512 && \
 make -j$(nproc) && \
 make install && \
 cd ${SRCDIR} && \
@@ -57,7 +58,8 @@ cd ${SRCDIR}/${APPNAME}-ELPA_${APPVER} && \
 ./configure \
   --prefix=${APPROOT} \
   --enable-openmp=yes \
-  --disable-avx2 && \
+  --disable-avx2 \
+  --disable-avx512 && \
 make -j$(nproc) && \
 make install && \
 cd ${SRCDIR} && \

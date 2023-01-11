@@ -107,6 +107,7 @@ yum install -y \
   shadow-utils \
   subversion \
   tcl-devel \
+  tcllib \
   tcl \
   texinfo \
   tk-devel \

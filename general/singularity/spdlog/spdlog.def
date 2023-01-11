@@ -1,0 +1,57 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile                /opt
+
+%post
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=1
+export APPVER_MIN=8
+export APPVER_PATCH=1
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPNAME="spdlog"
+export APPURL="https://github.com/gabime/${APPNAME}.git"
+export SRCDIR=/opt
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+  mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+  mv ${SRCDIR}/modfile \
+    ${MODDIR}/${APPNAME}/${APPVER}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+cd ${SRCDIR} && \
+git clone --recursive \
+  ${APPURL} \
+  -b v${APPVER} \
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
+cmake \
+  -B ${SRCDIR}/builddir \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
+cmake \
+  --build ${SRCDIR}/builddir \
+  -j$(nproc) \
+  --target install && \
+cd ${SRCDIR} && \
+rm -rf \
+  ${SRCDIR}/builddir \
+  ${SRCDIR}/${APPNAME}-${APPVER} \
+  ${SRCDIR}/${APPNAME}-${APPVER}.tar.xz
+
+if [ ! -d ${APPROOT}/lib ]; then
+  if [ -d ${APPROOT}/lib64 ]; then
+    cd ${APPROOT} && \
+    ln -s ./lib64 lib
+  fi
+fi
+if [ -e ${SRCDIR}/modfile ]; then
+  rm -rf ${SRCDIR}/modfile
+fi
