@@ -6,42 +6,41 @@ modfile                /opt
 
 %post
 . /etc/profile
-export HOME_BASE=/usr/local
-export APPSDIR=${HOME_BASE}/libraries
+export HOME_BASE="/usr/local"
 export APPVER_MAJ=1
 export APPVER_MIN=80
 export APPVER_REV=0
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
-export APPNAME=boost
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="boost"
 export APPURL="https://github.com/boostorg/${APPNAME}.git"
-export APPROOT=${APPSDIR}/${APPNAME}/${APPVER}
-export MOD_DIR=/opt
-export MOD_BASE=${HOME_BASE}/modulefiles/dev
-if [ ! -d ${HOME_BASE}/modulefiles/dev/${APPNAME} ]; then
-    mkdir -p ${MOD_BASE}/${APPNAME}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
-    if [ -f ${MOD_DIR}/modfile ]; then
-        mv ${MOD_DIR}/modfile \
-            ${MOD_BASE}/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
-    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
-if [ -f ${MOD_DIR}/modfile ]; then
-  rm -f ${MOD_DIR}/modfile
+if [ -f ${SRCDIR}/modfile ]; then
+  rm -f ${SRCDIR}/modfile
 fi
 module load \
   openmpi && \
-cd /opt && \
+cd ${SRCDIR} && \
 git clone \
   --recursive \
   ${APPURL} \
   -b ${APPNAME}-${APPVER} \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
-cd ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
+  ${SRCDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
+cd ${SRCDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
 ./bootstrap.sh --with-toolset=gcc && \
 echo "using mpi ;" >> project-config.jam && \
 echo "using python ;" >> project-config.jam && \
@@ -53,6 +52,6 @@ echo "using python ;" >> project-config.jam && \
   link=shared,static \
   threading=multi \
   install && \
-cd ${APPSDIR}/${APPNAME} && \
+cd ${SRCDIR}/${APPNAME} && \
 rm -rf \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}
+  ${SRCDIR}/${APPNAME}/${APPNAME}-${APPVER}

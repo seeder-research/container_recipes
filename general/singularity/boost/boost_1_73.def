@@ -6,26 +6,45 @@ modfile                /opt
 
 %post
 . /etc/profile
-export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
-export BOOSTVER_MAJOR=1
-export BOOSTVER_MINOR=73
-export BOOSTVER_PATCH=0
-export BOOSTVER=${BOOSTVER_MAJOR}.${BOOSTVER_MINOR}.${BOOSTVER_PATCH}
-module load openmpi 
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-if [ ! -d /usr/local/modulefiles/dev/boost ]; then
-  mkdir /usr/local/modulefiles/dev/boost
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=1
+export APPVER_MIN=73
+export APPVER_REV=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="boost"
+export APPURL="https://github.com/boostorg/${APPNAME}.git"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
-git clone --recursive https://github.com/boostorg/boost.git -b boost-${BOOSTVER} /opt/boost-${BOOSTVER} && \
-cd /opt/boost-${BOOSTVER} && \
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+  rm -f ${SRCDIR}/modfile
+fi
+module load \
+  openmpi && \
+cd ${SRCDIR} && \
+git clone \
+  --recursive \
+  ${APPURL} \
+  -b ${APPNAME}-${APPVER} \
+  ${SRCDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
+cd ${SRCDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
 ./bootstrap.sh --with-toolset=gcc && \
 echo "using mpi ;" >> project-config.jam && \
 ./b2 -j$(nproc) \
-  --prefix=/usr/local/boost/${BOOSTVER} \
+  --prefix=${APPROOT} \
   --layout=versioned \
   toolset=gcc \
   variant=release \
@@ -33,19 +52,13 @@ echo "using mpi ;" >> project-config.jam && \
   threading=multi \
   install && \
 ./b2 -j$(nproc) \
-  --prefix=/usr/local/boost/${BOOSTVER} \
+  --prefix=${APPROOT} \
   --layout=system \
   toolset=gcc \
   variant=release \
   link=shared,static \
   threading=multi \
   install && \
-cd /usr/local/modulefiles/dev/boost && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/boost/${BOOSTVER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${BOOSTVER}" >> .version && \
-cd /opt && \
+cd ${SRCDIR}/${APPNAME} && \
 rm -rf \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/boost-${BOOSTVER}
+  ${SRCDIR}/${APPNAME}/${APPNAME}-${APPVER}
