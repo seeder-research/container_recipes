@@ -5,34 +5,51 @@ From: pre.sif
 modfile    /opt
 
 %post
-. /etc/profile.d/modules.sh
+. /etc/profile
 export TERM=xterm
-export HWLOCVER_MAJOR=1
-export HWLOCVER_MINOR=11
-export HWLOCVER_REV=13
-export HWLOCVER=${HWLOCVER_MAJOR}.${HWLOCVER_MINOR}.${HWLOCVER_REV}
-export MODULEPATH=/usr/local/modulefiles/dev:$MODULEPATH
-cd /opt && \
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=1
+export APPVER_MIN=11
+export APPVER_PATCH=13
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPNAME="hwloc"
+export APPFILE="${APPNAME}-${APPVER}.tar.bz2"
+export APPURL="https://download.open-mpi.org/release/${APPNAME}/v${APPVER_MAJ}.${APPVER_MIN}/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  https://download.open-mpi.org/release/hwloc/v${HWLOCVER_MAJOR}.${HWLOCVER_MINOR}/hwloc-${HWLOCVER}.tar.bz2 && \
-tar xf /opt/hwloc-${HWLOCVER}.tar.bz2 && \
-cd /opt/hwloc-${HWLOCVER} && \
+  ${APPURL} && \
+tar xf \
+  ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
 ./configure \
-  --prefix=/usr/local/hwloc/${HWLOCVER} \
+  --prefix=${APPROOT} \
   --enable-plugins \
   --enable-shared \
   --enable-static && \
 make -j$(nproc) && \
 make install && \
-cd /usr/local/hwloc/${HWLOCVER}/lib && \
-mkdir -p /usr/local/modulefiles/dev/hwloc && \
+cd ${APPROOT}/lib && \
 ln -s libhwloc.a libhwloc_embedded.a && \
-cd /usr/local/modulefiles/dev/hwloc && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${HWLOCVER}" >> .version && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/hwloc/${HWLOCVER} && \
-cd /opt && \
+cd ${SRCDIR} && \
 rm -rf \
-  /opt/hwloc-${HWLOCVER} \
-  /opt/hwloc-${HWLOCVER}.tar.bz2
+  ${SRCDIR}/${APPNAME}-${APPVER} \
+  ${SRCDIR}/${APPFILE}

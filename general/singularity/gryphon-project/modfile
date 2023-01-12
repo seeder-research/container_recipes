@@ -2,8 +2,9 @@
 ##
 ## modulefile
 ##
-set               name              gryphon-project
-set               root              /usr/local/${name}
+set               name              [file tail [file dirname [info script]]]
+set               version           [file tail [info script]]
+set               root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 

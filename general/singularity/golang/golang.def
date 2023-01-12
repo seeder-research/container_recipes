@@ -5,30 +5,64 @@ From: pre.sif
 modfile    /opt
 
 %post
-export GOVER=1.18.3
-cd /opt && \
-wget --no-check-certificate https://dl.google.com/go/go${GOVER}.src.tar.gz
-wget --no-check-certificate https://dl.google.com/go/go${GOVER}.linux-amd64.tar.gz
-mkdir -p /usr/local/golang && \
-cd /usr/local/golang && \
-tar xf /opt/go${GOVER}.linux-amd64.tar.gz
-mv go goTmp
-tar xf /opt/go${GOVER}.src.tar.gz
-mv go ${GOVER}
-export GOROOT_BOOTSTRAP=/usr/local/golang/goTmp
-cd /usr/local/golang/${GOVER}/src && \
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=1
+export APPVER_MIN=19
+export APPVER_PATCH=4
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPNAME="golang"
+export APPFILE1="go${APPVER}.src.tar.gz"
+export APPFILE2="go${APPVER}.linux-amd64.tar.gz"
+export APPURL1="https://dl.google.com/go/${APPFILE1}"
+export APPURL2="https://dl.google.com/go/${APPFILE2}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+if [ ! -d ${HOME_BASE}/${APPNAME} ]; then
+    mkdir -p ${HOME_BASE}/${APPNAME}
+fi
+if [ ! -d ${SRCDIR}/godoc ]; then
+    mkdir -p ${SRCDIR}/godoc
+fi
+module load \
+  golang/${APPVER}
+export GOROOT_BOOTSTRAP=${HOME_BASE}/${APPNAME}/goTmp
+cd ${SRCDIR} && \
+wget --no-check-certificate \
+  ${APPURL1} && \
+wget --no-check-certificate 
+  ${APPURL2} && \
+cd ${HOME_BASE}/${APPNAME} && \
+tar xf ${SRCDIR}/${APPFILE2}
+mv go goTmp && \
+tar xf ${SRCDIR}/${APPFILE1}
+mv go ${APPVER} && \
+cd ${HOME_BASE}/${APPNAME}/${APPVER}/src && \
 ./make.bash && \
-cd /opt && \
+export GOPATH=${SRCDIR}/godoc
+cd ${SRCDIR} && \
 rm -rf \
-  /usr/local/golang/goTmp \
-  *.tar.gz
-mkdir -p /opt/godoc 
-export GOPATH=/opt/godoc
-export PATH=/usr/local/golang/${GOVER}/bin:$PATH
+  ${GOROOT_BOOTSTRAP} \
+  ${SRCDIR}/${APPFILE1} \
+  ${SRCDIR}/${APPFILE2}
 go get golang.org/x/tools/cmd/godoc && \
-mv /opt/godoc/bin/godoc /usr/local/golang/${GOVER}/bin/. && \
-rm -rf /opt/godoc
-mkdir -p /usr/local/modulefiles/dev/golang && \
-mv /opt/modfile /usr/local/modulefiles/dev/golang/${GOVER}
-echo "#%Module" > /usr/local/modulefiles/dev/golang/.version && \
-echo set ModulesVersion "${GOVER}" >> /usr/local/modulefiles/dev/golang/.version
+mv ${GOPATH}/bin/godoc ${APPROOT}/bin/. && \
+rm -rf \
+  ${GOPATH}

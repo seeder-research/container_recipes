@@ -6,31 +6,46 @@ modfile    /opt
 
 %post
 . /etc/profile
-. /.singularity.d/env/90-environment.sh
-export JULIAVER=1.4.0
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=1
+export APPVER_MIN=4
+export APPVER_PATCH=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPNAME="julia"
+export APPFILE="v${APPVER}.tar.gz"
+export APPURL="https://github.com/JuliaLang/${APPNAME}/archive/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 module load \
   openmpi \
   intel/mkl && \
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
-wget --no-check-certificate https://github.com/JuliaLang/julia/archive/v${JULIAVER}.tar.gz && \
-tar xf /opt/v${JULIAVER}.tar.gz && 
-cd /opt/julia-${JULIAVER} && \
-echo "prefix=/usr/local/julia/${JULIAVER}" > /opt/julia-${JULIAVER}/Make.user && \
+cd ${SRCDIR} && \
+wget --no-check-certificate \
+  ${APPURL} && \
+tar xf ${SRCDIR}/${APPFILE} && 
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
+echo "prefix=${APPROOT}" > ${SRCDIR}/${APPNAME}-${APPVER}/Make.user && \
 make -j$(nproc) \
   USE_INTEL_MKL=1 && \
 make install \
   USE_INTEL_MKL=1 && \
-mkdir -p /usr/local/modulefiles/dev/julia && \
-cd /usr/local/modulefiles/dev/julia && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/julia/${JULIAVER} && \
-echo "#%Module" > /usr/local/modulefiles/dev/julia/.version && \
-echo set ModulesVersion "${GOVER}" >> /usr/local/modulefiles/dev/julia/.version && \
 rm -rf \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/v${JULIAVER}.tar.gz \
-  /opt/julia-${JULIAVER}
+  ${SRCDIR}/${APPFILE} \
+  ${SRCDIR}/${APPNAME}-${APPVER}

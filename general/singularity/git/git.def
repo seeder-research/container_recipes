@@ -6,39 +6,38 @@ modfile        /opt
 
 %post
 . /etc/profile
-export HOME_BASE=/usr/local
-export APPSDIR=${HOME_BASE}/utils
+export HOME_BASE="/usr/local"
 export APPVER_MAJ=2
 export APPVER_MIN=38
 export APPVER_PATCH=1
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
 export APPNAME="git"
 export APPURL="https://github.com/git/git"
-export APPROOT=${APPSDIR}/${APPNAME}/${APPVER}
-export MOD_DIR=/opt
-export MOD_BASE=${HOME_BASE}/modulefiles/utils
-if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
-    mkdir -p ${MOD_BASE}/${APPNAME}
+export SRCDIR="/opt"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
-    if [ -f ${MOD_DIR}/modfile ]; then
-        mv ${MOD_DIR}/modfile \
-            ${MOD_BASE}/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
-    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
 fi
-if [ -f ${MOD_DIR}/modfile ]; then
-  rm -f ${MOD_DIR}/modfile
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
-cd ${APPSDIR}/${APPNAME} && \
+cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
   -b v${APPVER} \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
-cd ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
 make \
   prefix=${APPROOT} \
   all \
@@ -50,6 +49,6 @@ make \
   install-doc \
   install-html \
   install-info
-cd ${APPSDIR}/${APPNAME} && \
+cd ${SRCDIR} && \
 rm -rf \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER}
+  ${SRCDIR}/${APPNAME}-${APPVER}

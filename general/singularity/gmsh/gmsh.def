@@ -6,34 +6,52 @@ modfile                /opt
 
 %post
 . /etc/profile
-. /.singularity.d/env/90-environment.sh
-. /etc/profile.d/conda.sh
-export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=4
+export APPVER_MIN=5
+export APPVER_PATCH=6
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPNAME="gmsh"
+export APPFILE="${APPNAME}-${APPVER}-source.tgz"
+export APPURL="http://gmsh.info/src/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 module load openmpi \
   intel/mkl \
   fltk \
-  occt
-export GMSH_VER=4.5.6
-export FLTK_VER=1.3.5
-export OCCT_VER=7.4.0
-export MPICC=mpicc
-export MPICXX=mpic++
-export MPIFC=mpifort
-export MPIF77=mpifort
-export MPIF90=mpifort
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
+  occt \
+  conda
+export MPICC="$(which mpicc)"
+export MPICXX="$(which mpic++)"
+export MPIFC="$(which mpifort)"
+export MPIF77="$(which mpifort)"
+export MPIF90="$(which mpifort)"
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  http://gmsh.info/src/gmsh-${GMSH_VER}-source.tgz && \
-tar xf /opt/gmsh-${GMSH_VER}-source.tgz && \
-mkdir -p /opt/gmsh-builddir && \
-cd /opt/gmsh-builddir && \
+  ${APPURL} && \
+tar xf ${SRCDIR}/${APPFILE} && \
+mkdir -p ${SRCDIR}/${APPNAME}-builddir && \
 cmake \
-  -DCMAKE_INSTALL_PREFIX=/usr/local/gmsh/${GMSH_VER} \
-  -DCMAKE_PREFIX_PATH="/usr/local/fltk/${FLTK_VER};/usr/local/occt/${OCCT_VER}" \
+  -B ${SRCDIR}/${APPNAME}-builddir \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_PREFIX_PATH="${FLTK_ROOT};${OCCT_ROOT}" \
   -DENABLE_3M=ON \
   -DENABLE_BLAS_LAPACK=ON \
   -DBLAS_LAPACK_LIBRARIES="-L${MKLROOT}/lib/intel64 -lmkl_blas95_lp64 -lmkl_lapack95_lp64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core" \
@@ -43,17 +61,12 @@ cmake \
   -DENABLE_PETSC4PY=ON \
   -DENABLE_PETSC=ON \
   -DENABLE_OPENMP=ON \
-  /opt/gmsh-${GMSH_VER}-source && \
-make -j$(nproc) && \
-make install && \
-mkdir /usr/local/modulefiles/gmsh && \
-cd /usr/local/modulefiles/gmsh && \
-mv /opt/modfile \
-  /usr/local/modulefiles/gmsh/${GMSH_VER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${GMSH_VER}" >> .version && \
-cd /opt && \
-echo "export MODULEPATH=/usr/local/modulefiles:"'$'{MODULEPATH+:'$'{MODULEPATH}} >> /.singularity.d/env/90-environment.sh
+  ${SRCDIR}/${APPNAME}-${APPVER}-source && \
+cmake \
+  --build ${SRCDIR}/${APPNAME}-builddir \
+  -j$(nproc) \
+  --target install && \
+cd ${SRCDIR} && \
 rm -rf \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/gmsh-*
+  ${SRCDIR}/${APPFILE} \
+  ${SRCDIR}/${APPNAME}-*

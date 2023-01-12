@@ -5,26 +5,46 @@ From: pre.sif
 modfile        /opt
 
 %post
-export GLPKVER=4.65
-cd /opt && \
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=4
+export APPVER_MIN=65
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}"
+export APPNAME="glpk"
+export APPFILE="${APPNAME}-${APPVER}.tar.gz"
+export APPURL=" http://ftp.gnu.org/gnu/${APPNAME}/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  http://ftp.gnu.org/gnu/glpk/glpk-${GLPKVER}.tar.gz && \
-tar xf glpk-${GLPKVER}.tar.gz && \
-cd /opt/glpk-${GLPKVER} && \
+  ${APPURL} && \
+tar xf ${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
 ./configure \
-  --prefix=/usr/local/glpk/${GLPKVER} \
+  --prefix=${APPROOT} \
   --enable-dl=yes \
   --enable-shared=yes \
   --enable-static=yes && \
 make -j$(nproc) && \
 make install && \
-cd /opt && \
+cd ${SRCDIR} && \
 rm -rf \
-  /opt/glpk-${GLPKVER} \
-  /opt/glpk-${GLPKVER}.tar.gz && \
-mkdir -p /usr/local/modulefiles/dev/glpk && \
-cd /usr/local/modulefiles/dev/glpk && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/glpk/${GLPKVER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${GLPKVER}" >> .version
+  ${SRCDIR}/${APPNAME}-${APPVER} \
+  ${SRCDIR}/${APPFILE}
