@@ -6,8 +6,7 @@ modfile    /opt
 
 %post
 . /etc/profile
-export HOME_BASE=/usr/local
-export APPSDIR=${HOME_BASE}/libraries
+export HOME_BASE="/usr/local"
 export APPVER_MAJ=4
 export APPCVER_MIN=9
 export APPCVER_REV=0
@@ -15,43 +14,43 @@ export APPCXXVER_MIN=3
 export APPCXXVER_REV=1
 export APPFORTVER_MIN=6
 export APPFORTVER_REV=0
-export APPVER=${APPVER_MAJ}
-export APPCVER=${APPVER_MAJ}.${APPCVER_MIN}.${APPCVER_REV}
-export APPCXXVER=${APPVER_MAJ}.${APPCXXVER_MIN}.${APPCXXVER_REV}
-export APPFORTVER=${APPVER_MAJ}.${APPFORTVER_MIN}.${APPFORTVER_REV}
-export APPNAME=netcdf
+export APPVER="${APPVER_MAJ}"
+export APPCVER="${APPVER_MAJ}.${APPCVER_MIN}.${APPCVER_REV}"
+export APPCXXVER="${APPVER_MAJ}.${APPCXXVER_MIN}.${APPCXXVER_REV}"
+export APPFORTVER="${APPVER_MAJ}.${APPFORTVER_MIN}.${APPFORTVER_REV}"
+export APPNAME="netcdf"
 export APPCURL="https://github.com/Unidata/${APPNAME}-c/archive/refs/tags/v${APPCVER}.tar.gz"
 export APPCXXURL="https://github.com/Unidata/${APPNAME}-cxx4/archive/refs/tags/v${APPCXXVER}.tar.gz"
 export APPFORTURL="https://github.com/Unidata/${APPNAME}-fortran/archive/refs/tags/v${APPFORTVER}.tar.gz"
 export APPROOT=${APPSDIR}/${APPNAME}/${APPVER_MAJ}
-export MOD_DIR=/opt
-export MOD_BASE=${HOME_BASE}/modulefiles/dev
-if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
-    mkdir -p ${MOD_BASE}/${APPNAME}
+export SRCDIR="/opt"
+export MODDIR="/usr/local/modulefiles/dev"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
-    if [ -f ${MOD_DIR}/modfile ]; then
-        mv ${MOD_DIR}/modfile \
-            ${MOD_BASE}/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
-    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
 fi
-if [ -f ${MOD_DIR}/modfile ]; then
-  rm -f ${MOD_DIR}/modfile
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 module load \
   openmpi \
   hdf5 \
   pnetcdf \
   netcdf
-cd ${MOD_DIR} && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
   ${APPCURL} && \
-tar xf ${MOD_DIR}/v${APPCVER}.tar.gz && \
-cd ${MOD_DIR}/${APPNAME}-c-${APPCVER} && \
+tar xf ${SRCDIR}/v${APPCVER}.tar.gz && \
+cd ${SRCDIR}/${APPNAME}-c-${APPCVER} && \
 ./configure \
   --prefix=${APPROOT} \
   --enable-hdf5=yes \
@@ -62,13 +61,13 @@ cd ${MOD_DIR}/${APPNAME}-c-${APPCVER} && \
 make -j$(nproc) && \
 make install && \
 rm -rf \
-  ${MOD_DIR}/v${APPCVER}.tar.gz \
-  ${MOD_DIR}/${APPNAME}-* && \
-cd ${MOD_DIR} && \
+  ${SRCDIR}/v${APPCVER}.tar.gz \
+  ${SRCDIR}/${APPNAME}-* && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
   ${APPCXXURL} && \
-tar xf ${MOD_DIR}/v${APPCXXVER}.tar.gz && \
-cd ${MOD_DIR}/${APPNAME}-cxx4-${APPCXXVER} && \
+tar xf ${SRCDIR}/v${APPCXXVER}.tar.gz && \
+cd ${SRCDIR}/${APPNAME}-cxx4-${APPCXXVER} && \
 ./configure \
   --prefix=${APPROOT} \
   --enable-static=yes \
@@ -76,13 +75,13 @@ cd ${MOD_DIR}/${APPNAME}-cxx4-${APPCXXVER} && \
 make -j$(nproc) && \
 make install && \
 rm -rf \
-  ${MOD_DIR}/v${APPCXXVER}.tar.gz \
-  ${MOD_DIR}/${APPNAME}-* && \
-cd ${MOD_DIR} && \
+  ${SRCDIR}/v${APPCXXVER}.tar.gz \
+  ${SRCDIR}/${APPNAME}-* && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
   ${APPFORTURL} && \
-tar xf ${MOD_DIR}/v${APPFORTVER}.tar.gz && \
-cd ${MOD_DIR}/${APPNAME}-fortran-${APPFORTVER} && \
+tar xf ${SRCDIR}/v${APPFORTVER}.tar.gz && \
+cd ${SRCDIR}/${APPNAME}-fortran-${APPFORTVER} && \
 ./configure \
   --prefix=${APPROOT} \
   --enable-static=yes \
@@ -90,5 +89,5 @@ cd ${MOD_DIR}/${APPNAME}-fortran-${APPFORTVER} && \
 make && \
 make install && \
 rm -rf \
-  ${MOD_DIR}/v${APPFORTVER}.tar.gz \
-  ${MOD_DIR}/${APPNAME}-*
+  ${SRCDIR}/v${APPFORTVER}.tar.gz \
+  ${SRCDIR}/${APPNAME}-*

@@ -5,11 +5,37 @@ From: pre.sif
 modfile    /opt
 
 %post
-. /.singularity.d/env/90-environment.sh
 . /etc/profile
-. /etc/profile.d/conda.sh
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=3
+export APPVER_MIN=13
+export APPVER_PATCH=0
+export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}"
+export APPNAME="petsc4py"
+export APPFILE="${APPNAME}-${APPVER}.tar.gz"
+export APPURL="https://bitbucket.org/petsc/${APPNAME}/downloads/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
 module load \
+  conda \
   openmpi \
   hdf5 \
   pnetcdf \
@@ -22,33 +48,20 @@ module load \
   hypre \
   scotch \
   petsc
-export PETSC_VER=3.13.0
-export PETSC_DIR=${PETSC_ROOT}
 export PYVER=3.8
 export SEDSTR='s/@pyver@/'${PYVER}'/'
 conda install -y \
   cython
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  https://bitbucket.org/petsc/petsc4py/downloads/petsc4py-${PETSC_VER}.tar.gz && \
-tar xf /opt/petsc4py-${PETSC_VER}.tar.gz && \
-cd /opt/petsc4py-${PETSC_VER} && \
-/opt/conda/bin/python \
+  ${APPURL} && \
+tar xf ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
+${CONDA_DIR}/bin/python \
   setup.py \
   install \
-  --prefix=/usr/local/petsc4py/${PETSC_VER} && \
-mkdir -p /usr/local/modulefiles/dev/petsc4py && \
-sed -e ${SEDSTR} -i /opt/modfile && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/petsc4py/${PETSC_VER} && \
-cd /usr/local/modulefiles/dev/petsc4py && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${PETSC_VER}" >> .version && \
+  --prefix=${APPROOT} && \
+sed -e ${SEDSTR} -i ${MODDIR}/${APPNAME}/${APPVER} && \
 rm -rf \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/petsc4py-${PETSC_VER} \
-  /opt/petsc4py-${PETSC_VER}.tar.gz
+  ${SRCDIR}/${APPNAME}-${APPVER} \
+  ${SRCDIR}/${APPFILE}

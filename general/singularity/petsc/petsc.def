@@ -5,11 +5,37 @@ From: pre.sif
 modfile    /opt
 
 %post
-. /etc/profile.d/modules.sh
-. /etc/profile.d/conda.sh
-export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=3
+export APPVER_MIN=13
+export APPVER_PATCH=1
+export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}"
+export APPNAME="petsc"
+export APPFILE="${APPNAME}-${APPVER}.tar.gz"
+export APPURL="http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 module load \
   openmpi \
+  conda \
   hdf5 \
   pnetcdf \
   netcdf \
@@ -23,24 +49,19 @@ module load \
   mumps \
   combblas \
   superlu_dist
-export PETSC_VER=3.13.1
 conda install -y \
   cython
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-${PETSC_VER}.tar.gz && \
-tar xf petsc-${PETSC_VER}.tar.gz && \
-cd /opt/petsc-${PETSC_VER} && \
-sed -i "s/LargeDiag_AWPM/LargeDiag_HWPM/g" /opt/petsc-${PETSC_VER}/src/mat/impls/aij/mpi/superlu_dist/superlu_dist.c && \
+  ${APPURL} && \
+tar xf ${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
+sed -i "s/LargeDiag_AWPM/LargeDiag_HWPM/g" ${SRCDIR}/${APPNAME}-${APPVER}/src/mat/impls/aij/mpi/superlu_dist/superlu_dist.c && \
 ./configure \
   COPTFLAGS='-O3 -m64 -fopenmp -fPIC' \
   CXXOPTFLAGS='-O3 -m64 -fopenmp -fPIC' \
   FOPTFLAGS='-O3 -m64 -fopenmp -fPIC' \
-  --prefix=/usr/local/petsc/${PETSC_VER} \
+  --prefix=${APPROOT} \
   --with-mpi=1 \
   --with-mpi-dir=${MPI_ROOT} \
   --with-hdf5=1 \
@@ -68,20 +89,13 @@ sed -i "s/LargeDiag_AWPM/LargeDiag_HWPM/g" /opt/petsc-${PETSC_VER}/src/mat/impls
   --with-boost=1 \
   --with-boost-dir=${LIBBOOST_ROOT} \
   --with-python=1 \
-  --with-python-dir=/opt/conda \
+  --with-python-dir=${CONDA_DIR} \
   --with-zlib=1 \
   --enable-shared=yes \
   --enable-static=yes && \
 make all && \
 make install && \
-cd /opt && \
+cd ${SRCDIR} && \
 rm -rf \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/petsc-${PETSC_VER} \
-  /opt/petsc-${PETSC_VER}.tar.gz && \
-mkdir -p /usr/local/modulefiles/dev/petsc && \
-cd /usr/local/modulefiles/dev/petsc && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/petsc/${PETSC_VER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${PETSC_VER}" >> .version
+  ${SRCDIR}/${APPNAME}-${APPVER} \
+  ${SRCDIR}/${APPFILE}

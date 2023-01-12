@@ -10,33 +10,39 @@ export HOME_BASE="/usr/local"
 export APPVER_MAJ=1
 export APPVER_MIN=3
 export APPVER_PATCH=1
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
 export APPNAME="mpc"
 export APPFILE="${APPNAME}-${APPVER}.tar.gz"
 export APPURL="https://ftp.gnu.org/gnu/${APPNAME}/${APPFILE}"
-export SRCDIR=/opt
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles/dev"
-export CC=$(which gcc)
-export CXX=$(which g++)
+export CC="$(which gcc)"
+export CXX="$(which g++)"
 module load \
   gmp \
   mpfr
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
-  mkdir -p ${MODDIR}/${APPNAME}
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
-  mv ${SRCDIR}/modfile \
-    ${MODDIR}/${APPNAME}/${APPVER}
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
-  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
-  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 cd ${SRCDIR} && \
 wget --no-check-certificate \
   ${APPURL} && \
-tar xf ${SRCDIR}/${APPFILE} && \
+tar xf \
+  ${SRCDIR}/${APPFILE} && \
 cd ${SRCDIR}/${APPNAME}-${APPVER} && \
 ./configure \
   --prefix=${APPROOT} && \
@@ -45,7 +51,3 @@ make install && \
 rm -rf \
   ${SRCDIR}/${APPNAME}-${APPVER} \
   ${SRCDIR}/${APPFILE}
-
-if [ -e ${SRCDIR}/modfile ]; then
-  rm -rf ${SRCDIR}/modfile
-fi

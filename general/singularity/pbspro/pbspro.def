@@ -5,16 +5,16 @@ From: pre.sif
 modfile    /opt
 
 %post
-export HOME_BASE=/usr/local
-export APPNAME=pbspro
+export HOME_BASE="/usr/local"
+export APPNAME="pbspro"
 export APPVER_MAJ=22
 export APPVER_MIN=05
 export APPVER_REV=11
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPURL="https://github.com/openpbs/openpbs"
-export SRCDIR=/opt
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-export MODDIR=/usr/local/modulefiles/dev
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
     mkdir -p ${MODDIR}/${APPNAME}
 fi
@@ -24,12 +24,12 @@ if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
             ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ -f ${SRCDIR}/modfile ]; then
-    rm -f ${SRCDIR}/modfile
-fi
 if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
     echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 cd ${SRCDIR} && \
 git clone \

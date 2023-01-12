@@ -6,59 +6,76 @@ modfile    /opt
 
 %post
 . /etc/profile
-export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=4
+export APPVER_MIN=0
+export APPVER_PATCH=3
+export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}"
+export APPNAME="parmetis"
+export APPFILE="${APPNAME}-${APPVER}.tar.gz"
+export APPURL="http://glaros.dtc.umn.edu/gkhome/fetch/sw/${APPNAME}/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 module load \
   openmpi \
   metis
-export PARMETISVER=4.0.3
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/parmetis-${PARMETISVER}.tar.gz && \
-tar xf /opt/parmetis-${PARMETISVER}.tar.gz && \
-cd /opt/parmetis-${PARMETISVER} && \
+  ${APPFILE} && \
+tar xf \
+  ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
 make config \
   cc="mpicc -DIDXTYPEWIDTH=64" \
   cxx="mpicxx -DIDXTYPEWIDTH=64" \
-  prefix=/usr/local/parmetis/${PARMETISVER} && \
+  prefix=${APPROOT} && \
 make \
   cc="mpicc -DIDXTYPEWIDTH=64" \
   cxx="mpicxx -DIDXTYPEWIDTH=64" \
-  prefix=/usr/local/parmetis/${PARMETISVER} && \
+  prefix=${APPROOT} && \
 make install \
   cc="mpicc -DIDXTYPEWIDTH=64" \
   cxx="mpicxx -DIDXTYPEWIDTH=64" \
-  prefix=/usr/local/parmetis/${PARMETISVER} && \
-cd /opt && \
-rm -rf /opt/parmetis-${PARMETISVER} && \
-cd /opt && \
-tar xf /opt/parmetis-${PARMETISVER}.tar.gz && \
-cd /opt/parmetis-${PARMETISVER} && \
-make config \
-  cc="mpicc -DIDXTYPEWIDTH=64" \
-  cxx="mpicxx -DIDXTYPEWIDTH=64" \
-  prefix=/usr/local/parmetis/${PARMETISVER} \
-  shared=1 && \
-make \
-  cc="mpicc -DIDXTYPEWIDTH=64" \
-  cxx="mpicxx -DIDXTYPEWIDTH=64" \
-  prefix=/usr/local/parmetis/${PARMETISVER} \
-  shared=1 && \
-make install \
-  cc="mpicc -DIDXTYPEWIDTH=64" \
-  cxx="mpicxx -DIDXTYPEWIDTH=64" \
-  prefix=/usr/local/parmetis/${PARMETISVER} \
-  shared=1 && \
-mkdir /usr/local/modulefiles/dev/parmetis && \
-cd /usr/local/modulefiles/dev/parmetis && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/parmetis/${PARMETISVER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${PARMETISVER}" >> .version && \
-cd /opt && \
+  prefix=${APPROOT} && \
+cd ${SRCDIR} && \
 rm -rf \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/parmetis-*
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
+cd ${SRCDIR} && \
+tar xf \
+  ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-${APPVER} && \
+make config \
+  cc="mpicc -DIDXTYPEWIDTH=64" \
+  cxx="mpicxx -DIDXTYPEWIDTH=64" \
+  prefix=${APPROOT} \
+  shared=1 && \
+make \
+  cc="mpicc -DIDXTYPEWIDTH=64" \
+  cxx="mpicxx -DIDXTYPEWIDTH=64" \
+  prefix=${APPROOT} \
+  shared=1 && \
+make install \
+  cc="mpicc -DIDXTYPEWIDTH=64" \
+  cxx="mpicxx -DIDXTYPEWIDTH=64" \
+  prefix=${APPROOT} \
+  shared=1 && \
+cd ${SRCDIR} && \
+rm -rf \
+  ${SRCDIR}/${APPNAME}-*

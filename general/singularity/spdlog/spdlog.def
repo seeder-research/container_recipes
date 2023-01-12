@@ -10,22 +10,27 @@ export HOME_BASE="/usr/local"
 export APPVER_MAJ=1
 export APPVER_MIN=8
 export APPVER_PATCH=1
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
 export APPNAME="spdlog"
 export APPURL="https://github.com/gabime/${APPNAME}.git"
-export SRCDIR=/opt
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
-  mkdir -p ${MODDIR}/${APPNAME}
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
-  mv ${SRCDIR}/modfile \
-    ${MODDIR}/${APPNAME}/${APPVER}
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
-  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
-  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 cd ${SRCDIR} && \
 git clone --recursive \
@@ -51,7 +56,4 @@ if [ ! -d ${APPROOT}/lib ]; then
     cd ${APPROOT} && \
     ln -s ./lib64 lib
   fi
-fi
-if [ -e ${SRCDIR}/modfile ]; then
-  rm -rf ${SRCDIR}/modfile
 fi

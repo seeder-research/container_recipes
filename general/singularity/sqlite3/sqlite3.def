@@ -10,20 +10,13 @@ export HOME_BASE="/usr/local"
 export APPVER_MAJ=3
 export APPVER_MIN=39
 export APPVER_REV=4
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
-export APPURL="https://www.sqlite.org/2022/sqlite-autoconf-3390400.tar.gz"
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPFILE="sqlite-autoconf-3390400.tar.gz"
+export APPURL="https://www.sqlite.org/2022/${APPFILE}"
 export APPNAME="sqlite3"
 export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles/dev"
-export CPPFLAGS="-DSQLITE_ENABLE_FTS3=1            \
-                 -DSQLITE_ENABLE_FTS4=1            \
-                 -DSQLITE_ENABLE_RTREE=1           \
-                 -DSQLITE_ENABLE_COLUMN_METADATA=1 \
-                 -DSQLITE_ENABLE_UNLOCK_NOTIFY=1   \
-                 -DSQLITE_ENABLE_DBSTAT_VTAB=1     \
-                 -DSQLITE_SECURE_DELETE=1          \
-                 -DSQLITE_ENABLE_FTS3_TOKENIZER=1"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
     mkdir -p ${MODDIR}/${APPNAME}
 fi
@@ -38,12 +31,20 @@ if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
     echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
 fi
 if [ -f ${SRCDIR}/modfile ]; then
-  rm -f ${SRCDIR}/modfile
+    rm -f ${SRCDIR}/modfile
 fi
+export CPPFLAGS="-DSQLITE_ENABLE_FTS3=1            \
+                 -DSQLITE_ENABLE_FTS4=1            \
+                 -DSQLITE_ENABLE_RTREE=1           \
+                 -DSQLITE_ENABLE_COLUMN_METADATA=1 \
+                 -DSQLITE_ENABLE_UNLOCK_NOTIFY=1   \
+                 -DSQLITE_ENABLE_DBSTAT_VTAB=1     \
+                 -DSQLITE_SECURE_DELETE=1          \
+                 -DSQLITE_ENABLE_FTS3_TOKENIZER=1"
 cd ${SRCDIR} && \
 wget --no-check-certificate \
   ${APPURL} && \
-tar xf ${SRCDIR}/sqlite-autoconf-3390400.tar.gz && \
+tar xf ${SRCDIR}/${APPFILE} && \
 cd ${SRCDIR}/sqlite-autoconf-3390400 && \
 ./configure \
   --prefix=${APPROOT} \

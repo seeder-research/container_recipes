@@ -27,16 +27,10 @@ if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
     echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
-fi
-if [ ! -d ${SRCDIR}/builddir ]; then
-    mkdir -p ${SRCDIR}/builddir
-else
-    rm -rf ${SRCDIR}/builddir && \
-    mkdir -p ${SRCDIR}/builddir
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
 fi
 if [ -f ${SRCDIR}/modfile ]; then
-  rm -f ${SRCDIR}/modfile
+    rm -f ${SRCDIR}/modfile
 fi
 module load \
   libgeotiff \
@@ -48,21 +42,22 @@ git clone --recursive \
   ${SRCDIR}/${APPNAME}-${APPVER} && \
 cd ${SRCDIR}/builddir && \
 cmake \
+  -B ${SRCDIR}/builddir \
   -G "Unix Makefiles" \
   -DCMAKE_INSTALL_PREFIX=${APPROOT} \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_C_COMPILER=$(which gcc) \
-  -DCMAKE_CXX_COMPILER=$(which g++) \
+  -DCMAKE_C_COMPILER="$(which gcc)" \
+  -DCMAKE_CXX_COMPILER="$(which g++)" \
   -DCMAKE_EXE_LINKER_FLAGS="-L${SQLITE3_ROOT}/lib -lsqlite3" \
-  -DGDAL_INCLUDE_DIR=${GDAL_ROOT}/include \
-  -DGDAL_LIBRARY=${GDAL_ROOT}/lib/libgdal.so \
-  -DGEOTIFF_INCLUDE_DIR=${LIBGEOTIFF_ROOT}/include \
-  -DGEOTIFF_LIBRARY=${LIBGEOTIFF_ROOT}/lib/libgeotiff.so \
+  -DGDAL_INCLUDE_DIR="${GDAL_ROOT}/include" \
+  -DGDAL_LIBRARY="${GDAL_ROOT}/lib/libgdal.so" \
+  -DGEOTIFF_INCLUDE_DIR="${LIBGEOTIFF_ROOT}/include" \
+  -DGEOTIFF_LIBRARY="${LIBGEOTIFF_ROOT}/lib/libgeotiff.so" \
   ${SRCDIR}/${APPNAME}-${APPVER} && \
 cmake \
-  --build . \
+  --build ${SRCDIR}/builddir \
   -j$(nproc) \
-  -t install && \
+  --target install && \
 cd ${SRCDIR} && \
 rm -rf \
   ${SRCDIR}/builddir \

@@ -6,57 +6,56 @@ modfile        /opt
 
 %post
 . /etc/profile
-export HOME_BASE=/usr/local
-export APPSDIR=${HOME_BASE}/utils
+export HOME_BASE="/usr/local"
 export APPVER_MAJ=15
 export APPVER_MIN=0
 export APPVER_PATCH=2
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
 export APPNAME="llvm"
 export APPURL="https://github.com/llvm/llvm-project"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-export MOD_DIR=/opt
-export MOD_BASE=${HOME_BASE}/modulefiles/utils
-if [ ! -d ${MOD_BASE}/${APPNAME} ]; then
-    mkdir -p ${MOD_BASE}/${APPNAME}
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export SRCDIR="/opt"
+export MODDIR="/usr/local/modulefiles/dev"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/${APPVER} ]; then
-    if [ -f ${MOD_DIR}/modfile ]; then
-        mv ${MOD_DIR}/modfile \
-            ${MOD_BASE}/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ ! -f ${MOD_BASE}/${APPNAME}/.version ]; then
-    echo "#%Module" > ${MOD_BASE}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MOD_BASE}/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
 fi
-if [ -f ${MOD_DIR}/modfile ]; then
-  rm -f ${MOD_DIR}/modfile
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
-cd ${APPSDIR}/${APPNAME} && \
+cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
   -b llvmorg-${APPVER} \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} && \
+  ${SRCDIR}/${APPNAME}-${APPVER} && \
 mkdir -p \
-  ${APPSDIR}/${APPNAME}/builddir && \
-cmake -S ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} \
-  -B ${APPSDIR}/${APPNAME}/builddir \
+  ${SRCDIR}/builddir && \
+cmake -S ${SRCDIR}/${APPNAME}-${APPVER} \
+  -B ${SRCDIR}/builddir \
   -G "Unix Makefiles" \
   -DCMAKE_INSTALL_PREFIX=${APPROOT} \
   -DCMAKE_BUILD_TYPE="Release" \
-  -DCMAKE_CXX_COMPILER=$(which g++) \
-  -DCMAKE_C_COMPILER=$(which gcc) \
+  -DCMAKE_CXX_COMPILER="$(which g++)" \
+  -DCMAKE_C_COMPILER="$(which gcc)" \
   -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;flang;libclc;lld;lldb;mlir;openmp;polly;pstl" \
   -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind;compiler-rt" \
   -DLLVM_ENABLE_RTTI=ON \
   -DLLVM_BUILD_LLVM_DYLIB=ON && \
-cd ${APPSDIR}/${APPNAME} && \
+cd ${SRCDIR} && \
 cmake \
-  --build ${APPSDIR}/${APPNAME}/builddir \
+  --build ${SRCDIR}/builddir \
   -j$(nproc) \
-  -t install && \
-cd ${APPSDIR}/${APPNAME} && \
+  --target install && \
+cd ${SRCDIR} && \
 rm -rf \
-  ${APPSDIR}/${APPNAME}/${APPNAME}-${APPVER} \
-  ${APPSDIR}/${APPNAME}/builddir
+  ${SRCDIR}/${APPNAME}-${APPVER} \
+  ${SRCDIR}/builddir

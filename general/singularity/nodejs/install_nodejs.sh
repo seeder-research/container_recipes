@@ -3,8 +3,9 @@
 dist_id=`lsb_release -i`
 link=""
 pkgmgr=""
-nodejs_ver=14
-
+nodejs_ver="14"
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
 if [[ $dist_id =~ 'Ubuntu' ]]; then
     echo "Found Ubuntu distribution"
     link=https://deb.nodesource.com/setup_${nodejs_ver}.x

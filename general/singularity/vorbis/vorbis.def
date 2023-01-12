@@ -28,7 +28,10 @@ if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
     echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 module load \
   ogg
@@ -40,15 +43,16 @@ git clone --recursive \
 mkdir -p ${SRCDIR}/builddir && \
 cd ${SRCDIR}/builddir && \
 cmake \
+  -B ${SRCDIR}/builddir \
   -DCMAKE_INSTALL_PREFIX=${APPROOT} \
   -DCMAKE_BUILD_TYPE="Release" \
-  -DCMAKE_C_COMPILER=${CC} \
+  -DCMAKE_C_COMPILER="${CC}" \
   -DBUILD_SHARED_LIBS=ON \
   ${SRCDIR}/${APPNAME}-${APPVER} && \
 cmake \
-  --build . \
+  --build ${SRCDIR}/builddir \
   -j$(nproc) \
-  -t install && \
+  --target install && \
 cd ${SRCDIR} && \
 rm -rf \
   ${SRCDIR}/builddir \

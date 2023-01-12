@@ -13,7 +13,7 @@ export APPVER_REV=0
 export APPVER="${APPVER_MAJ}.${APPVER_MIN}"
 export APPNAME="vampire"
 export APPFILE="v${APPVER}.tar.gz"
-export APPURL="https://github.com/richard-evans/${APPNAME}"
+export APPURL="https://github.com/richard-evans/${APPNAME}/archive/refs/tags/${APPFILE}"
 export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles/umag"
@@ -28,7 +28,10 @@ if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
     echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 if [ ! -d ${APPROOT}/bin ]; then
     mkdir -pv \
@@ -60,7 +63,7 @@ module load \
   intel/mkl
 cd ${SRCDIR} && \
 wget --no-check-certificate \
-  https://github.com/richard-evans/${APPNAME}/archive/refs/tags/${APPFILE} && \
+  ${APPURL} && \
 tar xf ${SRCDIR}/${APPFILE} && \
 cd ${SRCDIR}/${APPNAME}-${APPVER} && \
 sed -i "s/sudo //g" makefile && \

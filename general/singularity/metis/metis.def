@@ -10,23 +10,28 @@ export HOME_BASE="/usr/local/libraries"
 export APPVER_MAJ=5
 export APPVER_MIN=2
 export APPVER_PATCH=1
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
 export APPNAME="metis"
 export APPURL="https://github.com/KarypisLab/METIS"
 export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles"
-export CC=$(which gcc)
+export CC="$(which gcc)"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
-  mkdir -p ${MODDIR}/${APPNAME}
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
-  mv ${SRCDIR}/modfile \
-    ${MODDIR}/${APPNAME}/${APPVER}
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
-  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
-  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 module load \
   gklib && \
@@ -34,21 +39,21 @@ cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
   -b v${APPVER} \
-  ${SRCDIR}/src && \
-cd ${SRCDIR}/src && \
+  ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/${APPNAME}-src && \
 make config \
-  cc=${CC} \
-  prefix=${APPROOT} \
-  gklib_path=${GKLIB_ROOT} \
+  cc="${CC}" \
+  prefix="${APPROOT}" \
+  gklib_path="${GKLIB_ROOT}" \
   i64=1 \
   r64=1 && \
 make && \
 make install && \
 make distclean && \
 make config \
-  cc=${CC} \
-  prefix=${APPROOT} \
-  gklib_path=${GKLIB_ROOT} \
+  cc="${CC}" \
+  prefix="${APPROOT}" \
+  gklib_path="${GKLIB_ROOT}" \
   i64=1 \
   r64=1 \
   shared=1 && \
@@ -56,8 +61,4 @@ make && \
 make install && \
 cd ${SRCDIR} && \
 rm -rf \
-  ${SRCDIR}/src
-
-if [ -e ${SRCDIR}/modfile ]; then
-  rm -rf ${SRCDIR}/modfile
-fi
+  ${SRCDIR}/${APPNAME}-src

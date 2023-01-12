@@ -10,24 +10,28 @@ export HOME_BASE="/usr/local"
 export APPVER_MAJ=6
 export APPVER_MIN=0
 export APPVER_PATCH=3
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
-export APPURL="https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/v${APPVER}.tar.gz"
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPFILE="v${APPVER}.tar.gz"
+export APPURL="https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/${APPFILE}"
 export APPNAME="suitesparse"
 export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
-  mkdir -p ${MODDIR}/${APPNAME}
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
-  if [ -f ${SRCDIR}/modfile ]; then
-    mv ${SRCDIR}/modfile \
-      ${MODDIR}/${APPNAME}/${APPVER}
-  fi
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
-  echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
-  echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 module load \
   intel/mkl \
@@ -42,34 +46,31 @@ export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DCMAKE_BUILD_TYPE=Release"
 export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DENABLE_CUDA=ON"
 export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DALLOW_64BIT_BLAS=ON"
 export CMAKE_OPTIONS="${CMAKE_OPTIONS} -DSUITESPARSE_CUDA_ARCHITECTURES=\"60;61\""
+export CC="$(which gcc)"
+export CXX="$(which g++)"
+export NVCC="$(which nvcc)"
 cd ${SRCDIR} && \
 wget --no-check-certificate \
   ${APPURL} && \
 tar xf ${SRCDIR}/v${APPVER}.tar.gz && \
 cd ${SRCDIR}/SuiteSparse-${APPVER} && \
 make library \
-  CC=gcc \
-  CXX=g++ \
   BLAS="-L/opt/intel/oneapi/mkl/latest/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
   LAPACK="-L/opt/intel/oneapi/mkl/latest/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
-  INSTALL=${APPROOT} \
-  NVCC=$(which nvcc) \
-  CUDA_PATH=${CUDAROOT} \
-  CUDART_LIB=${CUDART_LIB0} \
-  CUBLAS_LIB=${CUBLAS_LIB0} && \
+  INSTALL="${APPROOT}" \
+  CUDA_PATH="${CUDAROOT}" \
+  CUDART_LIB="${CUDART_LIB0}" \
+  CUBLAS_LIB="${CUBLAS_LIB0}" && \
 make install \
-  CC=gcc \
-  CXX=g++ \
   BLAS="-L/opt/intel/oneapi/mkl/latest/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
   LAPACK="-L/opt/intel/oneapi/mkl/latest/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl" \
-  INSTALL=${APPROOT} \
-  NVCC=$(which nvcc) \
-  CUDA_PATH=${CUDAROOT} \
-  CUDART_LIB=${CUDART_LIB0} \
-  CUBLAS_LIB=${CUBLAS_LIB0} && \
+  INSTALL="${APPROOT}" \
+  CUDA_PATH="${CUDAROOT}" \
+  CUDART_LIB="${CUDART_LIB0}" \
+  CUBLAS_LIB="${CUBLAS_LIB0}" && \
 cd ${SRCDIR} && \
 rm -rf \
-  ${SRCDIR}/v${APPVER}.tar.gz \
+  ${SRCDIR}/${APPFILE} \
   ${SRCDIR}/SuiteSparse-${APPVER}
 
 if [ ! -d ${APPROOT}/lib ]; then
@@ -77,7 +78,4 @@ if [ ! -d ${APPROOT}/lib ]; then
     cd ${APPROOT} && \
     ln -s ./lib64 lib
   fi
-fi
-if [ -f ${SRCDIR}/modfile ]; then
-  rm -rf ${SRCDIR}/modfile
 fi
