@@ -2,9 +2,38 @@ BootStrap: localimage
 From: pre.sif
 
 %post
-export CONDA_VERSION=latest
-cd /opt && \
-wget --quiet --no-check-certificate https://repo.continuum.io/miniconda/Miniconda3-${CONDA_VERSION}-Linux-x86_64.sh && \
-/bin/bash /opt/Miniconda3-${CONDA_VERSION}-Linux-x86_64.sh -f -b -p /opt/conda && \
-rm /opt/Miniconda3-${CONDA_VERSION}-Linux-x86_64.sh && \
-echo export PATH=/opt/conda/bin:'$PATH' > /etc/profile.d/conda.sh
+export HOME_BASE="/usr/local"
+export APPVER="latest"
+export APPNAME="miniconda3"
+export APPFILE="Miniconda3-${APPVER}-Linux-x86_64.sh"
+export APPURL="https://repo.continuum.io/miniconda"
+export SRCDIR="/opt"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+cd ${SRCDIR} && \
+wget \
+  --quiet \
+  --no-check-certificate \
+  ${APPURL}/${APPFILE} && \
+/bin/bash \
+  ${SRCDIR}/${APPFILE} \
+  -f -b -p \
+  ${APPROOT} && \
+rm -rf \
+  ${SRCDIR}/${APPFILE}

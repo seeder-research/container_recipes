@@ -6,25 +6,45 @@ modfile    /opt
 
 %post
 . /etc/profile
-export FLTKVER=1.3.5
-cd /opt && \
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=1
+export APPVER_MIN=3
+export APPVER_PATCH=5
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPNAME="fltk"
+export APPFILE="release-${APPVER}.tar.gz"
+export APPURL="https://github.com/${APPNAME}/${APPNAME}/archive/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  https://github.com/fltk/fltk/archive/release-${FLTKVER}.tar.gz && \
-tar xf /opt/release-${FLTKVER}.tar.gz && \
-cd /opt/fltk-release-${FLTKVER} && \
+  ${APPURL} && \
+tar xf ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-release-${APPVER} && \
 ./autogen.sh
 ./configure \
-  --prefix=/usr/local/fltk/${FLTKVER} \
+  --prefix=${APPROOT} \
   --enable-shared=yes && \
 make -j$(nproc) && \
 make install && \
-mkdir /usr/local/modulefiles/dev/fltk && \
-cd /usr/local/modulefiles/dev/fltk && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/fltk/${FLTKVER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${FLTKVER}" >> .version && \
-cd /opt && \
+cd ${SRCDIR} && \
 rm -rf \
-  /opt/fltk-release-${FLTKVER} \
-  /opt/release-${FLTKVER}.tar.gz
+  ${SRCDIR}/${APPNAME}-release-${FLTKVER} \
+  ${SRCDIR}/${APPFILE}

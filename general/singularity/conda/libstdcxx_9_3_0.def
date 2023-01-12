@@ -2,7 +2,9 @@ BootStrap: localimage
 From: pre.sif
 
 %post
-. /etc/profile.d/conda.sh && \
+. /etc/profile
+module load \
+  anaconda2
 conda install \
   -c conda-forge \
   -y \

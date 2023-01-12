@@ -2,15 +2,20 @@ BootStrap: localimage
 From: pre.sif
 
 %files
-dolfin_mod    /opt
-dolfin.patch    /opt
-mshr_mod      /opt
+dolfin_mod          /opt
+dolfin.patch        /opt
+mshr_mod            /opt
 
 %post
 . /etc/profile
 . /etc/profile.d/modules.sh
 . /etc/profile.d/conda.sh
-export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+export HOME_BASE="/usr/local"
+export MODDIR="/usr/local/modulefiles"
+export MODULEPATH="${MODDIR}:${MODDIR}/dev"
+export APPURL="https://bitbucket.org/fenics-project"
+export APPNAME="dolfin"
+export APPROOT="${HOME_BASE}/${APPNAME}"
 module load \
   openmpi \
   intel/mkl \
@@ -34,30 +39,64 @@ module load \
   petsc4py \
   slepc4py \
   sundials
-export CONDA_DIR=/opt/conda
-export CONDA_DIR=/opt/conda
-export FENICS_VER=2019.1.0
-export PYBIND11_VER=2.5.0
-export BOOST_ROOT=${LIBBOOST_ROOT}
-export BOOST_INCLUDEDIR=${LIBBOOST_ROOT}/include
-export BOOST_LIBRARYDIR=${LIBBOOST_ROOT}/lib
-export EIGEN_DIR=${SUITESPARSE_ROOT}
-export EIGEN3_ROOT=${SUITESPARSE_ROOT}
-export EIGEN3_ROOT_DIR=${SUITESPARSE_ROOT}
-export PETSC_DIR=${PETSC_ROOT}
+export CONDA_DIR="${HOME_BASE}/conda"
+export FENICS_VER="2019.1.0"
+export PYBIND11_VER="2.5.0"
+export BOOST_ROOT="${LIBBOOST_ROOT}"
+export BOOST_INCLUDEDIR="${LIBBOOST_ROOT}/include"
+export BOOST_LIBRARYDIR="${LIBBOOST_ROOT}/lib"
+export EIGEN_DIR="${SUITESPARSE_ROOT}"
+export EIGEN3_ROOT="${SUITESPARSE_ROOT}"
+export EIGEN3_ROOT_DIR="${SUITESPARSE_ROOT}"
+export PETSC_DIR="${PETSC_ROOT}"
 export PETSC_ARCH=""
-export SUNDIALS_DIR=${SUNDIALS_ROOT}
-export SCOTCH_DIR=${SCOTCH_ROOT}
-export SLEPC_DIR=${SLEPC_ROOT}
+export SUNDIALS_DIR="${SUNDIALS_ROOT}"
+export SCOTCH_DIR="${SCOTCH_ROOT}"
+export SLEPC_DIR="${SLEPC_ROOT}"
 export CXXFLAGS="-I${PETSC_ROOT}/include"
 export LDFLAGS="-L${PETSC_ROOT}/lib -lpetsc"
-export PYVER=3.8
+export PYVER="3.8"
 export SEDSTR='s/@pyver@/'${PYVER}'/'
+export SRCDIR="/opt"
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
 export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
 export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
 cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
+if [ ! -d ${MODDIR}/dolfin ]; then
+    mkdir -p ${MODDIR}/dolfin
+fi
+if [ ! -f ${MODDIR}/dolfin/${APPVER} ]; then
+    if [ -f ${SRCDIR}/dolfin_mod ]; then
+        sed -e ${SEDSTR} -i ${SRCDIR}/dolfin_mod && \
+        mv ${SRCDIR}/dolfin_mod \
+            ${MODDIR}/dolfin/${FENICS_VER}
+    fi
+fi
+if [ ! -f ${MODDIR}/dolfin/.version ]; then
+    echo "#%Module" > ${MODDIR}/dolfin/.version && \
+    echo set ModulesVersion \"${FENICS_VER}\" >> ${MODDIR}/dolfin/.version
+fi
+if [ -f ${SRCDIR}/dolfin_mod ]; then
+    rm -f ${SRCDIR}/dolfin_mod
+fi
+if [ ! -d ${MODDIR}/mshr ]; then
+    mkdir -p ${MODDIR}/mshr
+fi
+if [ ! -f ${MODDIR}/mshr/${FENICS_VER} ]; then
+    if [ -f ${SRCDIR}/mshr_mod ]; then
+        sed -e ${SEDSTR} -i ${SRCDIR}/mshr_mod && \
+        mv ${SRCDIR}/mshr_mod \
+            ${MODDIR}/mshr/${FENICS_VER}
+    fi
+fi
+if [ ! -f ${MODDIR}/mshr/.version ]; then
+    echo "#%Module" > ${MODDIR}/mshr/.version && \
+    echo set ModulesVersion \"${FENICS_VER}\" >> ${MODDIR}/mshr/.version
+fi
+if [ -f ${SRCDIR}/mshr_mod ]; then
+    rm -f ${SRCDIR}/mshr_mod
+fi
+cd ${SRCDIR} && \
 ${CONDA_DIR}/bin/conda config --add \
   channels anaconda && \
 ${CONDA_DIR}/bin/conda install -y \
@@ -77,23 +116,26 @@ ${CONDA_DIR}/bin/pip install -e \
 ${CONDA_DIR}/bin/pip install -e \
   git+https://bitbucket.org/fenics-project/ffc.git@${FENICS_VER}#egg=fenics-ffc && \
 export FENICS_VERSION=$(${CONDA_DIR}/bin/python -c "import ffc; print(ffc.__version__)")
-cd /opt && \
-git clone https://bitbucket.org/fenics-project/dolfin -b ${FENICS_VERSION}.post0 && \
-cd /opt/dolfin && \
-patch -p0 < /opt/dolfin.patch && \
-mkdir -p /opt/dolfin-build && \
-cd /opt/dolfin-build && \
+cd ${SRCDIR} && \
+git clone --recursive \
+  ${APPURL}/dolfin \
+  -b ${FENICS_VERSION}.post0 \
+  dolfin-src && \
+cd ${SRCDIR}/dolfin-src && \
+patch -p0 < ${SRCDIR}/dolfin.patch && \
+mkdir -p ${SRCDIR}/dolfin-build && \
+cd ${SRCDIR}/dolfin-build && \
 cmake \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX=/usr/local/dolfin/${FENICS_VER} \
-  -DAMD_DIR=${SUITESPARSE_ROOT} \
+  -DCMAKE_INSTALL_PREFIX="${APPROOT}/${FENICS_VER}" \
+  -DAMD_DIR="${SUITESPARSE_ROOT}" \
   -DBLA_VENDOR="Intel10_64lp_seq" \
-  -DBOOST_ROOT=${LIBBOOST_ROOT} \
-  -DCHOLMOD_DIR=${SUITESPARSE_ROOT} \
-  -DEIGEN3_INCLUDE_DIR=${SUITESPARSE_ROOT}/include \
-  -DPARMETIS_DIR=${PARMETIS_ROOT} \
-  -DSCOTCH_DIR=${SCOTCH_ROOT} \
-  -DUMFPACK_DIR=${SUITESPARSE_ROOT} \
+  -DBOOST_ROOT="${LIBBOOST_ROOT}" \
+  -DCHOLMOD_DIR="${SUITESPARSE_ROOT}" \
+  -DEIGEN3_INCLUDE_DIR="${SUITESPARSE_ROOT}/include" \
+  -DPARMETIS_DIR="${PARMETIS_ROOT}" \
+  -DSCOTCH_DIR="${SCOTCH_ROOT}" \
+  -DUMFPACK_DIR="${SUITESPARSE_ROOT}" \
   -DDOLFIN_ENABLE_MPI=ON \
   -DDOLFIN_ENABLE_PETSC=ON \
   -DDOLFIN_ENABLE_PARMETIS=ON \
@@ -104,56 +146,43 @@ cmake \
   -DDOLFIN_ENABLE_SUNDIALS=ON \
   -DDOLFIN_ENABLE_HDF5=ON \
   -DDOLFIN_SKIP_BUILD_TESTS=ON \
-  /opt/dolfin && \
+  ${SRCDIR}/dolfin-src && \
 make -j$(nproc) && \
 make install && \
-cd /opt/dolfin/python && \
-export PYBIND11_DIR=/usr/local/pybind11/${PYBIND11_VER}/share/cmake/pybind11 && \
-export DOLFIN_DIR=/usr/local/dolfin/${FENICS_VER}/share/dolfin/cmake && \
-sed -e 's/pybind11==/pybind11>=/' -i /opt/dolfin/python/setup.py && \
+cd ${SRCDIR}/${APPNAME}/python && \
+export PYBIND11_DIR="${HOME_BASE}/pybind11/${PYBIND11_VER}/share/cmake/pybind11" && \
+export DOLFIN_DIR="${APPROOT}/${FENICS_VER}/share/dolfin/cmake" && \
+sed -e 's/pybind11==/pybind11>=/' -i ${SRCDIR}/dolfin/python/setup.py && \
 ${CONDA_DIR}/bin/python \
   setup.py \
   install \
-  --prefix=/usr/local/dolfin/${FENICS_VER} && \
-mkdir -p /usr/local/modulefiles/dolfin && \
-cd /usr/local/modulefiles/dolfin && \
-sed -i "s/@pver@/${FENICS_VER}/g" /opt/dolfin_mod && \
-sed -e ${SEDSTR} -i /opt/dolfin_mod && \
-mv /opt/dolfin_mod \
-  /usr/local/modulefiles/dolfin/${FENICS_VER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${FENICS_VER}" >> .version && \
+  --prefix="${APPROOT}/${FENICS_VER}" && \
 module load \
   dolfin && \
-cd /opt && \
-git clone https://bitbucket.org/fenics-project/mshr -b ${FENICS_VERSION} && \
-mkdir -p /opt/mshr-build && \
-cd /opt/mshr-build && \
+cd ${SRCDIR} && \
+git clone \
+  ${APPURL}/mshr \
+  -b ${FENICS_VERSION} \
+  mshr-src && \
+mkdir -p ${SRCDIR}/mshr-build && \
+cd ${SRCDIR}/mshr-build && \
 cmake \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX=/usr/local/mshr/${FENICS_VER} \
+  -DCMAKE_INSTALL_PREFIX="${HOME_BASE}/mshr/${FENICS_VER}" \
   -DBLA_VENDOR="Intel10_64lp_seq" \
-  -DBOOST_ROOT=${LIBBOOST_ROOT} \
-  -DEIGEN3_INCLUDE_DIR=${SUITESPARSE_ROOT}/include \
-  /opt/mshr && \
+  -DBOOST_ROOT="${LIBBOOST_ROOT}" \
+  -DEIGEN3_INCLUDE_DIR="${SUITESPARSE_ROOT}/include" \
+  ${SRCDIR}/mshr-src && \
 make -j$(nproc) && \
 make install && \
-mkdir -p /usr/local/modulefiles/mshr && \
-cd /usr/local/modulefiles/mshr && \
-sed -i "s/@pver@/${FENICS_VER}/g" /opt/mshr_mod && \
-sed -e ${SEDSTR} -i /opt/mshr_mod && \
-mv /opt/mshr_mod \
-  /usr/local/modulefiles/mshr/${FENICS_VER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${FENICS_VER}" >> .version && \
 module load \
   mshr && \
-cd /opt/mshr/python && \
+cd ${SRCDIR}/mshr/python && \
 export PYBIND11_DIR=PYBIND11_ROOT && \
 ${CONDA_DIR}/bin/python \
   setup.py \
   install \
-  --prefix=/usr/local/mshr/${FENICS_VER} && \
+  --prefix=${HOME_BASE}/mshr/${FENICS_VER} && \
 echo ". /etc/profile.d/modules.sh" >> /.singularity.d/env/90-environment.sh && \
 echo ". /etc/profile.d/conda.sh" >> /.singularity.d/env/90-environment.sh && \
 echo "module load \\" >> /.singularity.d/env/90-environment.sh && \
@@ -187,7 +216,7 @@ echo "  dolfin \\" >> /.singularity.d/env/90-environment.sh && \
 echo "  mshr" >> /.singularity.d/env/90-environment.sh && \
 rm -rf \
   /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/dolfin-build \
-  /opt/dolfin \
-  /opt/mshr-build \
-  /opt/mshr
+  ${SRCDIR}/dolfin-build \
+  ${SRCDIR}/dolfin-src \
+  ${SRCDIR}/mshr-build \
+  ${SRCDIR}/mshr-src
