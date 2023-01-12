@@ -2,10 +2,13 @@
 ##
 ## modulefile
 ##
-set              name              [file tail [file dirname [info script]]]
-set              version           [file tail [info script]]
-set              pyver             @pyver@
-set              root              /usr/local/${name}/${version}
+
+prereq petsc
+
+set                 name              [file tail [file dirname [info script]]]
+set                 version           [file tail [info script]]
+set                 pyver             @pyver@
+set                 root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
@@ -14,6 +17,4 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} library (version ${version}) to your environment variables."
 
-prereq        petsc
-
-prepend-path      PYTHONPATH        ${root}/lib/python${pyver}/site-packages
+prepend-path        PYTHONPATH        ${root}/lib/python${pyver}/site-packages

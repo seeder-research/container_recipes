@@ -2,9 +2,9 @@
 ##
 ## modulefile
 ##
-set              name              [file tail [file dirname [info script]]]
-set              version           [file tail [info script]]
-set              root              /usr/local/${name}/${version}
+set                 name              [file tail [file dirname [info script]]]
+set                 version           [file tail [info script]]
+set                 root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
@@ -13,8 +13,6 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment variables."
 
-setenv            QE_ROOT           ${root}
+setenv              QE_ROOT           ${root}
 
-prepend-path      PATH              ${root}/bin
-
-
+prepend-path        PATH              ${root}/bin

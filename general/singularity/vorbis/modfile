@@ -5,9 +5,9 @@
 
 prereq ogg
 
-set              name              [file tail [file dirname [info script]]]
-set              version           [file tail [info script]]
-set              root              /usr/local/${name}/${version}
+set                 name              [file tail [file dirname [info script]]]
+set                 version           [file tail [info script]]
+set                 root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
@@ -26,4 +26,5 @@ prepend-path        LD_RUN_PATH       ${root}/lib
 prepend-path        PKG_CONFIG_PATH   ${root}/lib/pkgconfig
 
 prepend-path -d ";" CMAKE_MODULE_PATH ${root}/lib/cmake/Vorbis
+
 prepend-path -d ";" CMAKE_PREFIX_PATH ${root}

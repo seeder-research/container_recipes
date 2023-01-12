@@ -2,12 +2,13 @@
 ##
 ## modulefile
 ##
+
 prereq gmp
 prereq mpfr
 
-set               name              [file tail [file dirname [info script]]]
-set               version           [file tail [info script]]
-set               root              /usr/local/${name}/${version}
+set                 name              [file tail [file dirname [info script]]]
+set                 version           [file tail [info script]]
+set                 root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
@@ -16,14 +17,13 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} library ${version} to your environment."
 
+setenv              MPC_ROOT          ${root}
 
-setenv            MPC_ROOT          ${root}
+prepend-path        CPATH             ${root}/include
+prepend-path        INCLUDE_PATH      ${root}/include
 
-prepend-path      CPATH             ${root}/include
-prepend-path      INCLUDE_PATH      ${root}/include
+prepend-path        LD_LIBRARY_PATH   ${root}/lib
+prepend-path        LIBRARY_PATH      ${root}/lib
+prepend-path        LD_RUN_PATH       ${root}/lib
 
-prepend-path      LD_LIBRARY_PATH   ${root}/lib
-prepend-path      LIBRARY_PATH      ${root}/lib
-prepend-path      LD_RUN_PATH       ${root}/lib
-
-prepend-path      INFOPATH          ${root}/share/info
+prepend-path        INFOPATH          ${root}/share/info

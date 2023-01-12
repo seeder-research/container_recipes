@@ -3,11 +3,11 @@
 ## modulefile
 ##
 
-prereq    bison
+prereq bison
 
-set               name              [file tail [file dirname [info script]]]
-set               version           [file tail [info script]]
-set               root              /usr/local/${name}/${version}
+set                 name              [file tail [file dirname [info script]]]
+set                 version           [file tail [info script]]
+set                 root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
@@ -16,13 +16,13 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment."
 
-prepend-path      PATH              ${root}/bin
+prepend-path        PATH              ${root}/bin
 
-prepend-path      INCLUDE_PATH      ${root}/include
-prepend-path      CPATH             ${root}/include
+prepend-path        CPATH             ${root}/include
+prepend-path        INCLUDE_PATH      ${root}/include
 
-prepend-path      LD_LIBRARY_PATH   ${root}/lib
-prepend-path      LIBRARY_PATH      ${root}/lib
-prepend-path      LD_RUN_PATH       ${root}/lib
+prepend-path        LD_LIBRARY_PATH   ${root}/lib
+prepend-path        LIBRARY_PATH      ${root}/lib
+prepend-path        LD_RUN_PATH       ${root}/lib
 
-prepend-path      MANPATH           ${root}/share/man
+prepend-path        MANPATH           ${root}/share/man

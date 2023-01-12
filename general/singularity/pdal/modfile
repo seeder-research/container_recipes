@@ -3,12 +3,12 @@
 ## modulefile
 ##
 
-prereq libgeotiff
 prereq gdal
+prereq libgeotiff
 
-set              name              [file tail [file dirname [info script]]]
-set              version           [file tail [info script]]
-set              root              /usr/local/${name}/${version}
+set                 name              [file tail [file dirname [info script]]]
+set                 version           [file tail [info script]]
+set                 root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
@@ -17,17 +17,17 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment variables."
 
-setenv            PDAL_ROOT         ${root}
+setenv              PDAL_ROOT         ${root}
 
-prepend-path      PATH              ${root}/bin
+prepend-path        PATH              ${root}/bin
 
-prepend-path      CPATH             ${root}/include
-prepend-path      INCLUDE_PATH      ${root}/include
+prepend-path        CPATH             ${root}/include
+prepend-path        INCLUDE_PATH      ${root}/include
 
-prepend-path      LD_LIBRARY_PATH   ${root}/lib
-prepend-path      LIBRARY_PATH      ${root}/lib
-prepend-path      LD_RUN_PATH       ${root}/lib
+prepend-path        LD_LIBRARY_PATH   ${root}/lib
+prepend-path        LIBRARY_PATH      ${root}/lib
+prepend-path        LD_RUN_PATH       ${root}/lib
 
-prepend-path      PKG_CONFIG_PATH   ${root}/lib/pkgconfig
+prepend-path        PKG_CONFIG_PATH   ${root}/lib/pkgconfig
 
-prepend-path -d ";"    CMAKE_MODULE_PATH    ${root}/lib/cmake
+prepend-path -d ";" CMAKE_MODULE_PATH ${root}/lib/cmake

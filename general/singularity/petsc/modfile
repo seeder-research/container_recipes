@@ -2,9 +2,16 @@
 ##
 ## modulefile
 ##
-set              name              [file tail [file dirname [info script]]]
-set              version           [file tail [info script]]
-set              root              /usr/local/${name}/${version}
+
+prereq openmpi
+prereq intel/mkl
+prereq suitesparse
+prereq hypre
+prereq scotch
+
+set                 name              [file tail [file dirname [info script]]]
+set                 version           [file tail [info script]]
+set                 root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
@@ -13,22 +20,17 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} library (version ${version}) to your environment variables."
 
-prereq        openmpi
-prereq        intel/mkl
-prereq        suitesparse
-prereq        hypre
-prereq        scotch
+setenv              PETSC_ROOT        ${root}
 
-setenv            PETSC_ROOT        ${root}
+prepend-path        PATH              ${root}/bin
 
-prepend-path      PATH              ${root}/bin
+prepend-path        CPATH             ${root}/include
+prepend-path        INCLUDE_PATH      ${root}/include
 
-prepend-path      LD_LIBRARY_PATH   ${root}/lib
-prepend-path      LD_RUN_PATH       ${root}/lib
-prepend-path      LIBRARY_PATH      ${root}/lib
+prepend-path        LD_LIBRARY_PATH   ${root}/lib
+prepend-path        LIBRARY_PATH      ${root}/lib
+prepend-path        LD_RUN_PATH       ${root}/lib
 
-prepend-path      INCLUDE_PATH      ${root}/include
+prepend-path        PKG_CONFIG_PATH   ${root}/lib/pkgconfig
 
-prepend-path      PKG_CONFIG_PATH   ${root}/lib/pkgconfig
-
-prepend-path      CMAKE_PREFIX_PATH ${root}/lib/petsc/conf
+prepend-path -d ";" CMAKE_PREFIX_PATH ${root}/lib/petsc/conf

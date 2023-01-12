@@ -2,9 +2,9 @@
 ##
 ## modulefile
 ##
-set              name              [file tail [file dirname [info script]]]
-set              version           [file tail [info script]]
-set              root              /usr/local/${name}/installdir
+set                 name              [file tail [file dirname [info script]]]
+set                 version           [file tail [info script]]
+set                 root              /usr/local/${name}/installdir
 
 proc ModulesHelp { } {
 
@@ -13,20 +13,19 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment variables."
 
-set               userhome          $::env(HOME)
+set                 userhome          $::env(HOME)
 
-setenv            TEXDIR            ${root}
+setenv              TEXDIR            ${root}
 
-prepend-path      PATH              ${root}/bin/x86_64-linux
+prepend-path        PATH              ${root}/bin/x86_64-linux
 
-setenv            TEXMFCONFIG       ${userhome}/.texlive/texmf-config
-setenv            TEXMFHOME         ${userhome}/texmf
-setenv            TEXMFLOCAL        ${root}/../texmf-local
-setenv            TEXMFSYSCONFIG    ${root}/texmf-config
-setenv            TEXMFSYSCVAR      ${root}/texmf-VAR
-setenv            TEXMFVAR          ${userhome}/.texlive/texmf-var
+setenv              TEXMFCONFIG       ${userhome}/.texlive/texmf-config
+setenv              TEXMFHOME         ${userhome}/texmf
+setenv              TEXMFLOCAL        ${root}/../texmf-local
+setenv              TEXMFSYSCONFIG    ${root}/texmf-config
+setenv              TEXMFSYSCVAR      ${root}/texmf-VAR
+setenv              TEXMFVAR          ${userhome}/.texlive/texmf-var
 
-prepend-path      MANPATH           ${root}/texmf-dist/doc/man
+prepend-path        MANPATH           ${root}/texmf-dist/doc/man
 
-prepend-path      INFOPATH          ${root}/texmf-dist/doc/info
-
+prepend-path        INFOPATH          ${root}/texmf-dist/doc/info

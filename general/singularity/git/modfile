@@ -2,9 +2,9 @@
 ##
 ## modulefile
 ##
-set               name              [file tail [file dirname [info script]]]
-set               version           [file tail [info script]]
-set               root              /usr/local/${name}/${version}
+set                 name              [file tail [file dirname [info script]]]
+set                 version           [file tail [info script]]
+set                 root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
@@ -13,10 +13,10 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment."
 
-setenv            GIT_ROOT          ${root}
+setenv              GIT_ROOT          ${root}
 
-prepend-path      PATH              ${root}/bin
+prepend-path        PATH              ${root}/bin
 
-prepend-path      MANPATH           ${root}/share/man
+prepend-path        MANPATH           ${root}/share/man
 
-prepend-path      INFOPATH          ${root}/share/info
+prepend-path        INFOPATH          ${root}/share/info

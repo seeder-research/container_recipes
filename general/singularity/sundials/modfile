@@ -2,9 +2,13 @@
 ##
 ## modulefile
 ##
-set              name              [file tail [file dirname [info script]]]
-set              version           [file tail [info script]]
-set              root              /usr/local/${name}/${version}
+
+prereq intel/mkl
+prereq petsc
+
+set                 name              [file tail [file dirname [info script]]]
+set                 version           [file tail [info script]]
+set                 root              /usr/local/${name}/${version}
 
 proc ModulesHelp { } {
 
@@ -13,15 +17,11 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment variables."
 
-prereq            intel/mkl
-prereq            petsc
+setenv              SUNDIALS_ROOT     ${root}
 
-setenv            SUNDIALS_ROOT     ${root}
+prepend-path        CPATH             ${root}/include
+prepend-path        INCLUDE_PATH      ${root}/include
 
-prepend-path      CPATH             ${root}/include
-prepend-path      INCLUDE_PATH      ${root}/include
-
-prepend-path      LD_LIBRARY_PATH   ${root}/lib
-prepend-path      LIBRARY_PATH      ${root}/lib
-prepend-path      LD_RUN_PATH       ${root}/lib
-
+prepend-path        LD_LIBRARY_PATH   ${root}/lib
+prepend-path        LIBRARY_PATH      ${root}/lib
+prepend-path        LD_RUN_PATH       ${root}/lib
