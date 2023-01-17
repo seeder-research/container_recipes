@@ -6,44 +6,64 @@ modfile         /opt
 Makefile.inc    /opt
 
 %post
-. /etc/profile.d/modules.sh
-export MODULEPATH=/usr/local/modulefiles/dev
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=5
+export APPVER_MIN=3
+export APPVER_PATCH=1
+export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}"
+export APPNAME="mumps"
+export APPFILE="MUMPS_${APPVER}.tar.gz"
+export APPURL="http://mumps.enseeiht.fr/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 module load \
   openmpi \
   intel/mkl \
   metis \
   parmetis \
   scotch
-export MUMPS_VER=5.3.1
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  http://mumps.enseeiht.fr/MUMPS_${MUMPS_VER}.tar.gz && \
-tar xf MUMPS_${MUMPS_VER}.tar.gz && \
-cd /opt/MUMPS_${MUMPS_VER} && \
-mv /opt/Makefile.inc ./ && \
+  ${APPURL} && \
+mkdir ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/${APPNAME}-src && \
+tar \
+  --strip 1 \
+  -C ${APPNAME}-src \
+  -xf \
+  ${SRCDIR}/${APPFILE} && \
+cd ${APPNAME}-src && \
+mv ${SRCDIR}/Makefile.inc ./ && \
 make alllib libseqneeded && \
-mkdir -p /usr/local/mumps/${MUMPS_VER} && \
+mkdir -p ${APPROOT} && \
 cp -a \
-  /opt/MUMPS_${MUMPS_VER}/include \
-  /usr/local/mumps/${MUMPS_VER}/include && \
+  ${SRCDIR}/${APPNAME}-src/include \
+  ${APPROOT}/include && \
 cp -a \
-  /opt/MUMPS_${MUMPS_VER}/lib \
-  /usr/local/mumps/${MUMPS_VER}/lib && \
+  ${SRCDIR}/${APPNAME}-src/lib \
+  ${APPROOT}/lib && \
 cp -a \
-  /opt/MUMPS_${MUMPS_VER}/libseq/libmpiseq* \
-  /usr/local/mumps/${MUMPS_VER}/lib/. && \
-cd /opt && \
+  ${SRCDIR}/${APPNAME}-src/libseq/libmpiseq* \
+  ${APPROOT}/lib/. && \
+cd ${SRCDIR} && \
 rm -rf \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/MUMPS_${MUMPS_VER} \
-  /opt/MUMPS_${MUMPS_VER}.tar.gz && \
-mkdir -p /usr/local/modulefiles/dev/mumps && \
-cd /usr/local/modulefiles/dev/mumps && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/mumps/${MUMPS_VER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${MUMPS_VER}" >> .version
+  ${SRCDIR}/${APPNAME}-src \
+  ${SRCDIR}/${APPFILE}

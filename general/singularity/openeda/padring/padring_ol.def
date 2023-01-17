@@ -1,0 +1,49 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+export HOME_BASE="/usr/local"
+export APPVER="b2a64abcc8561d758c0bcb3945117dcb13bd9dca"
+export APPURL="https://github.com/donn/padring"
+export APPNAME="padring"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/openeda"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+if [ ! -d ${APPROOT} ]; then
+  mkdir -p ${APPROOT}
+  cd ${SRCDIR} && \
+  git clone \
+    ${APPURL} \
+    ${SRCDIR}/${APPNAME}-src && \
+  mkdir -p ${APPROOT}/bin && \
+  cd ${SRCDIR}/${APPNAME}-src && \
+  git checkout ${APPVER} && \
+  git submodule update --init && \
+  bash ./bootstrap.sh && \
+  cd ${SRCDIR}/${APPNAME}/build && \
+  ninja clean && \
+  ninja && \
+  cp -a ${APPNAME} ${APPROOT}/bin/. && \
+  cd ${SRCDIR} && \
+  rm -rf \
+    ${SRCDIR}/${APPNAME}-src
+fi

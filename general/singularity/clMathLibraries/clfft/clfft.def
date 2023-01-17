@@ -6,14 +6,43 @@ modfile    /opt
 
 %post
 . /.singularity.d/env/90-environment.sh
-export CLFFT_VER=2.15.0b
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=2
+export APPVER_MIN=15
+export APPVER_PATCH=0b
+export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}"
+export APPNAME="clfft"
+export APPURL="https://github.com/seeder-research/clFFT.git"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 cd /opt && \
-git clone https://github.com/seeder-research/clFFT.git -b develop && \
-mkdir /opt/clFFT/build && \
-cd /opt/clFFT/build && \
+git clone --recursive \
+  --depth 1 \
+  ${APPURL} \
+  -b develop \
+  ${SRCDIR}/${APPNAME} && \
+mkdir ${SRCDIR}/${APPNAME}/builddir && \
 cmake \
+  -B ${SRCDIR}/${APPNAME}/builddir \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX=/usr/local/clfft/${CLFFT_VER} \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
   -DBUILD_CALLBACK_CLIENT=OFF \
   -DBUILD_CLIENT=OFF \
   -DBUILD_EXAMPLES=OFF \
@@ -21,15 +50,8 @@ cmake \
   -DBUILD_LOADLIBRARIES=ON \
   -DBUILD_RUNTIME=ON \
   -DBUILD_SHARED_LIBS=ON \
-  ../src && \
+  ${SRCDIR}/${APPNAME}/src && \
 make all && \
 make install && \
-mkdir -p /usr/local/modulefiles/dev/clfft && \
-sed -i "s/@pver@/${CLFFT_VER}/g" /opt/modfile && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/clfft/${CLFFT_VER} && \
-cd /usr/local/modulefiles/dev/clfft && \
-echo "#%Module" > /usr/local/modulefiles/dev/clfft/.version && \
-echo set ModulesVersion "${CLFFT_VER}" >> /usr/local/modulefiles/dev/clfft/.version
 rm -rf \
-  /opt/clFFT
+  ${SRCDIR}/${APPNAME}

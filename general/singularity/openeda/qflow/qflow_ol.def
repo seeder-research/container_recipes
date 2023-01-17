@@ -2,17 +2,17 @@ BootStrap: localimage
 From: pre.sif
 
 %files
-modfile    /opt
+modfile        /opt
 
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER="188e4406230da8dc59f437829c04d04f59201133"
-export APPNAME="libbeef"
-export APPURL="https://github.com/vossjo/${APPNAME}.git"
+export APPVER="a550469b63e910ede6e3022e2886bca96462c540"
+export APPURL="https://github.com/RTimothyEdwards/qflow"
+export APPNAME="qflow"
 export SRCDIR="/opt"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-export MODDIR="/usr/local/modulefiles"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/openeda"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
     mkdir -p ${MODDIR}/${APPNAME}
 fi
@@ -29,17 +29,35 @@ fi
 if [ -f ${SRCDIR}/modfile ]; then
     rm -f ${SRCDIR}/modfile
 fi
-export CC=$(which gcc)
-export CXX=$(which g++)
+module load \
+  bison \
+  flex \
+  cudd \
+  yosys \
+  opensta \
+  magic \
+  netgen \
+  graywolf \
+  qrouter \
+  opentimer \
+  replace
 cd ${SRCDIR} && \
-git clone --recursive \
+git clone \
   ${APPURL} \
   ${SRCDIR}/${APPNAME}-src && \
 cd ${SRCDIR}/${APPNAME}-src && \
+git checkout ${APPVER} && \
+git submodule update --init && \
 ./configure \
   --prefix=${APPROOT} \
-  --enable-portable-binary && \
-make && \
+  --with-magic=${MAGIC_ROOT}/bin/magic \
+  --with-replace=${REPLACE_ROOT}/bin/RePlAce && \
+make -j$(nproc) && \
 make install && \
+make -j$(nproc) vlog2Verilog && \
+cp -a \
+  ${SRCDIR}/${APPNAME}-src/vlog2Verilog \
+  ${APPROOT}/bin/. && \
+cd ${SRCDIR} && \
 rm -rf \
   ${SRCDIR}/${APPNAME}-src

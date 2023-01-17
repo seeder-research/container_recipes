@@ -7,31 +7,32 @@ modfile    /opt
 %post
 . /etc/profile
 export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
-export HOME_BASE=/usr/local
+export HOME_BASE="/usr/local"
 export APPVER_MAJ=5
 export APPVER_MIN=1
 export APPVER_REV=2
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
-export APPNAME=ffmpeg
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="ffmpeg"
 export APPURL="https://github.com/FFmpeg/FFmpeg"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-if [ ! -d ${HOME_BASE}/modulefiles/dev/${APPNAME} ]; then
-    mkdir -p ${HOME_BASE}/modulefiles/dev/${APPNAME}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/${APPVER} ]; then
-    if [ -f /opt/modfile ]; then
-        mv /opt/modfile \
-            ${HOME_BASE}/modulefiles/dev/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
     fi
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version ]; then
-    echo "#%Module" > ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/dev/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
 fi
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 module load \
   openmpi \
   nasm \
@@ -39,106 +40,185 @@ module load \
   libass \
   vorbis \
   ffmpeg &&\
-mkdir -p ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
-git clone --depth 1 https://code.videolan.org/videolan/x264.git -b stable && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/x264 && \
-./configure --prefix="${APPROOT}" --enable-static --enable-pic --disable-opencl --bashcompletionsdir="${APPROOT}/share/bashcompletions" && \
+mkdir -p ${SRCDIR}/ffmpeg_src && \
+cd ${SRCDIR}/ffmpeg_src && \
+git clone --recursive \
+  --depth 1 \
+  https://code.videolan.org/videolan/x264.git \
+  -b stable \
+  ${SRCDIR}/ffmpeg_src/x264_main && \
+cp -a \
+  ${SRCDIR}/ffmpeg_src/x264_main \
+  ${SRCDIR}/ffmpeg_src/x264 && \
+cd ${SRCDIR}/ffmpeg_src/x264 && \
+./configure \
+  --prefix="${APPROOT}" \
+  --enable-static \
+  --enable-pic \
+  --disable-opencl \
+  --bashcompletionsdir="${APPROOT}/share/bashcompletions" && \
 make -j$(nproc) && \
 make install && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
-rm -rf ${HOME_BASE}/${APPNAME}/ffmpeg_src/x264 && \
-git clone --depth 1 https://code.videolan.org/videolan/x264.git -b stable && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/x264 && \
-./configure --prefix="${APPROOT}" --enable-shared --disable-opencl --bashcompletionsdir="${APPROOT}/share/bashcompletions" && \
+cd ${SRCDIR}/ffmpeg_src/x264_main && \
+./configure \
+  --prefix="${APPROOT}" \
+  --enable-shared \
+  --disable-opencl \
+  --bashcompletionsdir="${APPROOT}/share/bashcompletions" && \
 make -j$(nproc) && \
 make install && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
-hg clone http://hg.videolan.org/x265 && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/x265 && \
+cd ${SRCDIR}/ffmpeg_src && \
+hg clone \
+  http://hg.videolan.org/x265 && \
+cd ${SRCDIR}/ffmpeg_src/x265 && \
 hg up "stable" && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/x265/build/linux && \
-cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="${APPROOT}" -DENABLE_SHARED=off ../../source && \
+cd ${SRCDIR}/ffmpeg_src/x265 && \
+cmake \
+  -B ${SRCDIR}/ffmpeg_src/x265/build/linux \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX="${APPROOT}" \
+  -DENABLE_SHARED=OFF \
+  ${SRCDIR}/ffmpeg_src/x265/source && \
+cmake \
+  --build ${SRCDIR}/ffmpeg_src/x265/build/linux \
+  -j$(nproc) \
+  --target install && \
+cmake \
+  -B ${SRCDIR}/ffmpeg_src/x265/build/linux_shared \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX="${APPROOT}" \
+  -DENABLE_SHARED=ON \
+  ${SRCDIR}/ffmpeg_src/x265/source && \
+cmake \
+  --build ${SRCDIR}/ffmpeg_src/x265/build/linux_shared \
+  -j$(nproc) \
+  --target install && \
+cd ${SRCDIR}/ffmpeg_src && \
+git clone --recursive \
+  --depth 1 \
+  https://chromium.googlesource.com/webm/libvpx.git \
+  -b v1.12.0 \
+  ${SRCDIR}/ffmpeg_src/libvpx && \
+cd ${SRCDIR}/ffmpeg_src/libvpx && \
+./configure \
+  --prefix="${APPROOT}" \
+  --enable-shared \
+  --enable-static \
+  --disable-examples \
+  --disable-unit-tests \
+  --enable-vp9-highbitdepth \
+  --as=yasm && \
 make -j$(nproc) && \
 make install && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
-rm -rf ${HOME_BASE}/${APPNAME}/ffmpeg_src/x265 && \
-hg clone http://hg.videolan.org/x265 && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/x265 && \
-hg up "stable" && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/x265/build/linux && \
-cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="${APPROOT}" -DENABLE_SHARED=on ../../source && \
-make -j$(nproc) && \
-make install && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
-git clone --depth 1 https://chromium.googlesource.com/webm/libvpx.git -b v1.12.0 && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/libvpx && \
-./configure --prefix="${APPROOT}" --enable-shared --enable-static --disable-examples --disable-unit-tests --enable-vp9-highbitdepth --as=yasm && \
-make -j$(nproc) && \
-make install && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
-git clone --depth 1 https://github.com/mstorsjo/fdk-aac -b v2.0.2 && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/fdk-aac && \
+cd ${SRCDIR}/ffmpeg_src && \
+git clone --recursive \
+  --depth 1 \
+  https://github.com/mstorsjo/fdk-aac \
+  -b v2.0.2 \
+  ${SRCDIR}/ffmpeg_src/fdk-aac && \
+cp -a \
+  ${SRCDIR}/ffmpeg_src/fdk-aac \
+  ${SRCDIR}/ffmpeg_src/fdk-aac_static
+cd ${SRCDIR}/ffmpeg_src/fdk-aac_static && \
 autoreconf -fiv && \
-./configure --prefix="${APPROOT}" --disable-shared && \
+./configure \
+  --prefix="${APPROOT}" \
+  --disable-shared && \
 make -j$(nproc) && \
 make install && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
-rm -rf ${HOME_BASE}/${APPNAME}/ffmpeg_src/fdk-aac && \
-git clone --depth 1 https://github.com/mstorsjo/fdk-aac -b v2.0.2 && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/fdk-aac && \
+cd ${SRCDIR}/ffmpeg_src/fdk-aac && \
 autoreconf -fiv && \
-./configure --prefix="${APPROOT}" --enable-shared && \
+./configure \
+  --prefix="${APPROOT}" \
+  --enable-shared && \
 make -j$(nproc) && \
 make install && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
-wget -O ${HOME_BASE}/${APPNAME}/lame-3.100.tar.gz https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz && \
-tar xzvf ${HOME_BASE}/${APPNAME}/lame-3.100.tar.gz && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/lame-3.100 && \
-./configure --prefix="${APPROOT}" --disable-shared --enable-nasm && \
+cd ${SRCDIR}/ffmpeg_src && \
+wget --no-check-certificate \
+  -O ${SRCDIR}/ffmpeg_src/lame-3.100.tar.gz \
+  https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz && \
+tar xzvf ${SRCDIR}/lame-3.100.tar.gz && \
+cp -a \
+  ${SRCDIR}/ffmpeg_src/lame-3.100 \
+  ${SRCDIR}/ffmpeg_src/lame-3.100_static
+cd ${SRCDIR}/ffmpeg_src/lame-3.100_static && \
+./configure \
+  --prefix="${APPROOT}" \
+  --disable-shared \
+  --enable-nasm && \
 make -j$(nproc) && \
 make install && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
-rm -rf ${HOME_BASE}/${APPNAME}/ffmpeg_src/lame-3.100 && \
-tar xzvf ${HOME_BASE}/${APPNAME}/lame-3.100.tar.gz && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/lame-3.100 && \
-./configure --prefix="${APPROOT}" --enable-shared --enable-nasm && \
+cd ${SRCDIR}/ffmpeg_src/lame-3.100 && \
+./configure \
+  --prefix="${APPROOT}" \
+  --enable-shared \
+  --enable-nasm && \
 make -j$(nproc) && \
 make install && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
-git clone --depth 1 https://github.com/xiph/opus.git -b v1.3.1 && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/opus && \
+cd ${SRCDIR}/ffmpeg_src && \
+git clone --recursive\
+  --depth 1 \
+  https://github.com/xiph/opus.git \
+  -b v1.3.1 \
+  ${SRCDIR}/ffmpeg_src/opus && \
+cp -a \
+  ${SRCDIR}/ffmpeg_src/opus \
+  ${SRCDIR}/ffmpeg_src/opus_static
+cd ${SRCDIR}/ffmpeg_src/opus_static && \
 ./autogen.sh && \
-./configure --prefix="${APPROOT}" --disable-shared && \
+./configure \
+  --prefix="${APPROOT}" \
+  --disable-shared && \
 make -j$(nproc) && \
 make install && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
-rm -rf ${HOME_BASE}/${APPNAME}/ffmpeg_src/opus && \
-git clone --depth 1 https://github.com/xiph/opus.git -b v1.3.1 && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/opus && \
+cd ${SRCDIR}/ffmpeg_src/opus && \
 ./autogen.sh && \
-./configure --prefix="${APPROOT}" --enable-shared && \
+./configure \
+  --prefix="${APPROOT}" \
+  --enable-shared && \
 make -j$(nproc) && \
 make install && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
-git clone --depth 1 https://aomedia.googlesource.com/aom -b v3.5.0 && \
-mkdir -p ${HOME_BASE}/${APPNAME}/ffmpeg_src/aom_build_static && \
-mkdir -p ${HOME_BASE}/${APPNAME}/ffmpeg_src/aom_build_shared && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/aom_build_static && \
-cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="${APPROOT}" -DBUILD_SHARED_LIBS=OFF -DAOM_C_FLAGS=-fPIC -DAOM_CXX_FLAGS=-fPIC -DENABLE_NASM=on ${HOME_BASE}/${APPNAME}/ffmpeg_src/aom && \
-make -j$(nproc) && \
-make install && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/aom_build_shared && \
-cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="${APPROOT}" -DBUILD_SHARED_LIBS=ON -DAOM_C_FLAGS=-fPIC -DAOM_CXX_FLAGS=-fPIC -DENABLE_NASM=on ${HOME_BASE}/${APPNAME}/ffmpeg_src/aom && \
-make -j$(nproc) && \
-make install && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src && \
+cd ${SRCDIR}/ffmpeg_src && \
+git clone --recursive\
+  --depth 1 \
+  https://aomedia.googlesource.com/aom \
+  -b v3.5.0 \
+  ${SRCDIR}/ffmpeg_src/aom && \
+mkdir -p ${SRCDIR}/ffmpeg_src/aom_build_static && \
+mkdir -p ${SRCDIR}/ffmpeg_src/aom_build_shared && \
+cmake \
+  -B ${SRCDIR}/ffmpeg_src/aom_build_static \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX="${APPROOT}" \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DAOM_C_FLAGS="-fPIC" \
+  -DAOM_CXX_FLAGS="-fPIC" \
+  -DENABLE_NASM=ON \
+  ${SRCDIR}/ffmpeg_src/aom && \
+cmake \
+  --build ${SRCDIR}/ffmpeg_src/aom_build_static \
+  -j$(nproc) \
+  --target install && \
+cmake \
+  -B ${SRCDIR}/ffmpeg_src/aom_build_shared \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX="${APPROOT}" \
+  -DBUILD_SHARED_LIBS=ON \
+  -DAOM_C_FLAGS="-fPIC" \
+  -DAOM_CXX_FLAGS="-fPIC" \
+  -DENABLE_NASM=ON \
+  ${SRCDIR}/ffmpeg_src/aom && \
+cmake \
+  --build ${SRCDIR}/ffmpeg_src/aom_build_shared \
+  -j$(nproc) \
+  --target install && \
+cd ${SRCDIR}/ffmpeg_src && \
 git clone \
   --recursive \
   ${APPURL} \
   -b n${APPVER} \
-  ${HOME_BASE}/${APPNAME}/ffmpeg_src/${APPNAME}-${APPVER} && \
-cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/${APPNAME}-${APPVER} && \
+  ${SRCDIR}/ffmpeg_src/${APPNAME}-${APPVER} && \
+cd ${SRCDIR}/ffmpeg_src/${APPNAME}-${APPVER} && \
 ./configure \
   --prefix="${APPROOT}" \
   --pkg-config-flags="--static" \
@@ -163,6 +243,4 @@ cd ${HOME_BASE}/${APPNAME}/ffmpeg_src/${APPNAME}-${APPVER} && \
 make -j$(nproc) && \
 make install && \
 rm -rf \
-  ${HOME_BASE}/${APPNAME}/lame-3.100.tar.gz \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  ${HOME_BASE}/${APPNAME}/ffmpeg_src
+  ${SRCDIR}/ffmpeg_src

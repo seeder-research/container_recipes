@@ -12,44 +12,57 @@ export APPVER_MIN=36
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}
 export APPURL="https://sourceware.org/git/glibc.git"
 export APPNAME="glibc"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-if [ ! -d /usr/local/modulefiles/dev/${APPNAME} ]; then
-    mkdir -p /usr/local/modulefiles/dev/${APPNAME}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-cd /opt && \
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+cd ${SRCDIR} && \
 git clone --recursive \
+  --depth 1 \
   https://github.com/SELinuxProject/selinux-kernel \
   -b v6.0 \
-  /opt/linux-kernel && \
+  ${SRCDIR}/linux-kernel && \
 git clone --recursive \
+  --depth 1 \
   https://github.com/SELinuxProject/selinux \
   -b libselinux-3.4 \
-  /opt/selinux && \
+  ${SRCDIR}/selinux && \
 git clone --recursive \
+  --depth 1 \
   ${APPURL} \
   -b ${APPNAME}-${APPVER} \
-  /opt/${APPNAME} && \
-cd /opt/linux-kernel && \
+  ${SRCDIR}/${APPNAME} && \
+cd ${SRCDIR}/linux-kernel && \
 make headers && \
-cd /opt/selinux/libselinux/include && \
-make PREFIX=/opt/linux-kernel/usr install && \
-mkdir /opt/builddir && \
-cd /opt/builddir && \
-/opt/${APPNAME}/configure \
+cd ${SRCDIR}/selinux/libselinux/include && \
+make PREFIX=${SRCDIR}/linux-kernel/usr install && \
+mkdir ${SRCDIR}/builddir && \
+cd ${SRCDIR}/builddir && \
+${SRCDIR}/${APPNAME}/configure \
   --prefix=${APPROOT} \
   --enable-shared \
   --enable-kernel=2.6.12 \
   --enable-stack-protector=strong \
-  CC="/usr/bin/gcc -m64" && \
+  CC="$(which gcc) -m64" && \
 make -j$(nproc) && \
 make install && \
-cd /opt && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/${APPNAME}/${APPVER} && \
-cd /usr/local/modulefiles/dev/${APPNAME} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${APPVER}" >> .version && \
+cd ${SRCDIR} && \
 rm -rf \
-  /opt/${APPNAME} \
-  /opt/builddir \
-  /opt/linux-kernel
+  ${SRCDIR}/${APPNAME} \
+  ${SRCDIR}/builddir \
+  ${SRCDIR}/linux-kernel

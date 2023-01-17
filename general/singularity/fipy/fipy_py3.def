@@ -6,7 +6,13 @@ From: pre.sif
 . /.singularity.d/env/90-environment.sh
 . /etc/profile.d/modules.sh
 . /etc/profile.d/conda.sh
-export FIPY_VER=3.4.1
+export APPVER_MAJ=3
+export APPVER_MIN=4
+export APPVER_PATCH=1
+export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}"
+export APPNAME="fipy"
+export APPURL="https://github.com/usnistgov/fipy.git"
+export SRCDIR="/opt"
 export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
 module load \
   openmpi \
@@ -22,11 +28,7 @@ module load \
   occt \
   gmsh \
   amgx
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
+cd ${SRCDIR} && \
 conda install -y \
   bcolz \
   cython \
@@ -55,12 +57,15 @@ conda install -y \
 conda install -y \
   -c anaconda \
   mayavi && \
-cd /opt && \
-git clone https://github.com/usnistgov/fipy.git -b ${FIPY_VER} \
-  ./fipy && \
-cd /opt/fipy && \
+cd ${SRCDIR} && \
+git clone --recursive \
+  --depth 1 \
+  ${APPURL} \
+  -b ${APPVER} \
+  ${SRCDIR}/fipy-src && \
+cd ${SRCDIR}/fipy-src && \
 python setup.py install && \
-cd /opt && \
+cd ${SRCDIR} && \
 conda clean -yt && \
 echo ". /etc/profile.d/modules.sh" >> /.singularity.d/env/90-environment.sh
 echo ". /etc/profile.d/conda.sh" >> /.singularity.d/env/90-environment.sh
@@ -83,5 +88,4 @@ echo "  occt \\" >> /.singularity.d/env/90-environment.sh
 echo "  gmsh \\" >> /.singularity.d/env/90-environment.sh
 echo "  amgx" >> /.singularity.d/env/90-environment.sh
 rm -rf \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/fipy
+  ${SRCDIR}/fipy-src

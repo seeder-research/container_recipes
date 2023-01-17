@@ -12,81 +12,131 @@ potpaw_PBE.54.tar.gz       /opt
 potUSPP_GGA.tar.gz         /opt
 potUSPP_LDA.tar.gz         /opt
 
-%appenv vasp
-. /etc/profile.d/modules.sh
-module load openmpi intel/mkl libbeef wannier90 elpa vasp
-
 %post
 . /etc/profile
-. /.singularity.d/env/90-environment.sh
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=5
+export APPVER_MIN=4
+export APPVER_REV=4
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="vasp"
+export APPFILE="${APPNAME}.${APPVER}.tar.gz"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+export CC="$(which gcc)"
+export CFLAGS="-O3 -fPIC"
+export CXX="$(which g++)"
+export CXXFLAGS="-O3 -fPIC"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 module load \
   openmpi \
   intel/mkl \
   libbeef \
   wannier90 \
   elpa
-export VASP_VER=5.4.4
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
-gunzip /opt/patch.${VASP_VER}.16052018.gz && \
-tar xf /opt/vasp.${VASP_VER}.tar.gz && \
-mkdir -p /usr/local/vasp/${VASP_VER} && \
-cd /opt/vasp.${VASP_VER} && \
-patch -p0 < /opt/patch.5.4.4.16052018 && \
-mv /opt/makefile.include \
-  /opt/vasp.${VASP_VER} && \
+cd ${SRCDIR} && \
+gunzip ${SRCDIR}/patch.${APPVER}.16052018.gz && \
+mkdir -p \
+  ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/${APPNAME}-src && \
+tar --strip 1 \
+  -C ${SRCDIR}/${APPNAME}-src \
+  -xf \
+  ${SRCDIR}/${APPFILE} && \
+mkdir -p \
+  ${APPROOT} && \
+cd ${SRCDIR}/${APPNAME}-src && \
+patch -p0 < ${SRCDIR}/patch.${APPVER}.16052018 && \
+mv ${SRCDIR}/makefile.include \
+  ${SRCDIR}/${APPNAME}-src && \
 make \
   gam \
   ncl \
   std \
   gpu \
   gpu_ncl && \
-mkdir -p /usr/local/vasp/5.4.4/bin && \
+mkdir -p ${APPROOT}/bin && \
 mv bin/* \
-  /usr/local/vasp/5.4.4/bin && \
-mkdir -p /usr/local/modulefiles/vasp && \
-cd /usr/local/modulefiles/vasp && \
-mv /opt/modfile \
-  /usr/local/modulefiles/vasp/${VASP_VER} && \
-echo "#%Module" > /usr/local/modulefiles/vasp/.version && \
-echo set ModulesVersion "${VASP_VER}" >> /usr/local/modulefiles/vasp/.version && \
-cd /opt && \
+  ${APPROOT}/bin && \
+cd ${SRCDIR} && \
 wget --quiet --no-check-certificate https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh && \
-/bin/bash /opt/Miniconda2-latest-Linux-x86_64.sh -f -b -p /opt/conda && \
-rm /opt/Miniconda2-latest-Linux-x86_64.sh && \
-/opt/conda/bin/conda config --append channels conda-forge && \
-/opt/conda/bin/conda install -y \
+/bin/bash ${SRCDIR}/Miniconda2-latest-Linux-x86_64.sh -f -b -p ${SRCDIR}/conda && \
+rm ${SRCDIR}/Miniconda2-latest-Linux-x86_64.sh && \
+${SRCDIR}/conda/bin/conda config --append channels conda-forge && \
+${SRCDIR}/conda/bin/conda install -y \
   phonopy \
   python=2.7 && \
-/opt/conda/bin/conda install -y \
+${SRCDIR}/conda/bin/conda install -y \
   -c atztogo \
   phono3py && \
-/opt/conda/bin/conda clean -yt && \
-mkdir -p /opt/potpaw_GGA && \
-cd /opt/potpaw_GGA && \
-tar xf /opt/potpaw_GGA.tar.gz && \
-rm -rf /opt/potpaw_GGA.tar.gz && \
-mkdir -p /opt/potpaw_LDA.54 && \
-cd /opt/potpaw_LDA.54 && \
-tar xf /opt/potpaw_LDA.54.tar.gz && \
-rm -rf /opt/potpaw_LDA.54.tar.gz && \
-mkdir -p /opt/potpaw_PBE.54 && \
-cd /opt/potpaw_PBE.54 && \
-tar xf /opt/potpaw_PBE.54.tar.gz && \
-rm -rf /opt/potpaw_PBE.54.tar.gz && \
-mkdir -p /opt/potUSPP_GGA && \
-cd /opt/potUSPP_GGA && \
-tar xf /opt/potUSPP_GGA.tar.gz && \
-rm -rf /opt/potUSPP_GGA.tar.gz && \
-mkdir -p /opt/potUSPP_LDA && \
-cd /opt/potUSPP_LDA && \
-tar xf /opt/potUSPP_LDA.tar.gz && \
-rm -rf /opt/potUSPP_LDA.tar.gz && \
+${SRCDIR}/conda/bin/conda clean -yt && \
+mkdir -p \
+  ${SRCDIR}/potpaw_GGA && \
+cd \
+  ${SRCDIR}/potpaw_GGA && \
+tar --strip 1 \
+  -C ${SRCDIR}/potpaw_GGA \
+  -xf \
+  ${SRCDIR}/potpaw_GGA.tar.gz && \
 rm -rf \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/vasp.${VASP_VER}.tar.gz \
-  /opt/patch.${VASP_VER}.16052018 \
-  /opt/vasp.${VASP_VER}
+  ${SRCDIR}/potpaw_GGA.tar.gz && \
+mkdir -p \
+  ${SRCDIR}/potpaw_LDA.54 && \
+cd \
+  ${SRCDIR}/potpaw_LDA.54 && \
+tar --strip 1 \
+  -C ${SRCDIR}/potpaw_LDA.54 \
+  -xf \
+  ${SRCDIR}/potpaw_LDA.54.tar.gz && \
+rm -rf \
+  ${SRCDIR}/potpaw_LDA.54.tar.gz && \
+mkdir -p \
+  ${SRCDIR}/potpaw_PBE.54 && \
+cd \
+  ${SRCDIR}/potpaw_PBE.54 && \
+tar --strip 1 \
+  -C ${SRCDIR}/potpaw_PBE.54 \
+  -xf \
+  ${SRCDIR}/potpaw_PBE.54.tar.gz && \
+rm -rf \
+  ${SRCDIR}/potpaw_PBE.54.tar.gz && \
+mkdir -p \
+  ${SRCDIR}/potUSPP_GGA && \
+cd \
+  ${SRCDIR}/potUSPP_GGA && \
+tar --strip 1 \
+  -C ${SRCDIR}/potUSPP_GGA \
+  -xf \
+  ${SRCDIR}/potUSPP_GGA.tar.gz && \
+rm -rf \
+  ${SRCDIR}/potUSPP_GGA.tar.gz && \
+mkdir -p \
+  ${SRCDIR}/potUSPP_LDA && \
+cd \
+  ${SRCDIR}/potUSPP_LDA && \
+tar --strip 1 \
+  -C ${SRCDIR}/potUSPP_LDA \
+  -xf \
+  ${SRCDIR}/potUSPP_LDA.tar.gz && \
+rm -rf \
+  ${SRCDIR}/potUSPP_LDA.tar.gz && \
+rm -rf \
+  ${SRCDIR}/${APPFILE} \
+  ${SRCDIR}/patch.${APPVER}.16052018 \
+  ${SRCDIR}/${APPNAME}-src

@@ -2,15 +2,23 @@ BootStrap: localimage
 From: pre.sif
 
 %post
-. /etc/profile.d/modules.sh
-export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=2
+export APPVER_MIN=37
+export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}"
+export APPNAME="dejavu-fonts-ttf"
+export APPFILE="${APPNAME}-${APPVER}.tar.bz2"
+export APPURL="http://sourceforge.net/projects/dejavu/files/dejavu/${APPVER}/${APPFILE}"
+export SRCDIR="/opt"
 module load \
   qt
-export DVUVER=2.37
-cd /opt && \
-wget --no-check-certificate http://sourceforge.net/projects/dejavu/files/dejavu/${DVUVER}/dejavu-fonts-ttf-${DVUVER}.tar.bz2 && \
-tar xf /opt/dejavu-fonts-ttf-${DVUVER}.tar.bz2 && \
-mv /opt/dejavu-fonts-ttf-${DVUVER}/ttf \
+cd ${SRCDIR} && \
+wget --no-check-certificate \
+  ${APPURL} && \
+tar xf \
+  ${SRCDIR}/${APPFILE} && \
+mv ${SRCDIR}/${APPNAME}-${APPVER}/ttf \
   ${QT_HOME}/lib/fonts && \
 rm -rf \
-  /opt/dejavu-*
+  ${SRCDIR}/${APPNAME}-*

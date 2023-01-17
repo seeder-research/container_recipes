@@ -2,17 +2,17 @@ BootStrap: localimage
 From: pre.sif
 
 %files
-modfile    /opt
+modfile        /opt
 
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER="188e4406230da8dc59f437829c04d04f59201133"
-export APPNAME="libbeef"
-export APPURL="https://github.com/vossjo/${APPNAME}.git"
+export APPVER="6cefbd13f1dac2293aaa1537a6ee2ad23c11a273"
+export APPURL="https://github.com/RTimothyEdwards/magic"
+export APPNAME="magic"
 export SRCDIR="/opt"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-export MODDIR="/usr/local/modulefiles"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/openeda"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
     mkdir -p ${MODDIR}/${APPNAME}
 fi
@@ -29,17 +29,32 @@ fi
 if [ -f ${SRCDIR}/modfile ]; then
     rm -f ${SRCDIR}/modfile
 fi
-export CC=$(which gcc)
-export CXX=$(which g++)
 cd ${SRCDIR} && \
-git clone --recursive \
+git clone \
   ${APPURL} \
   ${SRCDIR}/${APPNAME}-src && \
 cd ${SRCDIR}/${APPNAME}-src && \
+git checkout ${APPVER} && \
+git submodule update --init && \
 ./configure \
   --prefix=${APPROOT} \
-  --enable-portable-binary && \
-make && \
+  --enable-compression \
+  --enable-modular \
+  --enable-locking \
+  --enable-calma \
+  --enable-cif \
+  --enable-plot \
+  --enable-plot \
+  --enable-lef \
+  --enable-readline \
+  --enable-readline \
+  --enable-threads \
+  --enable-route \
+  --enable-rsim && \
+make clean && \
+make database/database.h && \
+make -j$(nproc) && \
 make install && \
+cd ${SRCDIR} && \
 rm -rf \
   ${SRCDIR}/${APPNAME}-src

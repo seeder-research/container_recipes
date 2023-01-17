@@ -45,8 +45,13 @@ export CFLAGS="-O2 -mavx"
 cd ${SRCDIR} && \
 wget --no-check-certificate \
   ${APPURL} && \
-tar xf ${SRCDIR}/${APPFILE} && \
-cd ${SRCDIR}/${APPNAME}-ELPA_${APPVER} && \
+mkdir -p \
+  ${SRCDIR}/${APPNAME}-src && \
+tar \
+  --strip 1 \
+  -C ${SRCDIR}/${APPNAME}-src \
+  -xf ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-src && \
 ./autogen.sh && \
 ./configure \
   --prefix=${APPROOT} \
@@ -54,9 +59,15 @@ cd ${SRCDIR}/${APPNAME}-ELPA_${APPVER} && \
 make -j$(nproc) && \
 make install && \
 cd ${SRCDIR} && \
-rm -rf ${SRCDIR}/${APPNAME}-ELPA_${APPVER} && \
-tar xf ${SRCDIR}/${APPFILE} && \
-cd ${SRCDIR}/${APPNAME}-ELPA_${APPVER} && \
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src/ && \
+mkdir -p \
+  ${SRCDIR}/${APPNAME}-src && \
+tar \
+  --strip 1 \
+  -C ${SRCDIR}/${APPNAME}-src \
+  -xf ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-src && \
 ./autogen.sh && \
 ./configure \
   --prefix=${APPROOT} \
@@ -65,5 +76,5 @@ make -j$(nproc) && \
 make install && \
 cd ${SRCDIR} && \
 rm -rf \
-  ${SRCDIR}/${APPNAME}-ELPA_${APPVER} \
+  ${SRCDIR}/${APPNAME}-src \
   ${SRCDIR}/${APPFILE}

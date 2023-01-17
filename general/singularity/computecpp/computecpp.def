@@ -6,22 +6,43 @@ computecpp-ce-2.2.1-x86_64-linux-gnu.tar.gz                /opt
 modfile                                                    /opt
 
 %post
-export SYCL_VER=2.2.1
-export SEDSTR="s@/home/jenkins/workspace/ccp_runtime_build/install@/opt/computecpp/${SYCL_VER}@"
-mkdir -p /opt/computecpp/ && \
-cd /opt/computecpp && \
-tar xf /opt/computecpp-ce-${SYCL_VER}-x86_64-linux-gnu.tar.gz
-if [ ! -d /usr/local/modulefiles/dev/computecpp ]; then
-    mkdir -p /usr/local/modulefiles/dev/computecpp
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=2
+export APPVER_MIN=2
+export APPVER_PATCH=1
+export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}"
+export APPNAME="computecpp"
+export APPFILE="computecpp-ce-${APPVER}-x86_64-linux-gnu.tar.gz"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-mv /opt/computecpp/ComputeCpp-CE-${SYCL_VER}-x86_64-linux-gnu \
-  /opt/computecpp/${SYCL_VER} && \
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+export SEDSTR="s@/home/jenkins/workspace/ccp_runtime_build/install@${APPROOT}@"
+mkdir -p ${APPROOT} && \
+cd ${APPROOT} && \
+tar \
+  --strip 1 \
+  -C ${APPROOT} \
+  -xf \
+  ${SRCDIR}/${APPFILE} && \
 cd /usr/local/modulefiles/dev/computecpp && \
 sed -i "${SEDSTR}" \
-  /opt/computecpp/${SYCL_VER}/lib/pkgconfig/computecpp.pc && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/computecpp/${SYCL_VER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${SYCL_VER}" >> .version && \
+  ${APPROOT}/lib/pkgconfig/computecpp.pc && \
 rm -f \
-  /opt/computecpp-ce-${SYCL_VER}-x86_64-linux-gnu.tar.gz \
+  ${SRCDIR}/${APPFILE}

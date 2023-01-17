@@ -2,17 +2,18 @@ BootStrap: localimage
 From: pre.sif
 
 %files
-modfile    /opt
+modfile        /opt
 
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER="188e4406230da8dc59f437829c04d04f59201133"
-export APPNAME="libbeef"
-export APPURL="https://github.com/vossjo/${APPNAME}.git"
+export APPVER="df85a637e83da870129c93c8793cad282bb8ddd1"
+export APPURL="https://github.com/d-m-bailey/cvc"
+export APPNAME="cvc"
 export SRCDIR="/opt"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-export MODDIR="/usr/local/modulefiles"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/openeda"
+export PREFIX=${APPROOT}
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
     mkdir -p ${MODDIR}/${APPNAME}
 fi
@@ -29,17 +30,24 @@ fi
 if [ -f ${SRCDIR}/modfile ]; then
     rm -f ${SRCDIR}/modfile
 fi
-export CC=$(which gcc)
-export CXX=$(which g++)
+module load \
+  bison \
+  flex
 cd ${SRCDIR} && \
-git clone --recursive \
+git clone \
   ${APPURL} \
   ${SRCDIR}/${APPNAME}-src && \
 cd ${SRCDIR}/${APPNAME}-src && \
+git checkout ${APPVER} && \
+git submodule update --init && \
+autoreconf -vif && \
+autoconf && \
 ./configure \
-  --prefix=${APPROOT} \
-  --enable-portable-binary && \
-make && \
+  --disable-nls \
+  --prefix=${APPROOT} && \
+sed -i 's/api.parser.class/parser_class_name/' src/cdlParser.yy && \
+make -j$(nproc) && \
 make install && \
+cd ${SRCDIR} && \
 rm -rf \
   ${SRCDIR}/${APPNAME}-src

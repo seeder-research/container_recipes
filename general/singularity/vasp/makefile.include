@@ -33,7 +33,7 @@ SCALAPACK  = -L$(MKLROOT)/lib/intel64 -Wl,--no-as-needed -lmkl_scalapack_lp64 -W
 
 OBJECTS    = fftmpi.o fftmpi_map.o fftw3d.o fft3dlib.o
 
-INCS       = -I$(MKLROOT)/include/intel64/lp64 -I$(MKLROOT)/include/fftw -I/usr/local/elpa/2016.05.004/include/elpa-2016.05.004/modules
+INCS       = -I$(MKLROOT)/include/intel64/lp64 -I$(MKLROOT)/include/fftw -I$(ELPA_ROOT)/include/elpa-2016.05.004/modules
 
 LLIBS      = -L$(ELPA_ROOT)/lib $(SCALAPACK) $(BLAS) -lelpa -lmkl_cdft_core -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -Wl,--as-needed -lstdc++ -lpthread -lm -ldl
 

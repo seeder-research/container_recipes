@@ -6,47 +6,69 @@ modfile    /opt
 
 %post
 . /etc/profile
-. /.singularity.d/env/90-environment.sh
-. /etc/profile.d/conda.sh
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=2
+export APPVER_MIN=5
+export APPVER_PATCH=0
+export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}"
+export APPNAME="pybind11"
+export APPFILE="v${APPVER}.tar.gz"
+export APPURL="https://github.com/pybind/pybind11/archive/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 module load \
   openmpi \
   intel/mkl \
+  conda \
   boost
 export Boost_INCLUDE_DIR=${LIBBOOST_ROOT}/include
-export PYBIND11_VER=2.5.0
 export PYVER=3.8
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  https://github.com/pybind/pybind11/archive/v${PYBIND11_VER}.tar.gz && \
-tar xf /opt/v${PYBIND11_VER}.tar.gz && \
-mkdir -p /opt/pybind11-${PYBIND11_VER}/build && \
-cd /opt/pybind11-${PYBIND11_VER}/build && \
-/opt/conda/bin/python \
+  ${APPURL} && \
+mkdir -p ${SRCDIR}/${APPNAME} && \
+tar \
+  --strip 1 \
+  -C ${SRCDIR}/${APPNAME} \
+  -xf \
+  ${SRCDIR}/${APPFILE} && \
+mkdir -p ${SRCDIR}/builddir && \
+cd ${SRCDIR}/builddir && \
+${CONDA_DIR}/bin/python \
   -m pip install \
   pytest && \
 cmake \
-  -DCMAKE_INSTALL_PREFIX=/usr/local/pybind11/${PYBIND11_VER} \
-  -DCMAKE_BUILD_TYPE=release \
-  .. && \
-make -j$(nproc) && \
-make install && \
-cd /opt/pybind11-${PYBIND11_VER} && \
-/opt/conda/bin/python \
+  -B ${SRCDIR}/builddir \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT}
+  -DCMAKE_BUILD_TYPE=Release \
+  ${SRCDIR}/${APPNAME} && \
+cmake \
+  --build ${SRCDIR}/builddir \
+  -j$(nproc) \
+  --target install && \
+cd ${SRCDIR}/${APPNAME} && \
+${CONDA_DIR}/bin/python \
   setup.py \
   install \
-  --prefix=/usr/local/pybind11/${PYBIND11_VER} && \
-mkdir -p /usr/local/modulefiles/dev/pybind11 && \
-cd /usr/local/modulefiles/dev/pybind11 && \
-sed -i "s/@pyver@/${PYVER}/g" /opt/modfile && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/pybind11/${PYBIND11_VER} && \
-echo "#%Module" > .version && \
-echo set ModulesVersion "${PYBIND11_VER}" >> .version && \
+  --prefix=${APPROOT} && \
+sed -i "s/@pyver@/${PYVER}/g" ${MODDIR}/${APPNAME}/${APPVER} && \
 rm -rf \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/v${PYBIND11_VER}.tar.gz \
-  /opt/pybind11-${PYBIND11_VER}
+  ${SRCDIR}/${APPFILE} \
+  ${SRCDIR}/${APPNAME}

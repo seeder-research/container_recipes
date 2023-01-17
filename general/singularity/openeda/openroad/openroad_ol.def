@@ -1,0 +1,72 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER="4f1108b6f558718ed142cbb6c1f5ba20958195ca"
+export APPURL="https://github.com/The-OpenROAD-Project/OpenROAD"
+export APPNAME="openroad"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+module load \
+  bison \
+  flex \
+  cudd \
+  boost
+if [ ! -d ${SRCDIR}/builddir ]; then
+  mkdir -p ${SRCDIR}/builddir
+fi
+cd ${SRCDIR} && \
+git clone \
+  ${APPURL} \
+  ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/${APPNAME}-src && \
+git checkout ${APPVER} && \
+git submodule update --init && \
+cd ${SRCDIR}/builddir && \
+cmake \
+  -B ${SRCDIR}/builddir \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
+  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
+  -DCMAKE_BUILD_TYPE="Release" \
+  -DUSE_SYSTEM_BOOST=ON \
+  -DUSE_SYSTEM_OPENSTA=OFF \
+  -DUSE_SYSTEM_ABC=OFF \
+  -DUSE_CUDD=ON \
+  -DCUDD_DIR=${CUDD_ROOT} \
+  -DBUILD_GUI=ON \
+  -DGPU=ON \
+  -DCMAKE_CUDA_ARCHITECTURES="60" \
+  -DCMAKE_PREFIX_PATH="${LIBBOOST_ROOT}/lib/cmake" \
+  ${SRCDIR}/${APPNAME}-src && \
+cmake \
+  --build ${SRCDIR}/builddir \
+  -j$(nproc) \
+  -t install && \
+cd ${SRCDIR} && \
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src \
+  ${SRCDIR}/builddir

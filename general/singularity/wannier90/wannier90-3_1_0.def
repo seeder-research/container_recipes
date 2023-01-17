@@ -6,41 +6,65 @@ modfile    /opt
 
 %post
 . /etc/profile
-. /.singularity.d/env/90-environment.sh
-export WANNIER90VER=3.1
-export MPIVER=1.10.7
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=3
+export APPVER_MIN=1
+export APPVER_REV=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="wannier90"
+export APPFILE="v${APPVER}.tar.gz"
+export APPURL="https://github.com/wannier-developers/${APPNAME}/archive/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}.${APPVER_REV}"
+export MODDIR="/usr/local/modulefiles"
+export CC="$(which gcc)"
+export CFLAGS="-O3 -fPIC"
+export CXX="$(which g++)"
+export CXXFLAGS="-O3 -fPIC"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 module load \
   openmpi \
   intel/mkl
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
-export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
-cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
-cd /opt && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
-  https://github.com/wannier-developers/wannier90/archive/v${WANNIER90VER}.tar.gz && \
-tar xf /opt/v${WANNIER90VER}.tar.gz && \
-cd /opt/wannier90-${WANNIER90VER} && \
-echo "F90=gfortran" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
-echo "COMMS=mpi" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
-echo "MPIF90=mpif90" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
-echo "FCOPTS=-O2 -I"'$'"(MKLROOT)/include/intel64/lp64 -m64 -I"'$'"(MKLROOT)/include -I/usr/local/openmpi/${MPIVER}/include" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
-echo "LDOPTS=-O2" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
-echo "LIBDIR = "'$'"(MKLROOT)/lib/intel64_lin /usr/local/openmpi/${MPIVER}/lib" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
-echo "LIBS   = "'$'"(MKLROOT)/lib/intel64/libmkl_blas95_lp64.a "'$'"(MKLROOT)/lib/intel64/libmkl_lapack95_lp64.a -L/usr/local/openmpi/${MPIVER}/lib -L"'$'"(MKLROOT)/lib/intel64 -Wl,--no-as-needed -lmkl_scalapack_lp64 -lmkl_cdft_core -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lmkl_blacs_openmpi_lp64 -lstdc++ -lmpi -lpthread -lm -ldl" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
+  ${APPURL} && \
+mkdir -p \
+  ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/${APPNAME}-src && \
+tar \
+  --strip 1 \
+  -C ${SRCDIR}/${APPNAME}-src \
+  -xf \
+  ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-src && \
+echo "F90=gfortran" >> ${SRCDIR}/${APPNAME}-src/make.inc && \
+echo "COMMS=mpi" >> ${SRCDIR}/${APPNAME}-src/make.inc && \
+echo "MPIF90=mpif90" >> ${SRCDIR}/${APPNAME}-src/make.inc && \
+echo "FCOPTS=-O2 -I"'$'"(MKLROOT)/include/intel64/lp64 -m64 -I"'$'"(MKLROOT)/include -I${MPI_ROOT}/include" >> ${SRCDIR}/${APPNAME}-src/make.inc && \
+echo "LDOPTS=-O2" >> ${SRCDIR}/${APPNAME}-src/make.inc && \
+echo "LIBDIR = "'$'"(MKLROOT)/lib/intel64_lin ${MPI_ROOT}/lib" >> ${SRCDIR}/${APPNAME}-src/make.inc && \
+echo "LIBS   = "'$'"(MKLROOT)/lib/intel64/libmkl_blas95_lp64.a "'$'"(MKLROOT)/lib/intel64/libmkl_lapack95_lp64.a -L${MPI_ROOT}/lib -L"'$'"(MKLROOT)/lib/intel64 -Wl,--no-as-needed -lmkl_scalapack_lp64 -lmkl_cdft_core -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lmkl_blacs_openmpi_lp64 -lstdc++ -lmpi -lpthread -lm -ldl" >> ${SRCDIR}/${APPNAME}-src/make.inc && \
 make w90pov w90vdw lib default && \
-mkdir -p /usr/local/wannier90/${WANNIER90VER}.0/bin && \
-mkdir -p /usr/local/wannier90/${WANNIER90VER}.0/lib && \
-mv *.x /usr/local/wannier90/${WANNIER90VER}.0/bin/. && \
-mv libwannier.a /usr/local/wannier90/${WANNIER90VER}.0/lib/. && \
-mkdir -p /usr/local/modulefiles/dev/wannier90 && \
-cd /usr/local/modulefiles/dev/wannier90 && \
-mv /opt/modfile \
-  /usr/local/modulefiles/dev/wannier90/${WANNIER90VER}.0 && \
-echo "#%Module" > /usr/local/modulefiles/dev/wannier90/.version && \
-echo set ModulesVersion "${WANNIER90VER}.0" >> /usr/local/modulefiles/dev/wannier90/.version
-cd /opt && \
+mkdir -p ${APPROOT}/bin && \
+mkdir -p ${APPROOT}/lib && \
+mv *.x ${APPROOT}/bin/. && \
+mv libwannier.a ${APPROOT}/lib/. && \
+cd ${SRCDIR} && \
 rm -rf \
-  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
-  /opt/v${WANNIER90VER}.tar.gz \
-  /opt/wannier90-${WANNIER90VER}
+  ${SRCDIR}/${APPFILE} \
+  ${SRCDIR}/${APPNAME}-src
