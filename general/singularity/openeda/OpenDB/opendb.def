@@ -10,38 +10,47 @@ export HOME_BASE="/usr/local"
 export APPVER="latest"
 export APPURL="https://github.com/The-OpenROAD-Project/OpenDB.git"
 export APPNAME="opendb"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 module load \
   bison \
   flex \
   boost
-if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
-    mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
-fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} ]; then
-  mv /opt/modfile \
-    ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}
-fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
-  echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
-  echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
-fi
-cd /opt && \
+cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
-  /opt/${APPNAME} && \
-mkdir -p /opt/${APPNAME}/build && \
-cd /opt/${APPNAME}/build && \
+  ${SRCDIR}/${APPNAME}-src && \
+mkdir -p ${SRCDIR}/${APPNAME}/build && \
+cd ${SRCDIR}/${APPNAME}/build && \
 cmake \
+  -B ${SRCDIR}/${APPNAME}/build \
   -G "Unix Makefiles" \
   -DCMAKE_INSTALL_PREFIX=${APPROOT} \
-  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
-  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
+  -DCMAKE_CXX_COMPILER="$(which g++)" \
+  -DCMAKE_C_COMPILER="$(which gcc)" \
   -DCMAKE_BUILD_TYPE="Release" \
-  /opt/${APPNAME} && \
-cmake --build . \
+  ${SRCDIR}/${APPNAME}-src && \
+cmake --build ${SRCDIR}/${APPNAME}/build \
   -j$(nproc) \
   -t install && \
-cd ${HOME_BASE}/modulefiles/${APPNAME} && \
+cd ${SRCDIR} && \
 rm -rf \
-  /opt/${APPNAME}
+  ${SRCDIR}/${APPNAME}-src \
+  ${SRCDIR}/${APPNAME}/build

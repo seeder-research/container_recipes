@@ -42,7 +42,9 @@ if [ ! -d ${APPROOT} ]; then
   cd ${SRCDIR}/${APPNAME}/build && \
   ninja clean && \
   ninja && \
-  cp -a ${APPNAME} ${APPROOT}/bin/. && \
+  cp -a \
+    ${SRCDIR}/${APPNAME}/build/${APPNAME} \
+    ${APPROOT}/bin/. && \
   cd ${SRCDIR} && \
   rm -rf \
     ${SRCDIR}/${APPNAME}-src

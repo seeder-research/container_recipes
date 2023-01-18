@@ -33,24 +33,20 @@ fi
 module load \
   bison \
   flex
-if [ ! -d ${SRCDIR}/builddir ]; then
-  mkdir -p ${SRCDIR}/builddir
-fi
 cd ${SRCDIR} && \
 git clone \
   ${APPURL} \
   ${SRCDIR}/${APPNAME}-src && \
 cd ${SRCDIR}/builddir && \
-make -f \
-  ${SRCDIR}/${APPNAME}-src/Makefile \
+make \
+  -C ${SRCDIR}/${APPNAME}-src \
   config-gcc && \
 make \
-  -f ${SRCDIR}/${APPNAME}-src/Makefile \
+  -C ${SRCDIR}/${APPNAME}-src \
   -j$(nproc) && \
 make \
-  -f ${SRCDIR}/${APPNAME}-src/Makefile \
+  -C ${SRCDIR}/${APPNAME}-src \
   install && \
 cd ${SRCDIR} && \
 rm -rf \
-  ${SRCDIR}/${APPNAME}-src \
-  ${SRCDIR}/builddir
+  ${SRCDIR}/${APPNAME}-src

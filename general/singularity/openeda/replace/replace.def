@@ -9,52 +9,62 @@ modfile        /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=1
 export APPVER_MIN=1
-export APPVER_PATCH=1
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPVER_REV=1
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
 export APPURL="https://github.com/The-OpenROAD-Project/replace"
 export APPNAME="replace"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
-  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} ]; then
-  mv /opt/modfile \
-    ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
-  echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
-  echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 module load \
   bison \
   flex
-if [ ! -d /opt/builddir ]; then
-  mkdir -p /opt/builddir
+if [ ! -d ${SRCDIR}/builddir ]; then
+  mkdir -p ${SRCDIR}/builddir
 fi
-cd /opt && \
+rm -rf \
+  ${SRCDIR}/builddir/* && \
+cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
   -b standalone \
-  /opt/${APPNAME} && \
-cd /opt/builddir && \
+  ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/builddir && \
 sed -i "s/#include <climits>/#include <climits>\n#include <limits>/" \
-  /opt/${APPNAME}/src/replace_private.h && \
+  ${SRCDIR}/${APPNAME}-src/src/replace_private.h && \
 cmake \
+  -B ${SRCDIR}/builddir \
   -G "Unix Makefiles" \
   -DCMAKE_INSTALL_PREFIX=${APPROOT} \
   -DCMAKE_BUILD_TYPE="Release" \
-  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
-  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
-  -DREPLACE_HOME=/opt/${APPNAME} \
-  -DPROJECT_SOURCE_DIR=/opt/${APPNAME} \
+  -DCMAKE_CXX_COMPILER="$(which g++)" \
+  -DCMAKE_C_COMPILER="$(which gcc)" \
+  -DREPLACE_HOME=${SRCDIR}/${APPNAME}-src \
+  -DPROJECT_SOURCE_DIR=${SRCDIR}/${APPNAME}-src \
   -DUSE_CIMG_LIB=ON \
-  /opt/${APPNAME} && \
-cmake --build . \
+  ${SRCDIR}/${APPNAME}-src && \
+cmake \
+  --build ${SRCDIR}/builddir \
   -j$(nproc) \
-  -t install && \
-cd /opt && \
+  --target install && \
 cd ${APPROOT}/bin && \
 ln -s ./${APPNAME} RePlAce && \
 rm -rf \
-  /opt/${APPNAME} \
-  /opt/builddir
+  ${SRCDIR}/${APPNAME}-src \
+  ${SRCDIR}/builddir

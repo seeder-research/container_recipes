@@ -10,42 +10,54 @@ export HOME_BASE="/usr/local"
 export APPVER=latest
 export APPURL="https://github.com/scale-lab/OpenPhySyn"
 export APPNAME="openphysyn"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
-  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} ]; then
-  mv /opt/modfile \
-    ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
-  echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
-  echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 module load \
   bison \
   flex \
   cudd \
   boost
-if [ ! -d /opt/builddir ]; then
-  mkdir -p /opt/builddir
+if [ ! -d ${SRCDIR}/builddir ]; then
+  mkdir -p ${SRCDIR}/builddir
 fi
-cd /opt && \
-git clone --recursive \
+rm -rf \
+  ${SRCDIR}/builddir && \
+cd ${SRCDIR} && \
+git clone \
+  --recursive \
   ${APPURL} \
-  /opt/${APPNAME} && \
-cd /opt/builddir && \
+  ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/builddir && \
 cmake \
+  -B ${SRCDIR}/builddir \
   -G "Unix Makefiles" \
   -DCMAKE_INSTALL_PREFIX=${APPROOT} \
-  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
-  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
+  -DCMAKE_CXX_COMPILER="$(which g++)" \
+  -DCMAKE_C_COMPILER="$(which gcc)" \
   -DCMAKE_BUILD_TYPE="Release" \
-  /opt/${APPNAME}/. && \
-cmake --build . \
+  ${SRCDIR}/${APPNAME}-src && \
+cmake \
+  --build ${SRCDIR}/builddir \
   -j$(nproc) \
   -t install && \
-cd /opt && \
+cd ${SRCDIR} && \
 rm -rf \
-  /opt/${APPNAME} \
-  /opt/builddir
+  ${SRCDIR}/${APPNAME}-src \
+  ${SRCDIR}/builddir

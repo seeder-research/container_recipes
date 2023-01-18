@@ -54,10 +54,6 @@ git submodule update --init && \
   --with-replace=${REPLACE_ROOT}/bin/RePlAce && \
 make -j$(nproc) && \
 make install && \
-make -j$(nproc) vlog2Verilog && \
-cp -a \
-  ${SRCDIR}/${APPNAME}-src/vlog2Verilog \
-  ${APPROOT}/bin/. && \
 cd ${SRCDIR} && \
 rm -rf \
   ${SRCDIR}/${APPNAME}-src

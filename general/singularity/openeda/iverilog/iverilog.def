@@ -12,26 +12,34 @@ export APPVER_MIN=0
 export APPVER=${APPVER_MAJ}.${APPVER_MIN}
 export APPURL="https://github.com/steveicarus/iverilog"
 export APPNAME="iverilog"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
-  mkdir -p ${HOME_BASE}/modulefiles/${APPNAME}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} ]; then
-  mv /opt/modfile \
-    ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
-  echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
-  echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 module load \
   bison \
   flex
-cd /opt && \
+cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
-  -b v${APPVER_MAJ}_${APPVER_MIN} && \
-cd /opt/${APPNAME} && \
+  -b v${APPVER_MAJ}_${APPVER_MIN} \
+  ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/${APPNAME}-src && \
 git checkout \
   --track \
   -b v11-branch \
@@ -42,4 +50,4 @@ sh autoconf.sh && \
 make -j$(nproc) && \
 make install && \
 rm -rf \
-  /opt/${APPNAME}
+  ${SRCDIR}/${APPNAME}-src

@@ -37,6 +37,8 @@ module load \
 if [ ! -d ${SRCDIR}/builddir ]; then
   mkdir -p ${SRCDIR}/builddir
 fi
+rm -rf \
+  ${SRCDIR}/builddir/* && \
 cd ${SRCDIR} && \
 git clone \
   ${APPURL} \
@@ -49,8 +51,8 @@ cmake \
   -B ${SRCDIR}/builddir \
   -G "Unix Makefiles" \
   -DCMAKE_INSTALL_PREFIX=${APPROOT} \
-  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
-  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
+  -DCMAKE_CXX_COMPILER="$(which g++)" \
+  -DCMAKE_C_COMPILER="$(which gcc)" \
   -DCMAKE_BUILD_TYPE="Release" \
   -DUSE_SYSTEM_BOOST=ON \
   -DUSE_SYSTEM_OPENSTA=OFF \

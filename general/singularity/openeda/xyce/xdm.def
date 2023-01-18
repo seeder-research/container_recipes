@@ -11,37 +11,58 @@ module load \
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=2
 export APPVER_MIN=5
-export APPVER_PATCH=0
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPVER_REV=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
 export APPURL="https://github.com/Xyce/XDM"
 export APPNAME="xdm"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-if [ ! -d /opt/builddir ]; then
-  mkdir /opt/builddir
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-cd /opt && \
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+if [ ! -d ${SRCDIR}/builddir ]; then
+  mkdir -p ${SRCDIR}/builddir
+fi
+rm -rf \
+  ${SRCDIR}/builddir/* && \
+cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
   -b Release-${APPVER} \
-  /opt/${APPNAME} && \
+  ${SRCDIR}/${APPNAME}-src && \
 sed -i "s/(isnan/(std::isnan/g" \
-  /opt/${APPNAME}/src/c_boost/expr/ast_common.hpp && \
-cd /opt/builddir && \
+  ${SRCDIR}/${APPNAME}-src/src/c_boost/expr/ast_common.hpp && \
+cd ${SRCDIR}/builddir && \
 cmake \
+  -B ${SRCDIR}/builddir \
   -G "Unix Makefiles" \
   -DCMAKE_INSTALL_PREFIX=${APPROOT} \
   -DCMAKE_BUILD_TYPE="Release" \
-  -DCMAKE_CXX_COMPILER="/usr/bin/g++" \
-  -DCMAKE_C_COMPILER="/usr/bin/gcc" \
+  -DCMAKE_CXX_COMPILER="$(which g++)" \
+  -DCMAKE_C_COMPILER="$(which gcc)" \
   -DCMAKE_CXX_FLAGS="-O3 -fPIC" \
   -DPYINSTALLER_PATH="${HOME_BASE}/pythonlibs/bin/pyinstaller" \
   -DBOOST_ROOT=${LIBBOOST_ROOT} \
-  /opt/${APPNAME} && \
+  ${SRCDIR}/${APPNAME}-src && \
 cmake \
-  --build . \
+  --build ${SRCDIR}/builddir \
   -j$(nproc) \
-  -t install && \
-cd /opt && \
+  --target install && \
+cd ${SRCDIR} && \
 rm -rf \
-  /opt/builddir \
-  /opt/${APPNAME}
+  ${SRCDIR}/${APPNAME}-src \
+  ${SRCDIR}/builddir

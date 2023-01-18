@@ -9,13 +9,29 @@ modfile        /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=0
 export APPVER_MIN=28
-export APPVER_PATCH=2
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
+export APPVER_REV=2
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
 export APPURL="https://github.com/klayout/klayout"
 export APPNAME="klayout"
 export SRCDIR="/opt"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
-export MODDIR="/usr/local/modulefiles/openeda"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
 if [ ! -d ${APPROOT} ]; then
   mkdir -p ${APPROOT}
 fi
@@ -24,25 +40,12 @@ if [ ! -d ${SRCDIR}/builddir ]; then
 fi
 rm -rf \
   ${SRCDIR}/builddir/*
-if [ ! -d ${MODDIR}/${APPNAME} ]; then
-  mkdir -p ${MODDIR}/${APPNAME}
-fi
-if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
-  if [ -f ${SRCDIR}/modfile ]; then
-    mv ${SRCDIR}/modfile \
-      ${MODDIR}/${APPNAME}/${APPVER}
-  fi
-fi
-if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
-    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
-    echo set ModulesVersion "${APPVER}" >> ${MODDIR}/${APPNAME}/.version
-fi
 cd ${SRCDIR} && \
 git clone --recursive \
   ${APPURL} \
   -b v${APPVER} \
-  ${SRCDIR}/${APPNAME} && \
-cd ${SRCDIR}/${APPNAME} && \
+  ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/${APPNAME}-src && \
 ./build.sh \
   -qmake "$(which qmake) -spec linux-g++" \
   -ruby "$(which ruby)" \
@@ -58,5 +61,5 @@ mv ${APPROOT}/bin/lib* \
 mv ${APPROOT}/bin/*_plugins \
   ${APPROOT}/lib/. && \
 rm -rfv \
-  ${SRCDIR}/${APPNAME} \
+  ${SRCDIR}/${APPNAME}-src \
   ${SRCDIR}/builddir

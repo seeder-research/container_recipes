@@ -10,25 +10,25 @@ export HOME_BASE=/usr/local
 export APPSDIR=${HOME_BASE}/openeda
 export SUITESPARSEVER_MAJ=6
 export SUITESPARSEVER_MIN=0
-export SUITESPARSEVER_PATCH=1
-export SUITESPARSEVER=${SUITESPARSEVER_MAJ}.${SUITESPARSEVER_MIN}.${SUITESPARSEVER_PATCH}
+export SUITESPARSEVER_REV=1
+export SUITESPARSEVER=${SUITESPARSEVER_MAJ}.${SUITESPARSEVER_MIN}.${SUITESPARSEVER_REV}
 export SUITESPARSE_FILE=v${SUITESPARSEVER}.tar.gz
 export TRILINOSVER_MAJ=13
 export TRILINOSVER_MIN=4
-export TRILINOSVER_PATCH=1
-export TRILINOSVER=${TRILINOSVER_MAJ}.${TRILINOSVER_MIN}.${TRILINOSVER_PATCH}
-export TRILINOS_FILE=trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}.tar.gz
+export TRILINOSVER_REV=1
+export TRILINOSVER=${TRILINOSVER_MAJ}.${TRILINOSVER_MIN}.${TRILINOSVER_REV}
+export TRILINOS_FILE=trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_REV}.tar.gz
 export APPVER_MAJ=7
 export APPVER_MIN=6
-export APPVER_PATCH=0
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
-export APP_FILE=Release-${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}.tar.gz
+export APPVER_REV=0
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APP_FILE=Release-${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}.tar.gz
 export APPNAME=xyce
 export APPROOT=${APPSDIR}/${APPNAME}/${APPVER}
 export MOD_DIR=/opt
 export MOD_BASE=${HOME_BASE}/modulefiles/openeda
 export SUITESPARSESRCDIR=${MOD_DIR}/SuiteSparse-${SUITESPARSEVER}
-export TRILINOSSRCDIR=${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}
+export TRILINOSSRCDIR=${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_REV}
 export APPSRCDIR=${MOD_DIR}/Xyce-Release-${APPVER}
 export ARCHDIR=${HOME_BASE}/libraries/trilinos/${TRILINOSVER}_xyce
 export CCFLAGS="-O3"
@@ -80,10 +80,10 @@ cmake \
 cmake \
   --build ${MOD_DIR}/SuiteSparse-${SUITESPARSEVER}/builddir \
   --target install && \
-mkdir -p ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir && \
-cd ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir && \
+mkdir -p ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_REV}/builddir && \
+cd ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_REV}/builddir && \
 cmake \
- -B ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir \
+ -B ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_REV}/builddir \
  -G "Unix Makefiles" \
  -C ${APPSRCDIR}/cmake/trilinos/trilinos-config-MPI.cmake \
  -DCMAKE_C_COMPILER=mpicc \
@@ -174,7 +174,7 @@ cmake \
  -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
  -S ${TRILINOSSRCDIR} && \
 cmake \
-  --build ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir \
+  --build ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_REV}/builddir \
   -j$(nproc) \
   --target install && \
 mkdir -p ${MOD_DIR}/Xyce-Release-${APPVER}/builddir && \
@@ -214,5 +214,5 @@ rm -rf \
   ${MOD_DIR}/${SUITESPARSE_FILE} \
   ${MOD_DIR}/${APP_FILE} \
   ${MOD_DIR}/SuiteSparse-${SUITESPARSEVER}/builddir \
-  ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_PATCH}/builddir \
+  ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_REV}/builddir \
   ${MOD_DIR}/Xyce-Release-${APPVER}/builddir

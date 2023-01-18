@@ -9,31 +9,45 @@ modfile        /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=1
 export APPVER_MIN=1
-export APPVER_PATCH=3
-export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}
-export APPURL="https://github.com/d-m-bailey/cvc/archive/refs/tags/v${APPVER}.tar.gz"
+export APPVER_REV=3
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPFILE="v${APPVER}.tar.gz"
+export APPURL="https://github.com/d-m-bailey/cvc/archive/refs/tags/${APPFILE}"
 export APPNAME="cvc"
-export APPROOT=${HOME_BASE}/${APPNAME}/${APPVER}
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
 export PREFIX=${APPROOT}
-if [ ! -d ${HOME_BASE}/modulefiles/${APPNAME} ]; then
-  mkdir ${HOME_BASE}/modulefiles/${APPNAME}
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER} ]; then
-  mv /opt/modfile \
-    ${HOME_BASE}/modulefiles/${APPNAME}/${APPVER}
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
 fi
-if [ ! -f ${HOME_BASE}/modulefiles/${APPNAME}/.version ]; then
-  echo "#%Module" > ${HOME_BASE}/modulefiles/${APPNAME}/.version && \
-  echo set ModulesVersion "${APPVER}" >> ${HOME_BASE}/modulefiles/${APPNAME}/.version
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
 fi
 module load \
   bison \
   flex
-cd /opt && \
+cd ${SRCDIR} && \
 wget --no-check-certificate \
   ${APPURL} && \
-tar xf /opt/v${APPVER}.tar.gz && \
-cd /opt/${APPNAME}-${APPVER} && \
+mkdir -p \
+  ${SRCDIR}/${APPNAME}-src && \
+tar \
+  --strip 1 \
+  -C ${SRCDIR}/${APPNAME}-src \
+  -xf \
+  ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-src && \
 autoreconf -vif && \
 autoconf && \
 ./configure \
@@ -42,7 +56,7 @@ autoconf && \
 sed -i 's/api.parser.class/parser_class_name/' src/cdlParser.yy && \
 make -j$(nproc) && \
 make install && \
-cd /opt && \
+cd ${SRCDIR} && \
 rm -rf \
-  /opt/${APPNAME}-${APPVER} \
-  /opt/v${APPVER}.tar.gz
+  ${SRCDIR}/${APPNAME}-src \
+  ${SRCDIR}/${APPFILE}
