@@ -9,8 +9,8 @@ modfile    /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=3
 export APPVER_MIN=0
-export APPVER_PATCH=0
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPVER_REV=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPNAME="cudd"
 export APPFILE="${APPNAME}-${APPVER}.tar.gz"
 export APPURL="https://www.davidkebo.com/source/${APPNAME}_versions/${APPFILE}"

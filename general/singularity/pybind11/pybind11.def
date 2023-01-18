@@ -9,7 +9,7 @@ modfile    /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=2
 export APPVER_MIN=5
-export APPVER_PATCH=0
+export APPVER_REV=0
 export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}"
 export APPNAME="pybind11"
 export APPFILE="v${APPVER}.tar.gz"

@@ -9,8 +9,8 @@ modfile        /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=6
 export APPVER_MIN=0
-export APPVER_PATCH=3
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPVER_REV=3
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPFILE="v${APPVER}.tar.gz"
 export APPURL="https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/${APPFILE}"
 export APPNAME="suitesparse"

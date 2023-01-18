@@ -8,8 +8,8 @@ modfile    /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=1
 export APPVER_MIN=8
-export APPVER_PATCH=0
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPVER_REV=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPNAME="cub"
 export APPFILE="v${APPVER}.tar.gz"
 export APPURL="https://github.com/NVlabs/cub/archive/${APPFILE}"

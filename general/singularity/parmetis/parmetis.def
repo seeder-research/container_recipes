@@ -9,7 +9,7 @@ modfile    /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=4
 export APPVER_MIN=0
-export APPVER_PATCH=3
+export APPVER_REV=3
 export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}"
 export APPNAME="parmetis"
 export APPFILE="${APPNAME}-${APPVER}.tar.gz"

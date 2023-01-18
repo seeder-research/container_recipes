@@ -9,8 +9,8 @@ modfile                /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=4
 export APPVER_MIN=5
-export APPVER_PATCH=6
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPVER_REV=6
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPNAME="gmsh"
 export APPFILE="${APPNAME}-${APPVER}-source.tgz"
 export APPURL="http://gmsh.info/src/${APPFILE}"

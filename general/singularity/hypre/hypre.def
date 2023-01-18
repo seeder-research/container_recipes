@@ -9,8 +9,8 @@ modfile    /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=2
 export APPVER_MIN=18
-export APPVER_PATCH=2
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPVER_REV=2
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPNAME="hypre"
 export APPFILE="v${APPVER}.tar.gz"
 export APPURL="https://github.com/${APPNAME}-space/${APPNAME}/archive/${APPFILE}"

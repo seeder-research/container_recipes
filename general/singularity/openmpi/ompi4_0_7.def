@@ -9,7 +9,7 @@ modfile    /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=4
 export APPVER_MIN=0
-export APPVER_PATCH=7
+export APPVER_REV=7
 export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}"
 export APPNAME="openmpi"
 export APPFILE="${APPNAME}-${APPVER}.tar.bz2"

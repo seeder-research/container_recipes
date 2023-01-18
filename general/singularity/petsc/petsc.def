@@ -9,7 +9,7 @@ modfile    /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=3
 export APPVER_MIN=13
-export APPVER_PATCH=1
+export APPVER_REV=1
 export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}"
 export APPNAME="petsc"
 export APPFILE="${APPNAME}-${APPVER}.tar.gz"

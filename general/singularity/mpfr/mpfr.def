@@ -9,8 +9,8 @@ modfile        /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=4
 export APPVER_MIN=1
-export APPVER_PATCH=1
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPVER_REV=1
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPNAME="mpfr"
 export APPFILE="${APPNAME}-${APPVER}.tar.xz"
 export APPURL="https://www.mpfr.org/${APPNAME}-current/${APPFILE}"

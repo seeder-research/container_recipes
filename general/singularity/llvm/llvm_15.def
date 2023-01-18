@@ -9,8 +9,8 @@ modfile        /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=15
 export APPVER_MIN=0
-export APPVER_PATCH=2
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPVER_REV=2
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPNAME="llvm"
 export APPURL="https://github.com/llvm/llvm-project"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"

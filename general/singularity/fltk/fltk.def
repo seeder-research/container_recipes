@@ -9,8 +9,8 @@ modfile    /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=1
 export APPVER_MIN=3
-export APPVER_PATCH=5
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPVER_REV=5
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPNAME="fltk"
 export APPFILE="release-${APPVER}.tar.gz"
 export APPURL="https://github.com/${APPNAME}/${APPNAME}/archive/${APPFILE}"

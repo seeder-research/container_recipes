@@ -9,10 +9,10 @@ modfile    /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=1
 export APPVER_MIN=6
-export APPVER_PATCH=2
+export APPVER_REV=2
 export APPVER="${APPVER_MAJOR}.${APPVER_MINOR}.${APPVER_REV}"
 export APPNAME="openmpi"
-export APPFILE="CombBLAS_beta_${APPVER_MAJ}${APPVER_MIN}_${APPVER_PATCH}.tgz"
+export APPFILE="CombBLAS_beta_${APPVER_MAJ}${APPVER_MIN}_${APPVER_REV}.tgz"
 export APPURL="http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/${APPFILE}"
 export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"

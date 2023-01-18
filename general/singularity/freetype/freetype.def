@@ -9,8 +9,8 @@ modfile                /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=2
 export APPVER_MIN=10
-export APPVER_PATCH=1
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPVER_REV=1
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPNAME="freetype"
 export APPFILE="${APPNAME}-${APPVER}.tar.gz"
 export APPURL="https://download.savannah.gnu.org/releases/${APPNAME}/${APPFILE}"

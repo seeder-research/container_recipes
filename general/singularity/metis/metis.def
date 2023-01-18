@@ -9,8 +9,8 @@ modfile        /opt
 export HOME_BASE="/usr/local/libraries"
 export APPVER_MAJ=5
 export APPVER_MIN=2
-export APPVER_PATCH=1
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPVER_REV=1
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPNAME="metis"
 export APPURL="https://github.com/KarypisLab/METIS"
 export SRCDIR="/opt"

@@ -8,7 +8,7 @@ modfile    /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=3
 export APPVER_MIN=4
-export APPVER_PATCH=0
+export APPVER_REV=0
 export APPVER="${APPVER_MAJ}.${APPVER_MIN}"
 export APPNAME="eigen"
 export APPFILE="${APPNAME}-${APPVER}.tar.bz2"

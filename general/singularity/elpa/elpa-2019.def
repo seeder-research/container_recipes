@@ -9,8 +9,8 @@ modfile    /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=2019
 export APPVER_MIN=05
-export APPVER_PATCH=002
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPVER_REV=002
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPNAME="elpa"
 export APPFILE="${APPNAME}-ELPA_${APPVER}.tar.bz2"
 export APPURL="https://gitlab.mpcdf.mpg.de/${APPNAME}/${APPNAME}/-/archive/ELPA_${APPVER}/${APPFILE}"

@@ -9,8 +9,8 @@ modfile    /opt
 export HOME_BASE="/usr/local"
 export APPVER_MAJ=1
 export APPVER_MIN=19
-export APPVER_PATCH=4
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_PATCH}"
+export APPVER_REV=4
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPNAME="golang"
 export APPFILE1="go${APPVER}.src.tar.gz"
 export APPFILE2="go${APPVER}.linux-amd64.tar.gz"
