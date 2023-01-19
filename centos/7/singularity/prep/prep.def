@@ -40,6 +40,7 @@ yum install -y \
   git \
   glib2-devel \
   glib2 \
+  glibc-static \
   grep \
   gstreamer1-devel \
   gstreamer1-plugins-base-devel \

@@ -7,11 +7,11 @@ modfile        /opt
 %post
 export HOME_BASE="/usr/local"
 export APPNAME="cugr"
-export APPVER="latest"
-export APPURL="https://github.com/cuhk-eda/cu-gr"
+export APPVER="1632b4b450cbd3e5b6bdc9bf92c96cadde6a01b9"
+export APPURL="https://github.com/ax3ghazy/cu-gr"
 export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
-export MODDIR="/usr/local/modulefiles"
+export MODDIR="/usr/local/modulefiles/openeda"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
     mkdir -p ${MODDIR}/${APPNAME}
 fi
@@ -28,14 +28,22 @@ fi
 if [ -f ${SRCDIR}/modfile ]; then
     rm -f ${SRCDIR}/modfile
 fi
+module load \
+  boost
 cd ${SRCDIR} && \
-git clone --recursive \
+git clone \
+  --depth=1 \
   ${APPURL} \
-  ${SRCDIR}/${APPNAME} && \
-mkdir -p ${SRCDIR}/${APPNAME}/build && \
-cd ${SRCDIR}/${APPNAME}/build && \
-ninja clean && \
-ninja && \
+  ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/${APPNAME}-src && \
+git submodule update --init --recursive && \
+python \
+  ${SRCDIR}/${APPNAME}-src/scripts/build.py \
+  -o release \
+  -t iccad19gr && \
+mkdir -p ${APPROOT}/bin && \
+cp -a \
+  ${SRCDIR}/${APPNAME}-src/run/iccad19gr \
+  ${APPROOT}/bin/cugr && \
 rm -rf \
-  ${SRCDIR}/${APPNAME} \
-  ${SRCDIR}/modfile
+  ${SRCDIR}/${APPNAME}-src

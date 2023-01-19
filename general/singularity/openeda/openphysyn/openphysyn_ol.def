@@ -7,13 +7,12 @@ modfile        /opt
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER="38c74b0857ecf8f05a1bfde81d197b5a3d33a531"
-export APPURL="https://github.com/d-m-bailey/cvc"
-export APPNAME="cvc"
+export APPVER="6bb80c5f9312a302b7c29cf1a4ddb93ace47d122"
+export APPURL="https://github.com/scale-lab/OpenPhySyn"
+export APPNAME="openphysyn"
 export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles/openeda"
-export PREFIX=${APPROOT}
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
     mkdir -p ${MODDIR}/${APPNAME}
 fi
@@ -30,9 +29,14 @@ fi
 if [ -f ${SRCDIR}/modfile ]; then
     rm -f ${SRCDIR}/modfile
 fi
+if [ ! -d ${SRCDIR}/builddir ]; then
+    mkdir -p ${SRCDIR}/builddir
+fi
 module load \
-  bison \
-  flex
+  boost \
+  cudd
+rm -rf \
+  ${SRCDIR}/builddir/* && \
 cd ${SRCDIR} && \
 git clone \
   ${APPURL} \
@@ -40,13 +44,21 @@ git clone \
 cd ${SRCDIR}/${APPNAME}-src && \
 git checkout ${APPVER} && \
 git submodule update --init --recursive && \
-autoreconf -vif && \
-autoconf && \
-./configure \
-  --disable-nls \
-  --prefix=${APPROOT} && \
-make -j$(nproc) && \
-make install && \
+sed -i "s/SWIG REQUIRED 3.0/SWIG REQUIRED/" \
+  ${SRCDIR}/${APPNAME}-src/external/OpenDB/CMakeLists.txt && \
+sed -i "s/SWIG REQUIRED 3.0/SWIG REQUIRED/" \
+  ${SRCDIR}/${APPNAME}-src/external/OpenSTA/CMakeLists.txt && \
+cd ${SRCDIR}/builddir && \
+cmake \
+  -B ${SRCDIR}/builddir \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_BUILD_TYPE="Release" \
+  ${SRCDIR}/${APPNAME}-src && \
+cmake \
+  --build ${SRCDIR}/builddir \
+  -j$(nproc) \
+  --target install && \
 cd ${SRCDIR} && \
 rm -rf \
   ${SRCDIR}/${APPNAME}-src

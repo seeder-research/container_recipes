@@ -7,7 +7,7 @@ modfile        /opt
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER="f109fa3d4c56fe33bc626c298e04d45ae510dd0e"
+export APPVER="d061b0e41a2023b5e72794563b94d6a9b5ab41a1"
 export APPURL="https://github.com/YosysHQ/yosys"
 export APPNAME="yosys"
 export SRCDIR="/opt"

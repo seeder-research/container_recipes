@@ -9,10 +9,10 @@ update_install_dir.py   /opt
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER_MAJ=2023
-export APPVER_MIN=01
-export APPVER_REV=17
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPVER_MAJ=0
+export APPVER_MIN=23
+export APPVER_REV=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}"
 export APPURL="https://github.com/The-OpenROAD-Project/OpenLane"
 export APPNAME="openlane"
 export SRCDIR="/opt"
@@ -38,7 +38,7 @@ cd ${SRCDIR} && \
 git clone --recursive \
   --depth=1 \
   ${APPURL} \
-  -b ${APPVER} \
+  -b v${APPVER} \
   ${SRCDIR}/${APPNAME}-src && \
 cd ${SRCDIR}/${APPNAME}-src && \
 mv ${SRCDIR}/simple_update.py \

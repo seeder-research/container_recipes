@@ -1,0 +1,18 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+set               name              [file tail [file dirname [info script]]]
+set               version           [file tail [info script]]
+set               root              /usr/local/${name}/${version}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds ${name} (version ${version}) path to your environment,"
+}
+
+module-whatis "adds ${name} (version ${version}) to your environment."
+
+setenv              PADRING_ROOT      ${root}
+
+prepend-path        PATH              ${root}/bin

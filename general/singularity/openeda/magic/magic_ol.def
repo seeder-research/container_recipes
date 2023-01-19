@@ -7,7 +7,7 @@ modfile        /opt
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER="6cefbd13f1dac2293aaa1537a6ee2ad23c11a273"
+export APPVER="958d6f16701c1ee25e27440381b5c2c37b5fee7c"
 export APPURL="https://github.com/RTimothyEdwards/magic"
 export APPNAME="magic"
 export SRCDIR="/opt"
@@ -35,7 +35,7 @@ git clone \
   ${SRCDIR}/${APPNAME}-src && \
 cd ${SRCDIR}/${APPNAME}-src && \
 git checkout ${APPVER} && \
-git submodule update --init && \
+git submodule update --init --recursive && \
 ./configure \
   --prefix=${APPROOT} \
   --enable-compression \
@@ -44,15 +44,11 @@ git submodule update --init && \
   --enable-calma \
   --enable-cif \
   --enable-plot \
-  --enable-plot \
   --enable-lef \
-  --enable-readline \
   --enable-readline \
   --enable-threads \
   --enable-route \
   --enable-rsim && \
-make clean && \
-make database/database.h && \
 make -j$(nproc) && \
 make install && \
 cd ${SRCDIR} && \

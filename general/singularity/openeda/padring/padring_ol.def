@@ -6,8 +6,8 @@ modfile        /opt
 
 %post
 export HOME_BASE="/usr/local"
-export APPVER="b2a64abcc8561d758c0bcb3945117dcb13bd9dca"
-export APPURL="https://github.com/donn/padring"
+export APPVER="a88faf5a4faef75ff241276599fef81c3653cb70"
+export APPURL="https://github.com/ax3ghazy/padring"
 export APPNAME="padring"
 export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
@@ -37,11 +37,11 @@ if [ ! -d ${APPROOT} ]; then
   mkdir -p ${APPROOT}/bin && \
   cd ${SRCDIR}/${APPNAME}-src && \
   git checkout ${APPVER} && \
-  git submodule update --init && \
+  git submodule update --init --recursive && \
   bash ./bootstrap.sh && \
   cd ${SRCDIR}/${APPNAME}/build && \
   ninja clean && \
-  ninja && \
+  ninja-build && \
   cp -a \
     ${SRCDIR}/${APPNAME}/build/${APPNAME} \
     ${APPROOT}/bin/. && \

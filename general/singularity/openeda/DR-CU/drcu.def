@@ -5,15 +5,13 @@ From: pre.sif
 modfile        /opt
 
 %post
-. /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER="38c74b0857ecf8f05a1bfde81d197b5a3d33a531"
-export APPURL="https://github.com/d-m-bailey/cvc"
-export APPNAME="cvc"
+export APPNAME="drcu"
+export APPVER="427b4a4f03bb98d8a78b1712fe9e52cfb83a8347"
+export APPURL="https://github.com/cuhk-eda/dr-cu"
 export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles/openeda"
-export PREFIX=${APPROOT}
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
     mkdir -p ${MODDIR}/${APPNAME}
 fi
@@ -31,22 +29,21 @@ if [ -f ${SRCDIR}/modfile ]; then
     rm -f ${SRCDIR}/modfile
 fi
 module load \
-  bison \
-  flex
+  boost
 cd ${SRCDIR} && \
 git clone \
+  --depth=1 \
   ${APPURL} \
   ${SRCDIR}/${APPNAME}-src && \
 cd ${SRCDIR}/${APPNAME}-src && \
-git checkout ${APPVER} && \
 git submodule update --init --recursive && \
-autoreconf -vif && \
-autoconf && \
-./configure \
-  --disable-nls \
-  --prefix=${APPROOT} && \
-make -j$(nproc) && \
-make install && \
-cd ${SRCDIR} && \
+python \
+  ${SRCDIR}/${APPNAME}-src/scripts/build.py \
+  -o release \
+  -t ispd19dr && \
+mkdir -p ${APPROOT}/bin && \
+cp -a \
+  ${SRCDIR}/${APPNAME}-src/run/ispd19dr \
+  ${APPROOT}/bin/drcu && \
 rm -rf \
   ${SRCDIR}/${APPNAME}-src

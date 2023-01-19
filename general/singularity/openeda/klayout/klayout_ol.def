@@ -43,7 +43,7 @@ git clone \
   ${SRCDIR}/${APPNAME}-src && \
 cd ${SRCDIR}/${APPNAME}-src && \
 git checkout ${APPVER} && \
-git submodule update --init && \
+git submodule update --init --recursive && \
 ./build.sh \
   -qmake "$(which qmake) -spec linux-g++" \
   -ruby "$(which ruby)" \

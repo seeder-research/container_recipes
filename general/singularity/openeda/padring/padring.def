@@ -7,7 +7,7 @@ modfile        /opt
 %post
 export HOME_BASE="/usr/local"
 export APPVER=latest
-export APPURL="https://github.com/donn/padring"
+export APPURL="https://github.com/YosysHQ/padring"
 export APPNAME="padring"
 export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"

@@ -7,7 +7,7 @@ modfile        /opt
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER="28a29504390d53cd3748ff2636be112ef299da0b"
+export APPVER="738c1f7b3705bca2f1cc66fbc1cfb20f12d49a06"
 export APPURL="https://github.com/RTimothyEdwards/netgen"
 export APPNAME="netgen"
 export SRCDIR="/opt"
@@ -29,13 +29,14 @@ fi
 if [ -f ${SRCDIR}/modfile ]; then
     rm -f ${SRCDIR}/modfile
 fi
+export CFLAGS="-O2 -g"
 cd ${SRCDIR} && \
 git clone \
   ${APPURL} \
   ${SRCDIR}/${APPNAME}-src && \
 cd ${SRCDIR}/${APPNAME}-src && \
 git checkout ${APPVER} && \
-git submodule update --init && \
+git submodule update --init --recursive && \
 ./configure \
   --prefix=${APPROOT} && \
 make clean && \
