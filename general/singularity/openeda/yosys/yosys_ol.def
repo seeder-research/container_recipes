@@ -37,7 +37,6 @@ cd ${SRCDIR} && \
 git clone \
   ${APPURL} \
   ${SRCDIR}/${APPNAME}-src && \
-cd ${SRCDIR}/builddir && \
 make \
   -C ${SRCDIR}/${APPNAME}-src \
   config-gcc && \
@@ -49,4 +48,5 @@ make \
   install && \
 cd ${SRCDIR} && \
 rm -rf \
-  ${SRCDIR}/${APPNAME}-src
+  ${SRCDIR}/${APPNAME}-src \
+  ${SRCDIR}/builddir

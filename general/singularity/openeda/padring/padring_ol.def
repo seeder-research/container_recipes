@@ -39,11 +39,11 @@ if [ ! -d ${APPROOT} ]; then
   git checkout ${APPVER} && \
   git submodule update --init --recursive && \
   bash ./bootstrap.sh && \
-  cd ${SRCDIR}/${APPNAME}/build && \
+  cd ${SRCDIR}/${APPNAME}-src/build && \
   ninja clean && \
   ninja-build && \
   cp -a \
-    ${SRCDIR}/${APPNAME}/build/${APPNAME} \
+    ${SRCDIR}/${APPNAME}-src/build/${APPNAME} \
     ${APPROOT}/bin/. && \
   cd ${SRCDIR} && \
   rm -rf \

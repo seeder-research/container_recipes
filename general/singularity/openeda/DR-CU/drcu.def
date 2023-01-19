@@ -29,7 +29,8 @@ if [ -f ${SRCDIR}/modfile ]; then
     rm -f ${SRCDIR}/modfile
 fi
 module load \
-  boost
+  boost \
+  pythonlibs
 cd ${SRCDIR} && \
 git clone \
   --depth=1 \
@@ -37,13 +38,15 @@ git clone \
   ${SRCDIR}/${APPNAME}-src && \
 cd ${SRCDIR}/${APPNAME}-src && \
 git submodule update --init --recursive && \
+sed -i "s/-lpthread/-pthread/" ${SRCDIR}/${APPNAME}-src/src/CMakeLists.txt && \
 python \
-  ${SRCDIR}/${APPNAME}-src/scripts/build.py \
+  scripts/build.py \
   -o release \
-  -t ispd19dr && \
+  -t ispd19dr \
+  -c "\-DBoost_INCLUDE_DIR=${LIBBOOST_ROOT}/include" && \
 mkdir -p ${APPROOT}/bin && \
 cp -a \
-  ${SRCDIR}/${APPNAME}-src/run/ispd19dr \
+  ${SRCDIR}/${APPNAME}-src/build/ispd19dr \
   ${APPROOT}/bin/drcu && \
 rm -rf \
   ${SRCDIR}/${APPNAME}-src

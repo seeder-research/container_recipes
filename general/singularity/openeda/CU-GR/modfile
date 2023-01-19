@@ -13,6 +13,6 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment."
 
-setenv              PADRING_ROOT      ${root}
+setenv              CUGR_ROOT         ${root}
 
 prepend-path        PATH              ${root}/bin

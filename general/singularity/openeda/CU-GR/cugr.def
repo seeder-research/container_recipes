@@ -37,10 +37,12 @@ git clone \
   ${SRCDIR}/${APPNAME}-src && \
 cd ${SRCDIR}/${APPNAME}-src && \
 git submodule update --init --recursive && \
+sed -i "s/-lpthread/-pthread/" ${SRCDIR}/${APPNAME}-src/src/CMakeLists.txt && \
 python \
-  ${SRCDIR}/${APPNAME}-src/scripts/build.py \
+  scripts/build.py \
   -o release \
-  -t iccad19gr && \
+  -t iccad19gr \
+  -c "\-DBoost_INCLUDE_DIR=${LIBBOOST_ROOT}/include" && \
 mkdir -p ${APPROOT}/bin && \
 cp -a \
   ${SRCDIR}/${APPNAME}-src/run/iccad19gr \
