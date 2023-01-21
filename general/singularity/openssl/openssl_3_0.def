@@ -1,0 +1,67 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=3
+export APPVER_MIN=0
+export APPVER_REV=7
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="openssl"
+export APPFILE="${APPNAME}-${APPVER}.tar.gz"
+export APPURL="https://github.com/openssl/openssl/archive/refs/tags/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT="${APPSDIR}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+if [ ! -d ${SRCDIR}/${APPNAME}-src ]; then
+    mkdir -p ${SRCDIR}/${APPNAME}-src
+fi
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src/* && \
+cd ${SRCDIR} && \
+wget --no-check-certificate \
+  ${APPURL} && \
+tar \
+  --strip 1 \
+  -C ${SRCDIR}/${APPNAME}-src \
+  -xf \
+  ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-src && \
+./config \
+  --prefix=${APPROOT} \
+  --openssldir=${APPROOT}/etc/ssl \
+  --release \
+  no-deprecated && \
+make -j$(nproc) && \
+make install && \
+cd ${APPROOT} && \
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src \
+  ${SRCDIR}/${APPFILE}
+
+if [ ! -e ${APPROOT}/lib ]; then
+    if [ -d ${APPROOT}/lib64 ]; then
+        cd ${APPROOT} && \
+        ln -s lib64 lib
+    fi
+fi
