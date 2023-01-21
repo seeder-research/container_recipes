@@ -86,8 +86,9 @@ yum install -y \
   ncurses-devel \
   ncurses \
   ninja-build \
-  openssl-devel \
-  openssl \
+  openssl11-devel \
+  openssl11-libs \
+  openssl11 \
   perl \
   pkgconfig \
   postgresql-contrib \
@@ -122,6 +123,7 @@ yum install -y \
   xcb-util-image-devel \
   xcb-util-keysyms-devel \
   xcb-util-renderutil-devel \
+  xcb-util-wm-devel \
   xcb-util-image \
   xcb-util-keysyms \
   xcb-util-renderutil \

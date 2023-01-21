@@ -17,7 +17,7 @@ export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles/dev"
 export OPENSSL_LIB="-L/usr/lib/x86_64-linux-gnu -lssl -lcrypto"
-if [ ! -d ${MODDIR}/${APPNAME}]; then
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
     mkdir -p ${MODDIR}/${APPNAME}
 fi
 if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
@@ -35,15 +35,15 @@ module load \
   flex \
   llvm \
   ruby
-cd ${SRCDIR}/${APPNAME} && \
+cd ${SRCDIR} && \
 git clone --recursive \
   -j 8 \
   ${APPURL} \
   -b v${APPVER} \
-  ${SRCDIR}/${APPNAME}/git-src && \
-mkdir ${SRCDIR}/${APPNAME}/builddir && \
-cd ${SRCDIR}/${APPNAME}/builddir && \
-${SRCDIR}/${APPNAME}/git-src/configure \
+  ${SRCDIR}/git-src && \
+mkdir ${SRCDIR}/builddir && \
+cd ${SRCDIR}/builddir && \
+${SRCDIR}/git-src/configure \
   -prefix ${APPROOT} \
   -confirm-license \
   -opensource \
@@ -70,7 +70,7 @@ gmake \
   module-qtbase && \
 gmake && \
 gmake install && \
-cd ${SRCDIR}/${APPNAME} && \
+cd ${SRCDIR} && \
 rm -rfv \
-  ${SRCDIR}/${APPNAME}/git-src \
-  ${SRCDIR}/${APPNAME}/builddir
+  ${SRCDIR}/git-src \
+  ${SRCDIR}/builddir
