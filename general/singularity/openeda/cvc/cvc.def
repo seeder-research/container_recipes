@@ -54,7 +54,7 @@ autoconf && \
   --disable-nls \
   --prefix=${APPROOT} && \
 sed -i 's/api.parser.class/parser_class_name/' src/cdlParser.yy && \
-make -j$(nproc) && \
+make && \
 make install && \
 cd ${SRCDIR} && \
 rm -rf \

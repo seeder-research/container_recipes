@@ -61,7 +61,6 @@ cmake \
   ${SRCDIR}/${APPNAME}-src && \
 cmake \
   --build ${SRCDIR}/builddir \
-  -j$(nproc) \
   --target install && \
 cd ${APPROOT}/bin && \
 ln -s ./${APPNAME} RePlAce && \

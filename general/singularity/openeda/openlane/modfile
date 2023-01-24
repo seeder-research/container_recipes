@@ -4,12 +4,14 @@
 ##
 
 prereq cvc/38c74b0857ecf8f05a1bfde81d197b5a3d33a531
-prereq klayout/0.27.3
+prereq klayout/0.28.3
 prereq magic/958d6f16701c1ee25e27440381b5c2c37b5fee7c
 prereq netgen/738c1f7b3705bca2f1cc66fbc1cfb20f12d49a06
 prereq openroad/4d4d7205fd0292dbf3fae55fad9109b3f0bd5786
 prereq qflow/a550469b63e910ede6e3022e2886bca96462c540
 prereq yosys/d061b0e41a2023b5e72794563b94d6a9b5ab41a1
+prereq cugr/1632b4b450cbd3e5b6bdc9bf92c96cadde6a01b9
+prereq drcu/427b4a4f03bb98d8a78b1712fe9e52cfb83a8347
 
 set               name              [file tail [file dirname [info script]]]
 set               version           [file tail [info script]]

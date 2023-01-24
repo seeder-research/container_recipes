@@ -55,8 +55,7 @@ cmake \
   ${SRCDIR}/${APPNAME}-src && \
 cmake \
   --build ${SRCDIR}/builddir \
-  -j$(nproc) \
-  -t install && \
+  --target install && \
 cd ${SRCDIR} && \
 rm -rf \
   ${SRCDIR}/${APPNAME}-src \

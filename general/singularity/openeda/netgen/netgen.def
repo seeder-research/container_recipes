@@ -40,7 +40,7 @@ git clone --recursive \
 cd ${SRCDIR}/${APPNAME}-src && \
 ./configure \
   --prefix=${APPROOT} && \
-make -j$(nproc) && \
+make && \
 make install && \
 cd ${SRCDIR} && \
 rm -rf \

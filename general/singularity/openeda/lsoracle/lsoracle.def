@@ -65,8 +65,7 @@ cmake \
   -DENABLE_OPENSTA=ON \
   ${SRCDIR}/${APPNAME}-src && \
 cmake --build . \
-  -j$(nproc) \
-  -t install && \
+  --target install && \
 cd ${SRCDIR} && \
 rm -rf \
   ${SRCDIR}/${APPNAME}-src \

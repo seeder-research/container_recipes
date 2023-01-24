@@ -40,7 +40,7 @@ git submodule update --init --recursive && \
 ./configure \
   --prefix=${APPROOT} && \
 make clean && \
-make -j$(nproc) && \
+make && \
 make install && \
 cd ${SRCDIR} && \
 rm -rf \

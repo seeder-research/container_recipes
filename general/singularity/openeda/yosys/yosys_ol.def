@@ -41,8 +41,7 @@ make \
   -C ${SRCDIR}/${APPNAME}-src \
   config-gcc && \
 make \
-  -C ${SRCDIR}/${APPNAME}-src \
-  -j$(nproc) && \
+  -C ${SRCDIR}/${APPNAME}-src && \
 make \
   -C ${SRCDIR}/${APPNAME}-src \
   install && \

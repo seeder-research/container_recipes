@@ -175,7 +175,6 @@ cmake \
  -S ${TRILINOSSRCDIR} && \
 cmake \
   --build ${MOD_DIR}/Trilinos-trilinos-release-${TRILINOSVER_MAJ}-${TRILINOSVER_MIN}-${TRILINOSVER_REV}/builddir \
-  -j$(nproc) \
   --target install && \
 mkdir -p ${MOD_DIR}/Xyce-Release-${APPVER}/builddir && \
 cd ${MOD_DIR}/Xyce-Release-${APPVER}/builddir && \
@@ -200,7 +199,6 @@ cmake \
  -S ${APPSRCDIR} && \
 cmake \
   --build ${MOD_DIR}/Xyce-Release-${APPVER}/builddir \
-   -j$(nproc) \
   --target install && \
 cd ${APPROOT} && \
 sed -i "s/@libver@/${TRILINOSVER}_xyce/" \

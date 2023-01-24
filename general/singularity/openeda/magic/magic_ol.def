@@ -39,7 +39,6 @@ git submodule update --init --recursive && \
 ./configure \
   --prefix=${APPROOT} \
   --enable-compression \
-  --enable-modular \
   --enable-locking \
   --enable-calma \
   --enable-cif \
@@ -49,7 +48,9 @@ git submodule update --init --recursive && \
   --enable-threads \
   --enable-route \
   --enable-rsim && \
-make -j$(nproc) && \
+make clean && \
+make database/database.h && \
+make && \
 make install && \
 cd ${SRCDIR} && \
 rm -rf \

@@ -48,8 +48,7 @@ cmake \
   -DCMAKE_BUILD_TYPE="Release" \
   ${SRCDIR}/${APPNAME}-src && \
 cmake --build ${SRCDIR}/${APPNAME}/build \
-  -j$(nproc) \
-  -t install && \
+  --target install && \
 cd ${SRCDIR} && \
 rm -rf \
   ${SRCDIR}/${APPNAME}-src \

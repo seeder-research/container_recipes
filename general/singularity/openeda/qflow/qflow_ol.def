@@ -52,7 +52,7 @@ git submodule update --init --recursive && \
   --prefix=${APPROOT} \
   --with-magic=${MAGIC_ROOT}/bin/magic \
   --with-replace=${REPLACE_ROOT}/bin/RePlAce && \
-make -j$(nproc) && \
+make && \
 make install && \
 cd ${SRCDIR} && \
 rm -rf \

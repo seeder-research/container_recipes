@@ -59,7 +59,8 @@ cd ${APPDIR}/${APPNAME}-${APPVER} && \
   CFLAGS="-m64 -O2 -I${MKLROOT}/include" \
   LDFLAGS="-m64 -s -L${MKLROOT}/lib/intel64 -L/usr/lib/x86_64-linux-gnu -Wl,--no-as-needed -lmkl_cdft_core -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -Wl,--as-needed -lpthread -lm -ldl" && \
 make clean && \
-make -j$(nproc) install && \
+make && \
+make install && \
 cd ${APPDIR} && \
 rm -rf \
   ${APPDIR}/${APPNAME}-${APPVER}

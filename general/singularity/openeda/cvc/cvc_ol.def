@@ -45,7 +45,7 @@ autoconf && \
 ./configure \
   --disable-nls \
   --prefix=${APPROOT} && \
-make -j$(nproc) && \
+make && \
 make install && \
 cd ${SRCDIR} && \
 rm -rf \

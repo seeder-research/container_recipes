@@ -40,7 +40,6 @@ cd ${SRCDIR}/${APPNAME}-src && \
 ./configure \
   --prefix=${APPROOT} && \
 make \
-  -j$(nproc) \
   install && \
 cd ${SRCDIR} && \
 rm -rf \

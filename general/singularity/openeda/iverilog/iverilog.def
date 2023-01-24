@@ -47,7 +47,7 @@ git checkout \
 sh autoconf.sh && \
 ./configure \
   --prefix=${APPROOT} && \
-make -j$(nproc) && \
+make && \
 make install && \
 rm -rf \
   ${SRCDIR}/${APPNAME}-src

@@ -38,9 +38,9 @@ if [ ! -d ${APPROOT} ]; then
   mkdir -p ${APPROOT}/bin && \
   mkdir -p ${APPROOT}/lib && \
   cd ${APPROOT}/src && \
-  make -j$(nproc) && \
-  make -j${nproc} libabc.so && \
-  make -j${nproc} libabc.a && \
+  make && \
+  make libabc.so && \
+  make libabc.a && \
   mv abc ${APPROOT}/bin/. && \
   mv libabc.so ${APPROOT}/lib/. && \
   mv libabc.a ${APPROOT}/lib/. && \
