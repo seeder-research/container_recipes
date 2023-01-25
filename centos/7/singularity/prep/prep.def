@@ -44,6 +44,8 @@ yum install -y \
   grep \
   gstreamer1-devel \
   gstreamer1-plugins-base-devel \
+  gtk3 \
+  gtk3-devel \
   help2man \
   hwloc-devel \
   hwloc \
