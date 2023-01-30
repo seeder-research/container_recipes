@@ -5,8 +5,7 @@
 
 prereq bison
 prereq flex
-prereq cudd
-prereq boost
+prereq eigen
 
 set               name              [file tail [file dirname [info script]]]
 set               version           [file tail [info script]]
@@ -19,7 +18,7 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment."
 
-setenv              OPENROAD_ROOT     ${root}
+setenv              OPENFPGA_ROOT     ${root}
 
 prepend-path        PATH              ${root}/bin
 

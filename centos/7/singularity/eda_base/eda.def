@@ -22,13 +22,37 @@ yum install -y \
   devtoolset-11 \
   epel-release 
 yum install -y \
+  OpenEXR-libs.x86_64 \
+  avahi-glib.i686 \
+  bluez-libs.x86_64 \
+  bluez-libs.i686 \
+  cdparanoia-libs.x86_64 \
+  cdparanoia-libs.i686 \
+  cyrus-sasl-lib.x86_64 \
+  cyrus-sasl-lib.i686 \
+  dbus-glib.x86_64 \
+  dbus-glib.i686 \
+  dbus-glib-devel.x86_64 \
+  dbus-glib-devel.i686 \
   initscripts \
+  libstdc++.x86_64 \
   libstdc++.i686 \
   tcsh \
   csh \
   ksh \
   zsh \
+  compat-libf2c-34.x86_64 \
+  compat-libf2c-34.i686 \
+  compat-libgfortran-41.x86_64 \
+  compat-libgfortran-41.i686 \
+  compat-libstdc++-33.x86_64 \
+  compat-libstdc++-33.i686 \
+  compat-libtiff3.x86_64 \
+  compat-libtiff3.i686 \
+  compat-libxcb.x86_64 \
+  compat-libxcb.i686 \
   glibc.i686 \
+  glibc-devel.i686 \
   gmp.i686 \
   gmp.x86_64 \
   gmp-devel.i686 \
@@ -50,6 +74,8 @@ yum install -y \
   mpfr.x86_64 \
   mpfr-devel.i686 \
   mpfr-devel.x86_64 \
+  libIDL.x86_64 \
+  libIDL.i686 \
   libmpc.i686 \
   libmpc.x86_64 \
   libmpc-devel.i686 \
@@ -58,8 +84,10 @@ yum install -y \
   libpng.i686 \
   libjpeg-turbo.i686 \
   expat.i686 \
-  glibc-devel.i686 \
+  xz-compat-libs.x86_64 \
   xz-compat-libs.i686 \
+  xz-lzma-compat.x86_64 \
+  xz-lzma-compat.i686 \
   xz-devel.i686 \
   xz-libs.i686
 yum install -y \
@@ -67,9 +95,98 @@ yum install -y \
   libXaw.i686 \
   libXaw-devel.x86_64 \
   libXaw-devel.i686 \
+  libXScrnSaver.x86_64 \
+  libXScrnSaver.i686 \
+  libXfont.x86_64 \
+  libXv.x86_64 \
+  libXv.i686 \
   libGLEW.x86_64 \
   libGLEWmx.x86_64 \
   libXdmcp.x86_64 \
+  libacl.x86_64 \
+  libacl.i686 \
+  libaio.x86_64 \
+  libaio.i686 \
+  libart-lgpl.x86_64 \
+  libart-lgpl.i686 \
+  libatomic.x86_64 \
+  libcroco.x86_64 \
+  libcroco.i686 \
+  libcryptui.x86_64 \
+  libcryptui.i686 \
+  libcryptui-devel.x86_64 \
+  libcryptui-devel.i686 \
+  libcurl.x86_64 \
+  libcurl.i686 \
+  libdwarf.x86_64 \
+  libdwarf.i686 \
+  libdwarf-devel.x86_64 \
+  libdwarf-devel.i686 \
+  libedit-devel.x86_64 \
+  libedit-devel.i686 \
+  libfabric.x86_64 \
+  libfabric.i686 \
+  libfabric-devel.x86_64 \
+  libfabric-devel.i686 \
+  libgomp.x86_64 \
+  libgomp.i686 \
+  libgs.x86_64 \
+  libgs.i686 \
+  libgsf.x86_64 \
+  libgsf.i686 \
+  libicu.x86_64 \
+  libicu.i686 \
+  libldb.x86_64 \
+  libldb.i686 \
+  libnet.x86_64 \
+  libnet-devel.x86_64 \
+  libogg.x86_64 \
+  libogg.i686 \
+  libpaper.x86_64 \
+  libpaper.i686 \
+  libpcap.x86_64 \
+  libpcap.i686 \
+  libpipeline-devel.x86_64 \
+  libpsm2.x86_64 \
+  librsvg2.x86_64 \
+  librsvg2.i686 \
+  libsmbclient.x86_64 \
+  libsmbclient.i686 \
+  libsndfile.x86_64 \
+  libsndfile.i686 \
+  libtalloc.x86_64 \
+  libtalloc.i686 \
+  libtdb.x86_64 \
+  libtdb.i686 \
+  libtevent.x86_64 \
+  libtevent.i686 \
+  libthai.x86_64 \
+  libthai.i686 \
+  libtheora.x86_64 \
+  libtheora.i686 \
+  libtool-ltdl.x86_64 \
+  libtool-ltdl.i686 \
+  libusb.x86_64 \
+  libusb.i686 \
+  libunwind.x86_64 \
+  libunwind.i686 \
+  libvisual.x86_64 \
+  libvisual.i686 \
+  libvorbis.x86_64 \
+  libvorbis.i686 \
+  libvpx.x86_64 \
+  libvpx.i686 \
+  libwbclient.x86_64 \
+  libwbclient.i686 \
+  libwmf-lite.x86_64 \
+  libxml2.x86_64 \
+  libxml2.i686 \
+  libxml2-devel.x86_64 \
+  libxml2-devel.i686 \
+  libxslt.x86_64 \
+  libxslt.i686 \
+  libxslt-devel.x86_64 \
+  libxslt-devel.i686 \
   mesa-libGL.x86_64 \
   mesa-libGL-devel.x86_64 \
   mesa-libGLES.x86_64 \
