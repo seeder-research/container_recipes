@@ -7,18 +7,20 @@ modfile    /opt
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER_MAJ=4
-export APPVER_MIN=5
-export APPVER_REV=0
+export APPVER_MAJ=2
+export APPVER_MIN=4
+export APPVER_REV=6
 export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
-export APPNAME="tiff"
-export APPFILE="${APPNAME}-${APPVER}.tar.xz"
-export APPURL="http://download.osgeo.org/lib${APPNAME}/${APPFILE}"
+export APPNAME="libtool"
+export APPFILE="${APPNAME}-${APPVER}.tar.gz"
+export APPURL="https://ftpmirror.gnu.org/${APPNAME}/${APPFILE}"
 export SRCDIR="/opt"
-export APPROOT="${HOME_BASE}/lib${APPNAME}/${APPVER}"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles/dev"
 export CC="$(which gcc)"
 export CXX="$(which g++)"
+export FC="$(which gfortran)"
+export F77="$(which gfortran)"
 if [ ! -d ${MODDIR}/${APPNAME} ]; then
     mkdir -p ${MODDIR}/${APPNAME}
 fi
@@ -35,14 +37,24 @@ fi
 if [ -f ${SRCDIR}/modfile ]; then
     rm -f ${SRCDIR}/modfile
 fi
+if [ ! -d ${SRCDIR}/${APPNAME}-src ]; then
+    mkdir -p ${SRCDIR}/${APPNAME}-src
+fi
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src/* && \
 cd ${SRCDIR} && \
 wget --no-check-certificate \
   ${APPURL} && \
-tar xf ${APPFILE} && \
-cd ${SRCDIR}/${APPNAME}-${APPVER} && \
+tar \
+  --strip 1 \
+  -C ${SRCDIR}/${APPNAME}-src \
+  -xf ${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-src && \
 ./configure \
   --prefix=${APPROOT} \
-  --enable-cxx && \
+  --enable-static \
+  --enable-shared \
+  --enable-ltdl-install && \
 make \
   -j$(nproc) && \
 make \

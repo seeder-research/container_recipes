@@ -37,15 +37,16 @@ module load \
   flex
 cd ${SRCDIR} && \
 git clone \
-  --recursive ${APPURL} \
+  ${APPURL} \
   -b ${APPVER} \
   ${SRCDIR}/${APPNAME}-src && \
 cd ${SRCDIR}/${APPNAME}-src && \
+git submodule update --init --recursive && \
 ./configure \
   --prefix=${APPROOT} \
+  --symbols \
   --CC="$(which gcc)" \
   --CFLAGS="-fPIC -O3" && \
-make && \
 make install && \
 cd ${SRCDIR} && \
 rm -rf \
