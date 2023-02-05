@@ -62,5 +62,5 @@ make \
   install && \
 cd ${SRCDIR} && \
 rm -rf \
-  ${SRCDIR}/${APPNAME}-${APPVER} \
+  ${SRCDIR}/${APPNAME}-src \
   ${SRCDIR}/${APPFILE}
