@@ -1,0 +1,54 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=1
+export APPVER_MIN=10
+export APPVER_REV=2
+export APPVER=${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}
+export APPFILE="geda-gaf-${APPVER}.tar.gz"
+export APPURL="http://ftp.geda-project.org/geda-gaf/stable/v${APPVER_MAJ}.${APPVER_MIN}/${APPVER}/${APPFILE}"
+export APPNAME="geda"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+module load \
+  bison \
+  flex
+cd ${SRCDIR} && \
+git clone \
+  ${APPURL} \
+  -b ${APPVER} \
+  ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/${APPNAME}-src && \
+git submodule update --init --recursive && \
+./configure \
+  --prefix=${APPROOT} \
+  --symbols \
+  --CC="$(which gcc)" \
+  --CFLAGS="-fPIC -O3" && \
+make install && \
+cd ${SRCDIR} && \
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src
