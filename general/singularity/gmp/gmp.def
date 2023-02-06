@@ -10,7 +10,7 @@ export HOME_BASE="/usr/local"
 export APPVER_MAJ=6
 export APPVER_MIN=2
 export APPVER_REV=1
-export APPVER=$"{APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPNAME="gmp"
 export APPFILE="${APPNAME}-${APPVER}.tar.xz"
 export APPURL="https://gmplib.org/download/${APPNAME}/${APPFILE}"
@@ -33,11 +33,19 @@ fi
 if [ -f ${SRCDIR}/modfile ]; then
     rm -f ${SRCDIR}/modfile
 fi
+if [ ! -d ${SRCDIR}/${APPNAME}-src ]; then
+    mkdir -p ${SRCDIR}/${APPNAME}-src
+fi
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src/* && \
 cd ${SRCDIR} && \
 wget --no-check-certificate \
   ${APPURL} && \
-tar xf ${SRCDIR}/${APPFILE} && \
-cd ${SRCDIR}/${APPNAME}-${APPVER} && \
+tar \
+  --strip 1 \
+  -C ${SRCDIR}/${APPNAME}-src \
+  -xf ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-src && \
 ./configure \
   --prefix=${APPROOT} \
   --enable-cxx && \
@@ -45,5 +53,5 @@ make -j$(nproc) && \
 make install && \
 cd ${SRCDIR} && \
 rm -rf \
-  ${SRCDIR}/${APPNAME}-${APPVER} \
+  ${SRCDIR}/${APPNAME}-src \
   ${SRCDIR}/${APPFILE}
