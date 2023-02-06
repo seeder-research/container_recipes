@@ -1,1 +1,1 @@
-prepend-path        PYTHONPATH                 ${root}/@pathdir@:${PYTHONPATH}
+prepend-path        PYTHONPATH                 ${root}/@pathdir@

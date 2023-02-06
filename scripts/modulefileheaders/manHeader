@@ -1,1 +1,1 @@
-prepend-path        MANPATH                    ${root}/@pathdir@:${MANPATH}
+prepend-path        MANPATH                    ${root}/@pathdir@

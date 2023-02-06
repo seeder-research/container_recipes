@@ -2,7 +2,6 @@
 ##
 ## modulefile
 ##
-
 set              name              @name@
 set              version           @version@
 set              root              @basepath@/$name/$version
