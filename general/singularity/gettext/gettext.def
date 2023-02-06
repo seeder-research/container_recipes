@@ -7,11 +7,12 @@ modfile    /opt
 %post
 . /etc/profile
 export HOME_BASE="/usr/local"
-export APPVER_MAJ=9
-export APPVER_MIN=1
-export APPVER="${APPVER_MAJ}.${APPVER_MIN}"
-export APPNAME="coreutils"
-export APPFILE="${APPNAME}-${APPVER}.tar.gz"
+export APPVER_MAJ=0
+export APPVER_MIN=21
+export APPVER_REV=1
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="gettext"
+export APPFILE="${APPNAME}-${APPVER_MAJ}.${APPVER_MIN}.tar.gz"
 export APPURL="https://ftpmirror.gnu.org/${APPNAME}/${APPFILE}"
 export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
@@ -37,11 +38,12 @@ fi
 if [ ! -d ${SRCDIR}/${APPNAME}-src ]; then
     mkdir -p ${SRCDIR}/${APPNAME}-src
 fi
+module load \
+  ncurses \
+  bison
 rm -rf \
   ${SRCDIR}/${APPNAME}-src/* && \
 cd ${SRCDIR} && \
-wget --no-check-certificate \
-  https://www.linuxfromscratch.org/patches/downloads/coreutils/coreutils-${APPVER}-i18n-1.patch && \
 wget --no-check-certificate \
   ${APPURL} && \
 tar \
@@ -49,17 +51,26 @@ tar \
   -C ${SRCDIR}/${APPNAME}-src \
   -xf ${APPFILE} && \
 cd ${SRCDIR}/${APPNAME}-src && \
-patch -Np1 \
-  -i ${SRCDIR}/coreutils-${APPVER}-i18n-1.patch && \
 ./configure \
   --prefix=${APPROOT} \
-  --enable-no-install-program=kill,uptime && \
+  --enable-shared \
+  --enable-static \
+  --disable-java \
+  --disable-nls \
+  --disable-rpath \
+  --enable-csharp \
+  --enable-threads=posix \
+  --enable-relocatable \
+  --with-libncurses-prefix=${NCURSES_ROOT} \
+  --with-bison-prefix=${BISON_ROOT} \
+  --with-included-libunistring \
+  --with-included-libxml \
+  --with-included-gettext && \
 make \
   -j$(nproc) && \
 make \
   install && \
 cd ${SRCDIR} && \
 rm -rf \
-  ${SRCDIR}/coreutils-${APPVER}-i18n-1.patch \
   ${SRCDIR}/${APPNAME}-src \
   ${SRCDIR}/${APPFILE}

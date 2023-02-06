@@ -13,10 +13,19 @@ proc ModulesHelp { } {
 
 module-whatis "adds ${name} (version ${version}) to your environment variables."
 
-setenv              COREUTILS_ROOT    ${root}
+setenv              READLINE_ROOT     ${root}
 
 prepend-path        PATH              ${root}/bin
+
+prepend-path        CPATH             ${root}/include
+prepend-path        INCLUDE_PATH      ${root}/include
+
+prepend-path        LD_LIBRARY_PATH   ${root}/lib
+prepend-path        LIBRARY_PATH      ${root}/lib
+prepend-path        LD_RUN_PATH       ${root}/lib
 
 prepend-path        INFOPATH          ${root}/share/info
 
 prepend-path        MANPATH           ${root}/share/man
+
+prepend-path        ACLOCAL_PATH      ${root}/share/aclocal
