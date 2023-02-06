@@ -1,0 +1,65 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=8
+export APPVER_MIN=2
+export APPVER_REV=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="readline"
+export APPFILE="${APPNAME}-${APPVER_MAJ}.${APPVER_MIN}.tar.gz"
+export APPURL="https://ftpmirror.gnu.org/${APPNAME}/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
+export CC="$(which gcc)"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+if [ ! -d ${SRCDIR}/${APPNAME}-src ]; then
+    mkdir -p ${SRCDIR}/${APPNAME}-src
+fi
+module load \
+  ncurses
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src/* && \
+cd ${SRCDIR} && \
+wget --no-check-certificate \
+  ${APPURL} && \
+tar \
+  --strip 1 \
+  -C ${SRCDIR}/${APPNAME}-src \
+  -xf ${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-src && \
+./configure \
+  --prefix=${APPROOT} \
+  --enable-shared \
+  --enable-static \
+  --with-curses && \
+make \
+  SHLIB_LIBS="-L${NCURSES_ROOT}/lib -lncursesw" && \
+make \
+  SHLIB_LIBS="-L${NCURSES_ROOT}/lib -lncursesw" \
+  install && \
+cd ${SRCDIR} && \
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src \
+  ${SRCDIR}/${APPFILE}
