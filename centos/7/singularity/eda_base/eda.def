@@ -5,6 +5,8 @@ From: pre.sif
 export TERM=xterm
 yum upgrade -y
 yum install -y \
+  centos-release-scl
+yum install -y \
   authconfig \
   sudo
 yum install -y \
@@ -21,6 +23,12 @@ yum install -y \
   devtoolset-10 \
   devtoolset-11 \
   epel-release 
+yum install -y \
+  libbabeltrace \
+  perl-File-Which \
+  perl-File-Listing \
+  perl-File-BaseDir \
+  perl-URI-Encode
 yum install -y \
   OpenEXR-libs.x86_64 \
   avahi-glib.i686 \

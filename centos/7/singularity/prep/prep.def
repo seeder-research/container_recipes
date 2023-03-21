@@ -1,9 +1,15 @@
 BootStrap: localimage
 From: pre.sif
 
+%files
+90-environment.sh    /opt
+
 %post
 export TERM=xterm
 yum upgrade -y
+yum install -y \
+  centos-release-scl \
+  centos-release-scl-rh
 yum groupinstall -y \
   "Minimal Install" \
   "Compute Node" \
@@ -22,7 +28,6 @@ yum install -y \
   at-spi2-core \
   autoconf \
   automake \
-  centos-release-scl \
   curl \
   cvs \
   dbus-devel \
@@ -141,4 +146,7 @@ yum erase -y \
   swig && \
 yum install -y \
   swig3 && \
+rm -f /.singularity.d/90-environment.sh && \
+mv /opt/90-environment.sh \
+  /.singularity.d/90-environment.sh && \
 ln -sfv /usr/bin/db2x_docbook2texi /usr/bin/docbook2x-texi
