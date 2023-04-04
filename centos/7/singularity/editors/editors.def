@@ -1,0 +1,35 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+yum install -y \
+  emacs \
+  emacs-common \
+  emacs-el \
+  emacs-filesystem \
+  emacs-gettext \
+  emacs-git \
+  emacs-git-el \
+  emacs-gnuplot \
+  emacs-gnuplot-el \
+  emacs-libidn \
+  emacs-mercurial \
+  emacs-mercurial-el \
+  emacs-php-mode \
+  less \
+  most \
+  nano \
+  vim-X11 \
+  xemacs \
+  xemacs-common \
+  xemacs-el \
+  xemacs-filesystem \
+  xemacs-info \
+  xemacs-erlang \
+  xemacs-erlang-el \
+  xemacs-packages-base \
+  xemacs-packages-base-el \
+  xemacs-packages-extra \
+  xemacs-packages-extra-al \
+  xemacs-packages-extra-info \
+  xemacs-xft
