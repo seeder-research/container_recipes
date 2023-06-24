@@ -1,0 +1,72 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export HOME_BASE="/usr/local/openeda"
+export APPVER_MAJ=23
+export APPVER_MIN=5
+export APPVER_REV=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="openvaf"
+export APPURL="https://github.com/pascalkuthe/OpenVAF"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles"
+export CC="$(which gcc)"
+export CXX="$(which g++)"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+module load \
+  flex \
+  python/3.11.2 \
+  rust/1.17.0 \
+  llvm/15.0.2 && \
+cd ${SRCDIR} && \
+git clone --recursive \
+  ${APPURL} \
+  -b OpenVAF-v${APPVER} \
+  ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/${APPNAME}-src && \
+cargo \
+  build \
+  --release && \
+cd ${SRCDIR} && \
+mkdir -p \
+  ${APPROOT}/bin && \
+mv \
+  ${SRCDIR}/${APPNAME}-src/target/release/openvaf
+  ${APPROOT}/bin/. && \
+mv \
+  ${SRCDIR}/${APPNAME}-src/target/release/verilogae
+  ${APPROOT}/bin/. && \
+mv \
+  ${SRCDIR}/${APPNAME}-src/target/release/xtask
+  ${APPROOT}/bin/. && \
+mkdir -p \
+  ${APPROOT}/lib && \
+mv \
+  ${SRCDIR}/${APPNAME}-src/target/release/libverilogae.so
+  ${APPROOT}/lib/. && \
+mv \
+  ${SRCDIR}/${APPNAME}-src/target/release/libverilogae_py.so
+  ${APPROOT}/lib/. && \
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src
