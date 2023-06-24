@@ -1,0 +1,1 @@
+prepend-path        INFOPATH                   ${root}/@pathdir@
