@@ -1,0 +1,50 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+export HOME_BASE="/usr/local/utils"
+export APPVER_MAJ=1
+export APPVER_MIN=70
+export APPVER_REV=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="rust"
+export APPURL="https://sh.rustup.rs"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/utils"
+export CC="$(which gcc)"
+export CXX="$(which g++)"
+export RUSTUP_HOME=${APPROOT}/rustup
+export CARGO_HOME=${APPROOT}/cargo
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+cd ${SRCDIR} && \
+curl --proto '=https' --tlsv1.2 -o ${SRCDIR}/setup_rust.sh -sSf ${APPURL} && \
+chmod a+x ${SRCDIR}/setup_rust.sh && \
+${SRCDIR}/setup_rust.sh \
+  -y \
+  --default-host "x86_64-unknown-linux-gnu" \
+  --default-toolchain "stable" \
+  --profile "complete" \
+  --no-modify-path && \
+cd ${SRCDIR} && \
+rm -rf \
+  ${SRCDIR}/setup_rust.sh
