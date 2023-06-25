@@ -1,0 +1,60 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=1
+export APPVER_MIN=17
+export APPVER_REV=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}"
+export APPNAME="libiconv"
+export APPFILE="${APPNAME}-${APPVER}.tar.gz"
+export APPURL="https://ftp.gnu.org/gnu/${APPNAME}/${APPFILE}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}.${APPVER_REV}"
+export MODDIR="/usr/local/modulefiles/dev"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER}.${APPVER_REV} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}.${APPVER_REV}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}.${APPVER_REV}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+if [ ! -d ${SRCDIR}/${APPNAME}-src ]; then
+    mkdir -p ${SRCDIR}/${APPNAME}-src
+fi
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src/* && \
+export CC="$(which gcc)"
+export CXX="$(which g++)"
+cd ${SRCDIR} && \
+wget --no-check-certificate \
+  ${APPURL} && \
+tar \
+  --strip 1 \
+  -C ${SRCDIR}/${APPNAME}-src \
+  -xf ${SRCDIR}/${APPFILE} && \
+cd ${SRCDIR}/${APPNAME}-src && \
+./configure \
+  --prefix=${APPROOT} && \
+make \
+  -j$(nproc) && \
+make \
+  install && \
+cd ${SRCDIR} && \
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src \
+  ${SRCDIR}/${APPFILE}
