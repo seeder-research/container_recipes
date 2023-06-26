@@ -1,0 +1,60 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=2
+export APPVER_MIN=5
+export APPVER_REV=0
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="libexpat"
+export APPFILE="${APPNAME}-${APPVER_MAJ}.${APPVER_MIN}.tar.gz"
+export APPURL="https://github.com/${APPNAME}/${APPNAME}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
+export CC="$(which gcc)"
+export CXX="$(which g++)"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+if [ ! -d ${SRCDIR}/${APPNAME}-src ]; then
+    mkdir -p ${SRCDIR}/${APPNAME}-src
+fi
+module load \
+  ncurses
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src/* && \
+cd ${SRCDIR} && \
+git clone --recursive \
+  ${APPURL} \
+  -b R_${APPVER_MAJ}_${APPVER_MIN}_${APPVER_REV} \
+  ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/${APPNAME}-src/expat && \
+${SRCDIR}/${APPNAME}-src/expat/buildconf.sh && \
+./configure \
+  --prefix=${APPROOT} && \
+make \
+  -j$(nproc) && \
+make \
+  install && \
+cd ${SRCDIR} && \
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src
