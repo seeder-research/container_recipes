@@ -1,0 +1,73 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+export HOME_BASE="/usr/local"
+export APPVER_MAJ=2
+export APPVER_MIN=1
+export APPVER_REV=2
+export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
+export APPNAME="mimalloc"
+export APPFILE="${APPNAME}-${APPVER_MAJ}.${APPVER_MIN}.tar.gz"
+export APPURL="https://github.com/microsoft/${APPNAME}"
+export SRCDIR="/opt"
+export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
+export MODDIR="/usr/local/modulefiles/dev"
+export CC="$(which gcc)"
+export CXX="$(which g++)"
+if [ ! -d ${MODDIR}/${APPNAME} ]; then
+    mkdir -p ${MODDIR}/${APPNAME}
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/${APPVER} ]; then
+    if [ -f ${SRCDIR}/modfile ]; then
+        mv ${SRCDIR}/modfile \
+            ${MODDIR}/${APPNAME}/${APPVER}
+    fi
+fi
+if [ ! -f ${MODDIR}/${APPNAME}/.version ]; then
+    echo "#%Module" > ${MODDIR}/${APPNAME}/.version && \
+    echo set ModulesVersion \"${APPVER}\" >> ${MODDIR}/${APPNAME}/.version
+fi
+if [ -f ${SRCDIR}/modfile ]; then
+    rm -f ${SRCDIR}/modfile
+fi
+if [ ! -d ${SRCDIR}/${APPNAME}-src ]; then
+    mkdir -p ${SRCDIR}/${APPNAME}-src
+fi
+module load \
+  ncurses
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src/* && \
+cd ${SRCDIR} && \
+git clone --recursive \
+  ${APPURL} \
+  -b v${APPVER} \
+  ${SRCDIR}/${APPNAME}-src && \
+cd ${SRCDIR}/${APPNAME}-src && \
+cmake \
+  -B ${SRCDIR}/${APPNAME}-src/build \
+  -S ${SRCDIR}/${APPNAME}-src \
+  -G "Unix Makefiles" \
+  -DCMAKE_INSTALL_PREFIX=${APPROOT} \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_C_COMPILER=$(which gcc) \
+  -DCMAKE_CXX_COMPILER=$(which g++) \
+  -DCMAKE_INSTALL_LIBDIR="lib" \
+  -DMI_BUILD_TESTS=OFF \
+  -DMI_LIBATOMIC=${GCC_ROOT}/lib64/libatomic.so \
+  -DMI_OVERRID=ON \
+  -DMI_PADDING=ON \
+  -DMI_SECURE=ON \
+  -DMI_USE_CXX=ON \
+  -DMI_USE_LIBATOMIC=ON && \
+cmake \
+  --build ${SRCDIR}/${APPNAME}-src/build \
+  -j$(nproc) \
+  --target install && \
+cd ${SRCDIR} && \
+rm -rf \
+  ${SRCDIR}/${APPNAME}-src
