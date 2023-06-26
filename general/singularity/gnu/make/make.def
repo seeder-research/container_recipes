@@ -59,6 +59,8 @@ make \
 make \
   install && \
 cd ${SRCDIR} && \
+cp ${APPROOT}/bin/make \
+  ${APPROOT}/bin/gmake && \
 rm -rf \
   ${SRCDIR}/${APPNAME}-src \
   ${SRCDIR}/${APPFILE}
