@@ -53,6 +53,7 @@ cd ${SRCDIR}/${APPNAME}-src && \
   --without-debug \
   --without-normal \
   --with-cxx-shared \
+  --without-ada \
   --enable-pc-files \
   --enable-widec && \
 make \
