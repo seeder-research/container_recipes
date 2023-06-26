@@ -12,8 +12,9 @@ export APPVER_MIN=2
 export APPVER_REV=2
 export APPVER="${APPVER_MAJ}.${APPVER_MIN}.${APPVER_REV}"
 export APPNAME="bdw-gc"
-export APPFILE="gc-${APPVER}.tar.gz"
-export APPURL="https://www.hboehm.info/gc/gc_source/${APPFILE}"
+export LIBATOMICOPS_VER="7.6.14"
+export APPURL="https://github.com/ivmai/bdwgc"
+export LIBATOMICOPS_URL=""https://github.com/ivmai/libatomic_ops"
 export SRCDIR="/opt"
 export APPROOT="${HOME_BASE}/${APPNAME}/${APPVER}"
 export MODDIR="/usr/local/modulefiles/dev"
@@ -41,13 +42,20 @@ fi
 rm -rf \
   ${SRCDIR}/${APPNAME}-src/* && \
 cd ${SRCDIR} && \
-wget --no-check-certificate \
-  ${APPURL} && \
-tar \
-  --strip 1 \
-  -C ${SRCDIR}/${APPNAME}-src \
-  -xf ${APPFILE} && \
+git clone --recursive \
+  ${APPURL} \
+  -b v${APPVER} \
+  ${SRCDIR}/${APPNAME}-src && \
+git clone \
+  --recursive \
+  ${LIBATOMICOPS_URL} \
+  -b v${LIBATOMICOPS_VER} \
+  ${SRCDIR}/libatomic_ops && \
+mv ${SRCDIR}/libatomic_ops \
+  ${SRCDIR}/${APPNAME}-src/. && \
 cd ${SRCDIR}/${APPNAME}-src && \
+autoreconf -vif && \
+automake --add-missing && \
 ./configure \
   --prefix=${APPROOT} \
   --enable-static \
@@ -59,9 +67,9 @@ cd ${SRCDIR}/${APPNAME}-src && \
   --enable-large-config && \
 make \
   -j$(nproc) && \
+rm -rf ${APPROOT} && \
 make \
   install && \
 cd ${SRCDIR} && \
 rm -rf \
-  ${SRCDIR}/${APPNAME}-src \
-  ${SRCDIR}/${APPFILE}
+  ${SRCDIR}/${APPNAME}-src
