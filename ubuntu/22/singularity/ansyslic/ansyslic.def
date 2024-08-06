@@ -1,0 +1,56 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
+apt-get update && \
+apt-get upgrade -y && \
+apt-get install -y \
+  lsb \
+  libgcc-s1 \
+  libgmp10 \
+  libjpeg-turbo8 \
+  liblz4-1 \
+  liblzma5 \
+  libpixman-1-0 \
+  libzstd1 \
+  libbrotli1 \
+  libbsd0 \
+  libc6 \
+  libexpat1 \
+  libfontconfig1 \
+  libfreetype6 \
+  libglib2.0-0 \
+  libice6 \
+  libmd0 \
+  libpcre3 \
+  libpng16-16 \
+  libsm6 \
+  libuuid1 \
+  libx11-6 \
+  libx11-xcb1 \
+  libxau6 \
+  libxcb-icccm4 \
+  libxcb-image0 \
+  libxcb-keysyms1 \
+  libxcb-randr0 \
+  libxcb-render-util0 \
+  libxcb-render0 \
+  libxcb-shape0 \
+  libxcb-shm0 \
+  libxcb-sync1 \
+  libxcb-util1 \
+  libxcb-xfixes0 \
+  libxcb-xinerama0 \
+  libxcb-xkb1 \
+  libxcb1 \
+  libxdmcp6 \
+  libxext6 \
+  libxft2 \
+  libxkbcommon-x11-0 \
+  libxkbcommon0 \
+  libxrender1 \
+  zlib1g && \
+rm -rf \
+  /var/lib/apt/lists/*
